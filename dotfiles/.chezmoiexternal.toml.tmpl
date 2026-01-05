@@ -1,0 +1,17 @@
+[".local/bin/mise"]
+    type = "file"
+    url = "https://mise.jdx.dev/mise-latest-{{ .chezmoi.os }}-{{ .chezmoi.arch }}"
+    executable = true
+
+[".oh-my-zsh"]
+    type = "archive"
+    url = "https://github.com/ohmyzsh/ohmyzsh/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".local/share/fonts"]
+    type = "archive"
+    url =  "https://github.com/githubnext/monaspace/releases/download/{{ (gitHubLatestRelease "githubnext/monaspace").TagName | toString }}/monaspace-nerdfonts-{{ (gitHubLatestRelease "githubnext/monaspace").TagName | toString }}.zip"
+    path = "monaspace"
+    refreshPeriod = "168h"
