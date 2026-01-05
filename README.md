@@ -11,11 +11,19 @@
 TBD
 
 # HOW TO INSTALL
-make sure bash, git, pip are installed, run:
+
+## Bootstrap
+Install [chezmoi](https://www.chezmoi.io/install/) firstly
 ```bash
-pip install --user ansible
-ansible-playbook playbook.yaml
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
 ```
+
+Then initialize and apply the configuration:
+```bash
+chezmoi init pkking
+chezmoi apply
+```
+
 feel free to email me or commit a issue
 
 have fun :)
