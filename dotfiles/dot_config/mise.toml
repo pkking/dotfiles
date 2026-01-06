@@ -5,6 +5,7 @@ go     = "1.24"
 rust   = "latest"
 starship = "latest"
 "go:github.com/derailed/k9s" = "latest"
+uv = "latest"
 
 [settings]
 activate_aggressive = true # append this tools into PATH automatic
