@@ -42,7 +42,11 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-[ ! -z `which nvim` ] && alias vi='nvim'
+[ ! -z "$(which nvim)" ] && alias vi='nvim'
 [ -d /opt/anaconda/bin ] && alias conda='/opt/anaconda/bin/conda'
 mkdir -p $HOME/.local/bin
 export PATH=$PATH:$HOME/.local/bin
+# mise
+eval "$(mise activate zsh)"
+# starship
+eval "$(starship init zsh)"

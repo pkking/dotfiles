@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Chezmoi 会将当前文件内容通过 stdin 传给脚本
+LINE='[[ -d ~/.bashrc.d ]] && source ~/.bashrc.d/*.sh'
+FILE="$HOME/.bashrc"
+
+# 使用 grep 检查，确保幂等性
+grep -qF "$LINE" "$FILE" || echo "$LINE" >> "$FILE"

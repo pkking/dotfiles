@@ -1,0 +1,13 @@
+#!/bin/bash
+# mise config hash: {{ include "dot_config/mise.toml" | sha256sum }}
+
+echo "检测到 Mise 配置变更，正在同步工具链..."
+
+# 确保 mise 已在路径中（如果是第一次安装，可能需要指定绝对路径）
+MISE=$HOME/.local/bin/mise
+if [ ! -f "$MISE" ]; then
+    curl https://mise.jdx.dev/install.sh | sh
+fi
+
+$MISE trust $HOME/.config/mise.toml
+$MISE install -y

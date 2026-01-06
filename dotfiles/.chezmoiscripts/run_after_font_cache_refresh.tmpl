@@ -1,3 +1,6 @@
 #!/bin/bash
+# fonts config hash: {{ include "dot_config/fontconfig/fonts.conf" | sha256sum }}
+
+# external_hash: {{ include ".chezmoiexternal.toml.tmpl" | sha256sum }}
 
 fc-cache -fv

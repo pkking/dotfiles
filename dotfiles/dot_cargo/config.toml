@@ -1,0 +1,8 @@
+[source.crates-io]
+replace-with = 'tuna' # 使用清华源
+
+[source.tuna]
+registry = "sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/"
+
+[net]
+git-fetch-with-cli = true # 使用系统 git 提高稳定性

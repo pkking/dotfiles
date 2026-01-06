@@ -1,0 +1,27 @@
+[tools]
+python = "3.13"
+node   = "24"
+go     = "1.24"
+rust   = "latest"
+starship = "latest"
+"go:github.com/derailed/k9s" = "latest"
+
+[settings]
+activate_aggressive = true # append this tools into PATH automatic
+autoinstall = true
+
+[env]
+# 为 pip 设置镜像
+PIP_INDEX_URL = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+# 为 uv 设置镜像（uv 兼容 pip 变量，也有自己的专属变量）
+UV_DEFAULT_INDEX = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+# 使用国内最稳定的七牛云镜像
+GOPROXY = "https://goproxy.cn,direct"
+# 设置 npm/pnpm/yarn 的通用镜像源（淘宝/阿里云）
+NPM_CONFIG_REGISTRY = "https://registry.npmmirror.com"
+# 针对某些带二进制编译的包（如 node-sass, electron）
+SASS_BINARY_SITE = "https://npmmirror.com/mirrors/node-sass/"
+ELECTRON_MIRROR = "https://npmmirror.com/mirrors/electron/"
+
+# 强制开启 1.68+ 推荐的极速稀疏索引协议
+CARGO_REGISTRIES_CRATES_IO_PROTOCOL = "sparse"
