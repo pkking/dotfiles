@@ -1,17 +1,3 @@
-{{- $email := "" -}}
-{{- if hasKey . "email" -}}
-{{-   $email = .email -}}
-{{- else -}}
-{{-   $email := promptStringOnce . "email" "Email address" -}}
-{{- end -}}
-
-{{- $name := "" -}}
-{{- if hasKey . "name" -}}
-{{-   $name = .name -}}
-{{- else -}}
-{{-   $name := promptStringOnce . "name" "Full name" -}}
-{{- end -}}
-
 {{- $osid := .chezmoi.os -}}
 {{- if hasKey .chezmoi.osRelease "id" -}}
 {{-   $osid = .chezmoi.osRelease.id -}}
@@ -23,7 +9,5 @@
 {{- end -}}
 
 data:
-    email: {{ $email | quote }}
-    name: {{ $name | quote }}
     osid: {{ $osid | quote }}
     arch: {{ $arch | quote }}
