@@ -1,8 +1,10 @@
 [source.crates-io]
-replace-with = 'tuna' # 使用清华源
-
-[source.tuna]
-registry = "sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/"
-
+replace-with = 'rsproxy-sparse'
+[source.rsproxy]
+registry = "https://rsproxy.cn/crates.io-index"
+[source.rsproxy-sparse]
+registry = "sparse+https://rsproxy.cn/index/"
+[registries.rsproxy]
+index = "https://rsproxy.cn/crates.io-index"
 [net]
-git-fetch-with-cli = true # 使用系统 git 提高稳定性
+git-fetch-with-cli = true
