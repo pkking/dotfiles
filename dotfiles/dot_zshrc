@@ -50,3 +50,7 @@ export PATH=$PATH:$HOME/.local/bin
 eval "$(mise activate zsh)"
 # starship
 eval "$(starship init zsh)"
+# cache
+export ZSH_CACHE_DIR="$HOME/.cache/oh-my-zsh"
+# 确保目录存在
+[[ ! -d "$ZSH_CACHE_DIR" ]] && mkdir -p "$ZSH_CACHE_DIR"
