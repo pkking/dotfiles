@@ -1,24 +1,31 @@
 # WAAAGH's linux dev env
 
-# WHAT WE GOT
-- my i3wm config
-- my awesome wm config
-- my neovim/vim config and plugins
-- powerline for vim, tmux
-- nerd fonts
+## Whats in this repo
 
-# SCREENSHOT
+- [x] my [i3wm](https://i3wm.org/) configs
+- [x] my [neovim](https://neovim.io/) config and plugins
+- [x] [starship](https://starship.rs/) configs
+- [x] [tmux](https://github.com/tmux/tmux) configs
+- [x] default monospace fontconfig using [monaspace](https://monaspace.githubnext.com/)
+- [x] [dev tools](./dotfiles/dot_config/mise.toml) managed by [mise](https://mise.jdx.dev/)
+
+
+## SCREENSHOT
+
 TBD
 
-# HOW TO INSTALL
+## HOW TO INSTALL
 
-## Bootstrap
-Install [chezmoi](https://www.chezmoi.io/install/) firstly
+### Quick start
+
+- Install [chezmoi](https://www.chezmoi.io/install/)
+
 ```bash
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
 ```
 
-Then initialize and apply the configuration:
+- Then initialize and apply the configuration:
+
 ```bash
 chezmoi init pkking
 chezmoi apply
