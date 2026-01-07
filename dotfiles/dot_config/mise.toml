@@ -1,7 +1,7 @@
 [tools]
 python = "3.13"
 node   = "24"
-go     = "1.24"
+go     = "1.25.0"
 rust   = "latest"
 starship = "latest"
 "go:github.com/derailed/k9s" = "latest"
@@ -30,3 +30,5 @@ ELECTRON_MIRROR = "https://npmmirror.com/mirrors/electron/"
 CARGO_REGISTRIES_CRATES_IO_PROTOCOL = "sparse"
 RUSTUP_DIST_SERVER="https://rsproxy.cn"
 RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
+# disable tool chain auto download
+GOTOOLCHAIN = "local"

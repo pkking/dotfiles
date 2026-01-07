@@ -1,0 +1,16 @@
+#!/bin/bash
+{{ if not (lookPath "nix") }}
+set -e
+
+echo "Installing Nix..."
+
+# 下载并运行官方安装脚本（单用户模式）
+if [ ! -d "$HOME/.nix-profile" ]; then
+  sh <(curl -L https://nixos.org/nix/install) --no-daemon
+fi
+
+# 确保 shell 配置已加载（可选）
+if ! grep -q "nix" ~/.profile 2>/dev/null; then
+  echo 'source ~/.nix-profile/etc/profile.d/nix.sh' >> ~/.profile
+fi
+{{ end }}

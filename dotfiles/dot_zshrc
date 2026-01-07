@@ -45,7 +45,7 @@ source $ZSH/oh-my-zsh.sh
 [ ! -z "$(which nvim)" ] && alias vi='nvim'
 [ -d /opt/anaconda/bin ] && alias conda='/opt/anaconda/bin/conda'
 mkdir -p $HOME/.local/bin
-export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$HOME/.local/bin:$HOME/.nix-profile/bin
 # mise
 eval "$(mise activate zsh)"
 # starship
