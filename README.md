@@ -31,6 +31,8 @@ chezmoi init pkking
 chezmoi apply
 ```
 
+- Install tmux plugins by pressing `Ctrl + a` and `Shift+i`
+
 feel free to email me or commit a issue
 
 have fun :)

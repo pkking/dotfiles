@@ -1,0 +1,6 @@
+#!/bin/bash
+# 安装 TPM（如果尚未安装）
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+  echo "Installing TPM (Tmux Plugin Manager)..."
+  git clone --depth=1 https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+fi
