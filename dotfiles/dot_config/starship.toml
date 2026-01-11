@@ -27,8 +27,9 @@ symbol = " "
 
 [character]
 vimcmd_symbol = "[NORMAL ❯](#73cef4)"
-success_symbol = "[❯](green)"
 format = "\n$symbol "
+success_symbol = "[➜](bold green)"
+error_symbol = "[✗](bold red)"
 
 ### Left prompt
 
@@ -89,6 +90,7 @@ format = "[$symbol$status]($style)"
 [cmd_duration]
 style = "#a8a8a8"
 format = "([ ❮ ](#767676)[$duration ]($style))"
+min_time = 1000
 
 ### Right prompt tools and versions
 
@@ -217,3 +219,8 @@ style = "#5f8787"
 format = "([ ❮ ](#767676)[$output ]($style))"
 when = "true"
 os = "macos"
+
+[custom.tmux_session]
+when = """ test -n "$TMUX" """
+command = "tmux display-message -p '#S'"
+format = "[$output](bold blue) "
