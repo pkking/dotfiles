@@ -31,7 +31,8 @@ chezmoi init pkking
 chezmoi apply
 ```
 
-- Install tmux plugins by pressing `Ctrl + a` and `Shift+i`
+~~Install tmux plugins by pressing `Ctrl + a` and `Shift+i`~~
+Now all `tmux plugins` will be installed on a new machine due to [this tip](https://github.com/tmux-plugins/tpm/blob/master/docs/automatic_tpm_installation.md)
 
 feel free to email me or commit a issue
 
