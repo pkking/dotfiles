@@ -8,6 +8,13 @@
 {{-   $arch = "x64" -}}
 {{- end -}}
 
+{{- $email := promptStringOnce . "email" "Email address" -}}
+{{- $name := promptStringOnce . "name" "Full name" -}}
+{{- $china_mirror := promptBoolOnce . "china_mirror" "Use China mirrors" false -}}
+
 data:
     osid: {{ $osid | quote }}
     arch: {{ $arch | quote }}
+    email: {{ $email | quote }}
+    name: {{ $name | quote }}
+    china_mirror: {{ $china_mirror }}

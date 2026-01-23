@@ -1,5 +1,5 @@
 set nocompatible
-let iCanHazVundle=1
+let iCanHazVundle=filereadable(expand("~/.vim/bundle/Vundle.vim/autoload/vundle.vim"))
 filetype off
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
