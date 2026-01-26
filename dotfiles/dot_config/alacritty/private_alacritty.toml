@@ -1,7 +1,3 @@
-import = [
-  "~/.config/alacritty/themes/rose-pine.toml"
-]
-live_config_reload = true
 
 [font]
 size = 11.2
@@ -50,3 +46,9 @@ mods = "Control"
 [[keyboard.bindings]]
 action = "ToggleFullscreen"
 key = 'F11'
+
+[general]
+live_config_reload = true
+import = [
+  "~/.config/alacritty/themes/rose-pine.toml"
+]
