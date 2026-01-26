@@ -1,5 +1,6 @@
 #!/bin/bash
-# mise config hash: {{ include "dot_config/mise.toml.tmpl" | sha256sum }}
+# mise main config hash: {{ include "dot_config/mise.toml" | sha256sum }}
+# mise sub config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
 
 echo "检测到 Mise 配置变更，正在同步工具链..."
 
