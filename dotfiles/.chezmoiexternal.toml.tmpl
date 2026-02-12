@@ -15,3 +15,10 @@
     url =  "https://github.com/githubnext/monaspace/releases/download/{{ (gitHubLatestRelease "githubnext/monaspace").TagName | toString }}/monaspace-nerdfonts-{{ (gitHubLatestRelease "githubnext/monaspace").TagName | toString }}.zip"
     path = "monaspace"
     refreshPeriod = "168h"
+
+[".local/share/applications/alacritty.desktop"]
+    type = "file"
+    url =  "https://github.com/alacritty/alacritty/releases/download/{{ (gitHubLatestRelease "alacritty/alacritty").TagName | toString }}/Alacritty.desktop"
+    refreshPeriod = "168h"
+
+
