@@ -2,17 +2,19 @@
 
 ## Whats in this repo
 
-- [x] my [i3wm](https://i3wm.org/) configs
-- [x] my [neovim](https://neovim.io/) config and plugins
-- [x] [starship](https://starship.rs/) configs
-- [x] [tmux](https://github.com/tmux/tmux) configs
-- [x] default monospace fontconfig using [monaspace](https://monaspace.githubnext.com/)
-- [x] [dev tools](./dotfiles/dot_config/mise.toml) managed by [mise](https://mise.jdx.dev/)
+- [x] DE: [kde plasma](https://kde.org/) configs
+- [x] Shell prompt: [starship](https://starship.rs/) configs
+- [x] Terminal: [alacritty](https://starship.rs/) configs
+- [x] Personal secret: [bitwarden](https://bitwarden.com/help/cli/)
+- [x] Terminal enhance: [tmux](https://github.com/tmux/tmux) configs
+- [x] Font: set monospace font to [monaspace](https://monaspace.githubnext.com/)
+- [x] Tools: [dev tools](./dotfiles/dot_config/mise.toml) managed by [mise](https://mise.jdx.dev/) such as: [opencode](https://opencode.ai), [uv](https://docs.astral.sh/uv/) and [claude code](https://github.com/anthropics/claude-code)
+- [x] Dotfile management: [chezmoi](chezmoi.io/reference/special-directories/chezmoiscripts/)
 
 
 ## SCREENSHOT
 
-TBD
+![](./screen.png)
 
 ## HOW TO INSTALL
 
@@ -29,6 +31,8 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
 ```bash
 curl -sS https://starship.rs/install.sh | sh
 ```
+
+- To install latest [alacritty](https://github.com/alacritty/alacritty) terminal, install build deps from [this guide](https://github.com/alacritty/alacritty/blob/master/INSTALL.md)
 
 - Then initialize and apply the configuration:
 
