@@ -4,3 +4,6 @@ go_skip_checksum = true
 
 [settings.npm]
 package_manager = "bun"
+
+[settings.github]
+github_attestations = false
