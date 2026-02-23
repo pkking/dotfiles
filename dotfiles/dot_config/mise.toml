@@ -11,6 +11,7 @@ uv = "latest"
 claude = "latest"
 "npm:@bitwarden/cli" = "latest"
 "npm:skills" = "latest"
+"npm:openclaw" = "latest"
 bun = "1.3.6"
 "cargo:alacritty" = "latest"
 "github:cli/cli" = "latest"
@@ -22,6 +23,13 @@ auto_install = true
 [env]
 # disable tool chain auto download
 GOTOOLCHAIN = "local"
+
+[tasks.bootstrap]
+description = "初始化环境：确保先安装基础语言，再安装衍生工具"
+run = [
+    "mise install -y go rust node python bun",
+    "mise install -y"
+]
 
 [tasks.opencode]
 description = "Inject Bitwarden secret and launch opencode"
