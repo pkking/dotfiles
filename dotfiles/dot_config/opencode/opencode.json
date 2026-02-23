@@ -105,6 +105,25 @@
           "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
         }
       }
+    },
+    "litellm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://litellm.test.osinfra.cn",
+        "apiKey": "{env:OC_LITELLM_KEY}"
+      },
+      "models": {
+        "gemini/gemini-3-flash-preview": {
+          "name": "Gemini 3 Flash Preview (LiteLLM)",
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+        },
+        "gemini/gemini-3-pro-preview": {
+          "name": "Gemini 3 Pro Preview (LiteLLM)",
+          "limit": { "context": 1048576, "output": 65535 },
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+        }
+      }
     }
   }
 }

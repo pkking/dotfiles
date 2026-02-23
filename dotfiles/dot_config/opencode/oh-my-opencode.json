@@ -2,10 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "sisyphus": {
-      "model": "google/antigravity-gemini-3-pro-high"
+      "model": "google/antigravity-gemini-3.1-pro-high"
     },
     "librarian": {
-      "model": "google/antigravity-gemini-3-pro-high"
+      "model": "google/antigravity-gemini-3.1-pro-high"
     },
     "explore": {
       "model": "google/antigravity-gemini-3-flash"
