@@ -8,7 +8,7 @@ opencode = "latest"
 starship = "latest"
 "go:github.com/derailed/k9s" = "0.50.18"
 uv = "latest"
-claude = "latest"
+"npm:@anthropic-ai/claude-code" = "latest"
 "npm:@bitwarden/cli" = "latest"
 "npm:skills" = "latest"
 "npm:openclaw" = "latest"
@@ -31,6 +31,31 @@ run = [
     "mise install -y"
 ]
 
+[tasks.claude]
+description = "Inject Bitwarden secret and launch claude code"
+# 1. 检查 Bitwarden 是否解锁
+# 2. 获取密码并赋值给 OC_GITHUB_PAT
+# 3. 启动 VS Code (code .)，该进程将继承这个变量
+run = """
+#!/usr/bin/env bash
+set -e  # 遇到错误立即停止
+
+# 1. 检查状态。如果没有解锁，则执行解锁并捕获 Session Key
+if ! bw status | grep -q "unlocked"; then
+    echo "🔐 Bitwarden is locked. Prompting for unlock..."
+    
+    # 关键修改：使用 --raw 只获取 Key 字符串，并直接 export 到环境变量
+    export BW_SESSION=$(bw unlock --raw)
+    
+    echo "✅ Vault unlocked locally for this task."
+fi
+
+export ANTHROPIC_BASE_URL=https://litellm.test.osinfra.cn
+export ANTHROPIC_AUTH_TOKEN=$(bw get password litellm)
+export ANTHROPIC_MODEL=gemini/gemini-3.1-pro-preview
+cd "${MISE_ORIGINAL_CWD:-.}"
+claude
+"""
 [tasks.opencode]
 description = "Inject Bitwarden secret and launch opencode"
 # 1. 检查 Bitwarden 是否解锁
