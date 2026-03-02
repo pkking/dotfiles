@@ -38,6 +38,19 @@
       "enabled": true
     }
   },
+  "agent": {
+    "gsd-planner": { "model": "google/gemini-3.1-pro-preview" },
+    "gsd-plan-checker": { "model": "google/gemini-3.1-pro-preview" },
+    "gsd-phase-researcher": { "model": "google/gemini-3.1-pro-preview" },
+    "gsd-roadmapper": { "model": "google/gemini-3.1-pro-preview" },
+    "gsd-project-researcher": { "model": "google/gemini-3.1-pro-preview" },
+    "gsd-research-synthesizer": { "model": "google/gemini-3.1-pro-preview" },
+    "gsd-codebase-mapper": { "model": "google/gemini-3.1-pro-preview" },
+    "gsd-executor": { "model": "google/gemini-3-flash-preview" },
+    "gsd-debugger": { "model": "google/gemini-3-flash-preview" },
+    "gsd-verifier": { "model": "google/gemini-3-flash-preview" },
+    "gsd-integration-checker": { "model": "google/gemini-3-flash-preview" }
+  },
   "provider": {
     "glm": {
       "npm": "@ai-sdk/openai-compatible",
