@@ -39,6 +39,18 @@
     }
   },
   "provider": {
+    "glm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "volcengine",
+      "options": {
+        "baseURL": "https://ark.cn-beijing.volces.com/api/v3"
+      },
+      "models": {
+        "ep-20260214160232-8qvhl": {
+          "name": "GLM-4-7-ep-20260214160232-8qvhl"
+        }
+      }
+    },
     "google": {
       "models": {
         "antigravity-gemini-3-pro": {
