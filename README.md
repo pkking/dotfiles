@@ -20,6 +20,13 @@
 
 ### Quick start
 
+- Install `git` and `fontconfig` which are used in the process below
+
+for debian/ubuntu user
+```bash
+apt install git fontconfig
+```
+
 - Install [chezmoi](https://www.chezmoi.io/install/)
 
 ```bash
