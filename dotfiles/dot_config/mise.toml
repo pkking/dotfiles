@@ -23,6 +23,8 @@ auto_install = true
 [env]
 # disable tool chain auto download
 GOTOOLCHAIN = "local"
+RUSTUP_DIST_SERVER="https://rsproxy.cn"
+RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
 
 [tasks.bootstrap]
 description = "初始化环境：确保先安装基础语言，再安装衍生工具"
@@ -50,11 +52,16 @@ if ! bw status | grep -q "unlocked"; then
     echo "✅ Vault unlocked locally for this task."
 fi
 
-export ANTHROPIC_BASE_URL=https://litellm.test.osinfra.cn
+export ANTHROPIC_BASE_URL=http://127.0.0.1:4000
 export ANTHROPIC_AUTH_TOKEN=$(bw get password litellm)
 export ANTHROPIC_MODEL=gemini/gemini-3.1-pro-preview
+echo "Fetching GitHub PAT..."
+export GITHUB_TOKEN=$(bw get password github-pat)
+echo "Fetching Context7 API KEY..."
+export CONTEXT7_KEY=$(bw get password context7)
+
 cd "${MISE_ORIGINAL_CWD:-.}"
-claude
+claude --dangerously-skip-permissions
 """
 [tasks.opencode]
 description = "Inject Bitwarden secret and launch opencode"

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# 路径定义
+REPO_DIR={{ .chezmoi.sourceDir }}/..
+HOOK_FILE="$REPO_DIR/.git/hooks/pre-commit"
+
+# 创建钩子内容
+cat << 'EOF' > "$HOOK_FILE"
+#!/bin/bash
+
+# 1. 检查加密配置是否变动但未执行 re-add
+if git diff --cached --name-only | grep -q ".chezmoi.yaml.tmpl"; then
+    echo "⚠️  [Security] 检测到 .chezmoi.yaml.tmpl 变更。"
+    echo "   如果修改了 recipients 列表，请务必运行: chezmoi re-add --encrypt"
+fi
+
+# 2. 核心保护：防止明文敏感文件被提交
+# 逻辑：在暂存区寻找那些应该被加密但在 Git 看来是新增明文的文件
+STAGED_ENCRYPTED_FILES=$(git diff --cached --name-only | grep "\.age$")
+
+for file in $STAGED_ENCRYPTED_FILES; do
+    # 检查文件内容是否确实是 age 加密格式 (以 'age-encryption.org' 开头)
+    if ! head -n 1 "$file" | grep -q "age-encryption.org"; then
+        echo "❌ [Critical Error] 文件 $file 看起来不是有效的加密格式！"
+        echo "   可能你直接编辑了它而没有通过 chezmoi 加密。"
+        echo "   提交已被拦截。请检查文件内容或重新添加。"
+        exit 1
+    fi
+done
+
+exit 0
+EOF
+
+# 赋予执行权限
+chmod +x "$HOOK_FILE"
+echo "✅ Chezmoi 安全钩子已在当前机器同步并激活。"

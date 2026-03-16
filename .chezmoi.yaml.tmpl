@@ -18,3 +18,15 @@ data:
     email: {{ $email | quote }}
     name: {{ $name | quote }}
     china_mirror: {{ $china_mirror }}
+
+# 1. 指定加密工具
+encryption: "age"
+
+# 2. 配置 age 插件的具体参数
+age:
+  # 这里列出所有允许解密这套 dotfiles 的机器公钥 (Recipients)
+  recipients:
+    - "age1erqram70a4y6xztgdz3ctv9jdk96hmkstsszfgcp7kr5mrxya97q7sczrv" # debian-13@lcr-u7-3
+  
+  # 3. 指定本地存放私钥 (Identity) 的路径
+  identity: "~/.config/chezmoi/key.txt"
