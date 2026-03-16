@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-market-research/skills/market-sizing",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.19791319+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-market-research/skills/market-sizing",
+  "version": "36ccefd",
+  "tree_hash": "8077fd4aa75eb17431d54e2c52fd756ec8deed4c",
+  "file_hashes": {
+    "SKILL.md": "sha256:96d1250ba0ab7e5b64c9be8278f63f9661b510237e423b42ef70ab914184faf8"
+  }
+}

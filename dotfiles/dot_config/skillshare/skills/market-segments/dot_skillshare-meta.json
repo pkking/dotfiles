@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-market-research/skills/market-segments",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.189465628+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-market-research/skills/market-segments",
+  "version": "36ccefd",
+  "tree_hash": "4eccef64e6ac95817c18e7d78b77ee8b23be82cd",
+  "file_hashes": {
+    "SKILL.md": "sha256:f8425da0486d844a661fe18f809de1e055d7125c74ed423ee750cf2be74a2319"
+  }
+}

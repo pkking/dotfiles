@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-execution/skills/pre-mortem",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.103329415+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-execution/skills/pre-mortem",
+  "version": "36ccefd",
+  "tree_hash": "1b5cb59a2f7fd53c38add90febd6ab9bfbaa9814",
+  "file_hashes": {
+    "SKILL.md": "sha256:4e5cf10a46ac1d1cdde6aa009ba2b860c532f55c0c3d9ec53a82082cad073052"
+  }
+}

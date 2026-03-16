@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-execution/skills/release-notes",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.110714645+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-execution/skills/release-notes",
+  "version": "36ccefd",
+  "tree_hash": "1af884c5d1fd997c698182ef54279ca69912cd50",
+  "file_hashes": {
+    "SKILL.md": "sha256:b617edd39e721267c9726286b6304f086991f5e2215b848c952a8ad9e001a0d3"
+  }
+}

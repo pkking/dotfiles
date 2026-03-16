@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-market-research/skills/customer-journey-map",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.18498835+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-market-research/skills/customer-journey-map",
+  "version": "36ccefd",
+  "tree_hash": "0bb72ea1b4d595e03475711e21884610d049189b",
+  "file_hashes": {
+    "SKILL.md": "sha256:656c0e16318b3b24870065a8eabb8a116b72e47c167472836ce76ea97ec5c75e"
+  }
+}

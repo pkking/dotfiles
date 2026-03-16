@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-strategy/skills/business-model",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.338785267+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-strategy/skills/business-model",
+  "version": "36ccefd",
+  "tree_hash": "cdbae9e554eaf5efb8379c3dcd4d9a01a66f3d73",
+  "file_hashes": {
+    "SKILL.md": "sha256:515621fd8a41ecba5b7234d0d9e1e50185ba33805c4dd170b66364281f84acc8"
+  }
+}

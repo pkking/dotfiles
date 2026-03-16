@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-execution/skills/user-stories",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.13153994+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-execution/skills/user-stories",
+  "version": "36ccefd",
+  "tree_hash": "75579bd44b4a9e0aefe2e4d9387093ca601be01b",
+  "file_hashes": {
+    "SKILL.md": "sha256:8ce89cd81de5a3df7d504380d18c54cec6c59ccdb7fd18cbcb62b6b6183d0a55"
+  }
+}

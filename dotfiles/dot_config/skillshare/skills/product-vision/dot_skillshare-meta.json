@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-strategy/skills/product-vision",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.382517475+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-strategy/skills/product-vision",
+  "version": "36ccefd",
+  "tree_hash": "d0038f5d51e03a6f2bbd020cea8c1b15e24c166d",
+  "file_hashes": {
+    "SKILL.md": "sha256:1414332e0f7893963a3308b8bea0d3ac05f5d704ad344f1c0013f7d7804a12fe"
+  }
+}

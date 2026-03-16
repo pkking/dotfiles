@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-go-to-market/skills/growth-loops",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.150534147+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-go-to-market/skills/growth-loops",
+  "version": "36ccefd",
+  "tree_hash": "431ad612144778d542c95028b078e161b340682a",
+  "file_hashes": {
+    "SKILL.md": "sha256:ce93f8c3f3a5db135aff02c5859bc153b9bd376b93f97a1c68e5ca498cf53557"
+  }
+}

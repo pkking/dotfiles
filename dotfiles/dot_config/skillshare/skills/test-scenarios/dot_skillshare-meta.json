@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-execution/skills/test-scenarios",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.12809716+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-execution/skills/test-scenarios",
+  "version": "36ccefd",
+  "tree_hash": "2bc166c85ef16e57ab550431551d2bb3aa7be0b7",
+  "file_hashes": {
+    "SKILL.md": "sha256:2dc10ebb6359604275f26234d3c66c9ccc952e501ad5b685c23a5c0f34f634d4"
+  }
+}

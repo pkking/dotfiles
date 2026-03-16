@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-discovery/skills/summarize-interview",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.320950339+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-discovery/skills/summarize-interview",
+  "version": "36ccefd",
+  "tree_hash": "89059fa57cdb8db1774bf479d8659cd7e66fcf27",
+  "file_hashes": {
+    "SKILL.md": "sha256:5a2a0c8257f5e2f7ef098d4531acbbcd3087bb07bb87d4cabfe1a97ef1ad037c"
+  }
+}

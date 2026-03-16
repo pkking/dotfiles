@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-market-research/skills/sentiment-analysis",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.205554643+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-market-research/skills/sentiment-analysis",
+  "version": "36ccefd",
+  "tree_hash": "7ed1b795d7cde38c0907e24a6f0bc7d44257098a",
+  "file_hashes": {
+    "SKILL.md": "sha256:516357ba8366845d13c4ee17acf96884571ad0fc8d3d48a2809c5cb84c95a01c"
+  }
+}

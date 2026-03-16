@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-discovery/skills/analyze-feature-requests",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.247664642+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-discovery/skills/analyze-feature-requests",
+  "version": "36ccefd",
+  "tree_hash": "5aa15aecfaf0cc7eced687c356d6969637955a78",
+  "file_hashes": {
+    "SKILL.md": "sha256:7615db7687a668a99e015664295f849bfab696a8dd7b3c02b0200a512c6ad3c2"
+  }
+}

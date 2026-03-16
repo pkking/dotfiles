@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-market-research/skills/competitor-analysis",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.175477962+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-market-research/skills/competitor-analysis",
+  "version": "36ccefd",
+  "tree_hash": "642caf62446d246069018d255c729361bc8f7d79",
+  "file_hashes": {
+    "SKILL.md": "sha256:8e627fc7fba96f223ad9f8fd23c6033a429cc28f9e9ce2d672854c6851810c2b"
+  }
+}

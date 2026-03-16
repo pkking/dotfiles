@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-go-to-market/skills/competitive-battlecard",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.144803437+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-go-to-market/skills/competitive-battlecard",
+  "version": "36ccefd",
+  "tree_hash": "0c49f81b7393608203c5b607242da578f6884fdc",
+  "file_hashes": {
+    "SKILL.md": "sha256:89a82a58675d7c82f9d9d2efc7ab81ca0597264804d4ab722ae354d767ebac21"
+  }
+}

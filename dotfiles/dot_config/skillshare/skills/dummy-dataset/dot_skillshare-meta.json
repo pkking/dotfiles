@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-execution/skills/dummy-dataset",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.091227596+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-execution/skills/dummy-dataset",
+  "version": "36ccefd",
+  "tree_hash": "ceac642215f5114780993d051c79e9b8a900576d",
+  "file_hashes": {
+    "SKILL.md": "sha256:35ca70a479f3c9cbdbee2d59c56d777886a8788aa79bd4bf3258b2cf557937aa"
+  }
+}

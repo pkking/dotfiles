@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-execution/skills/wwas",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.135061243+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-execution/skills/wwas",
+  "version": "36ccefd",
+  "tree_hash": "5c42edd41a39fe8bd21a75e9976c81e1f3e17ea7",
+  "file_hashes": {
+    "SKILL.md": "sha256:7fad2bed16046679a9eb2941573f978c692db425e5e5b7a7c31a8be2e4dd10a4"
+  }
+}

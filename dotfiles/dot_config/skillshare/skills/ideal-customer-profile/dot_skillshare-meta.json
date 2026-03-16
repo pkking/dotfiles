@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-go-to-market/skills/ideal-customer-profile",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.16842217+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-go-to-market/skills/ideal-customer-profile",
+  "version": "36ccefd",
+  "tree_hash": "e30478f8f4b17c24a55b4ab1a42005be9b143433",
+  "file_hashes": {
+    "SKILL.md": "sha256:8d434df786db2290efb575f1d219c7e19650e7a7e3df9a5f4b82b0bd0d2ce298"
+  }
+}

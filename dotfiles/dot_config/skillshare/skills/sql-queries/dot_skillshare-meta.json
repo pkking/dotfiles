@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-data-analytics/skills/sql-queries",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.076166445+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-data-analytics/skills/sql-queries",
+  "version": "36ccefd",
+  "tree_hash": "f1fefc80be136029a02e7bf0bae4ebab94bb79d0",
+  "file_hashes": {
+    "SKILL.md": "sha256:18da062d5171607dcaa31eb277be420560e061bdcb0c960201e86c7067e2e59a"
+  }
+}

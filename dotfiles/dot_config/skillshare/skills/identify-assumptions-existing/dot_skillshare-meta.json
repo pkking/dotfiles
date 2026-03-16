@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-discovery/skills/identify-assumptions-existing",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.274837614+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-discovery/skills/identify-assumptions-existing",
+  "version": "36ccefd",
+  "tree_hash": "1e4cb40e331006a7ec677840fc97d0a27fe78d5b",
+  "file_hashes": {
+    "SKILL.md": "sha256:59d788213014552ac64f589c71ce82b135f9ef4b84fec457446ad90795fd439f"
+  }
+}

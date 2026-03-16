@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/runkids/skillshare/main/schemas/config.schema.json
+source: /home/lcr/.config/skillshare/skills
+mode: copy
+targets:
+    claude:
+        path: /home/lcr/.claude/skills
+    opencode:
+        path: /home/lcr/.config/opencode/skills
+    universal:
+        path: /home/lcr/.agents/skills
+ignore:
+    - '**/.DS_Store'
+    - '**/.git/**'
+audit:
+    block_threshold: CRITICAL

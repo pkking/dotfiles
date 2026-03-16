@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-execution/skills/retro",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.113990896+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-execution/skills/retro",
+  "version": "36ccefd",
+  "tree_hash": "c8e73385a0a1e20c7bf0aa0b8a12279390d5f887",
+  "file_hashes": {
+    "SKILL.md": "sha256:9ca1986756ce028a83314d49450ff390c00fce224099ff5678cdc83db0998b03"
+  }
+}

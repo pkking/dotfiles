@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-discovery/skills/interview-script",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.288686622+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-discovery/skills/interview-script",
+  "version": "36ccefd",
+  "tree_hash": "baefcb1232dff679b3218ac2030a68c961aa1c93",
+  "file_hashes": {
+    "SKILL.md": "sha256:892ca53da9852d4e6516d2305f0c0eb2db370bf39693c6c6797154b44bec9b4c"
+  }
+}

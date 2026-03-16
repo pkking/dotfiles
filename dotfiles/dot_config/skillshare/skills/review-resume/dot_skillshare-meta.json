@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-toolkit/skills/review-resume",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.442497715+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-toolkit/skills/review-resume",
+  "version": "36ccefd",
+  "tree_hash": "83662def51306c58d1d4306a47aa87f01df93d9a",
+  "file_hashes": {
+    "SKILL.md": "sha256:cec1de0916b608a559844c5f39a3b18e65f88d6694d3bb9c1ff04bde9e062c2f"
+  }
+}

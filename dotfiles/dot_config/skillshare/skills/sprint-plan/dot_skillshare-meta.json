@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-execution/skills/sprint-plan",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.11708642+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-execution/skills/sprint-plan",
+  "version": "36ccefd",
+  "tree_hash": "e8332f7734c5b43d6e32ace1b3008e6344da73cc",
+  "file_hashes": {
+    "SKILL.md": "sha256:54ac27165fd7d57fe3f598f1ef66087d03fbf56d9f583adf7608ccaca9ce3382"
+  }
+}

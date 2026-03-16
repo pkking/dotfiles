@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-discovery/skills/opportunity-solution-tree",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.301952285+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-discovery/skills/opportunity-solution-tree",
+  "version": "36ccefd",
+  "tree_hash": "3f3ea6e00d19547e45db8ad4606389d2a140dc15",
+  "file_hashes": {
+    "SKILL.md": "sha256:6b23e44a5ace86aa20d64cc130322265ace6a53a29831cc403b974098a379bcc"
+  }
+}

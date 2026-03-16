@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-go-to-market/skills/gtm-motions",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.157255517+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-go-to-market/skills/gtm-motions",
+  "version": "36ccefd",
+  "tree_hash": "716375ceefef552f7f8987dbc5c5b5ea6fc6df6f",
+  "file_hashes": {
+    "SKILL.md": "sha256:b26db17f9eee4f04aa3d53bf3c393da0574a3fa54d59eb7427e0cf5edf2377c3"
+  }
+}

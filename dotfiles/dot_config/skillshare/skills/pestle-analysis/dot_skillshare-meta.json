@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-strategy/skills/pestle-analysis",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.355968025+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-strategy/skills/pestle-analysis",
+  "version": "36ccefd",
+  "tree_hash": "f8853efdf889619904ab19665c72dec5e06fec12",
+  "file_hashes": {
+    "SKILL.md": "sha256:6b264055b74a8632ad41edf51766a56c4f20c7e90a4d16603915f4e17194c857"
+  }
+}

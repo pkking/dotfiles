@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-discovery/skills/metrics-dashboard",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.294945563+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-discovery/skills/metrics-dashboard",
+  "version": "36ccefd",
+  "tree_hash": "77b4aa48a0efa407f777c7dd759743c865e135ad",
+  "file_hashes": {
+    "SKILL.md": "sha256:fa74abf49be9f034ae43110528028402e5e63809540302b95567018d478ef4e9"
+  }
+}

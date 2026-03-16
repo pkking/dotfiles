@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-marketing-growth/skills/value-prop-statements",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.243319229+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-marketing-growth/skills/value-prop-statements",
+  "version": "36ccefd",
+  "tree_hash": "e0d7deae792d7645b217f172f36727d43889e456",
+  "file_hashes": {
+    "SKILL.md": "sha256:5f4e89542439b16d18af608d91d0a319c0e66a6d89257da38d6652a655aae5bc"
+  }
+}

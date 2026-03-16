@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-strategy/skills/ansoff-matrix",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.332628124+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-strategy/skills/ansoff-matrix",
+  "version": "36ccefd",
+  "tree_hash": "6376e0a07bed8c41e4711a8a86f2cfda3b19b10b",
+  "file_hashes": {
+    "SKILL.md": "sha256:2f2ffa5bc380d8df5d217334ef7b9f19941beaa2602fd2e7ac4f321f447a4153"
+  }
+}

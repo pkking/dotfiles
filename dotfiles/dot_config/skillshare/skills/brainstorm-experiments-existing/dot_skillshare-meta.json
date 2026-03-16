@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-discovery/skills/brainstorm-experiments-existing",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.252909581+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-discovery/skills/brainstorm-experiments-existing",
+  "version": "36ccefd",
+  "tree_hash": "da0cc60ce6f0a36ec54fca84e4e9998a3c118e26",
+  "file_hashes": {
+    "SKILL.md": "sha256:d72da1f4f08d5514662d7bad37dfc3ed4ef11fcc5b5ddec6ca5a8ac0e47f45c5"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-marketing-growth/skills/product-name",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.238867515+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-marketing-growth/skills/product-name",
+  "version": "36ccefd",
+  "tree_hash": "8256ccfd21f516f21457391d52c9d4177f90741b",
+  "file_hashes": {
+    "SKILL.md": "sha256:16d715bbe6ab07b024a63a1a38f3616a3d9602bf4ca9425e1bb33496becce0b3"
+  }
+}

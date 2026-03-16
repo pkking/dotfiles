@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-strategy/skills/value-proposition",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.404441478+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-strategy/skills/value-proposition",
+  "version": "36ccefd",
+  "tree_hash": "a840c9572a21b901a24cf3154c36ae76dc2dbd75",
+  "file_hashes": {
+    "SKILL.md": "sha256:b07cc0399582fc178be31b513b313d2420c7941dd568b52a0bf6cfb0ab6c4ec7"
+  }
+}

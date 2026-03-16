@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-data-analytics/skills/ab-test-analysis",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.065564684+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-data-analytics/skills/ab-test-analysis",
+  "version": "36ccefd",
+  "tree_hash": "1f91cf05a785982eae7d0ff76978498125b28831",
+  "file_hashes": {
+    "SKILL.md": "sha256:9956966671d6d19d42acb6150307fd7954d16d1d150e8fd8277f99eec9a949e0"
+  }
+}

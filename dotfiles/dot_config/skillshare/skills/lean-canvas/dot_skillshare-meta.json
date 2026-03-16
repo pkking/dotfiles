@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-product-strategy/skills/lean-canvas",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.343761165+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-product-strategy/skills/lean-canvas",
+  "version": "36ccefd",
+  "tree_hash": "9c39ffdf212c4dc4474a03d9e5999f55c8d1d4f1",
+  "file_hashes": {
+    "SKILL.md": "sha256:5bafe7a33cf57631937fa863ebc6c3d3b0679808a6e5b5fa04b70be615fbc240"
+  }
+}

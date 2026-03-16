@@ -21,4 +21,8 @@
     url =  "https://github.com/alacritty/alacritty/releases/download/{{ (gitHubLatestRelease "alacritty/alacritty").TagName | toString }}/Alacritty.desktop"
     refreshPeriod = "168h"
 
+[".local/bin"]
+    type = "archive"
+    url = "https://github.com/runkids/skillshare/releases/download/{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString }}/skillshare_{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString | trimPrefix "v" }}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.tar.gz"
+    refreshPeriod = "168h"
 

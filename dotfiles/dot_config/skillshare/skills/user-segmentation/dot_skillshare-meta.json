@@ -1,0 +1,12 @@
+{
+  "source": "github.com/phuryn/pm-skills/pm-market-research/skills/user-segmentation",
+  "type": "github-subdir",
+  "installed_at": "2026-03-16T22:14:35.221786792+08:00",
+  "repo_url": "https://github.com/phuryn/pm-skills.git",
+  "subdir": "pm-market-research/skills/user-segmentation",
+  "version": "36ccefd",
+  "tree_hash": "0c721989374c5a8618e59ff9abea6c582025537f",
+  "file_hashes": {
+    "SKILL.md": "sha256:d91f745c9520e6a31c07e37c14bfa01e7982570e30a398be71cf324ac93be9c8"
+  }
+}

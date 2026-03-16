@@ -19,10 +19,9 @@ fi
 STAGED_ENCRYPTED_FILES=$(git diff --cached --name-only | grep "\.age$")
 
 for file in $STAGED_ENCRYPTED_FILES; do
-    # 检查文件内容是否确实是 age 加密格式 (以 'age-encryption.org' 开头)
-    if ! head -n 1 "$file" | grep -q "age-encryption.org"; then
+    # 增加对 Armor 格式的判断：匹配 'age-encryption.org' OR 'BEGIN AGE ENCRYPTED'
+    if ! head -n 2 "$file" | grep -Eq "age-encryption.org|BEGIN AGE ENCRYPTED"; then
         echo "❌ [Critical Error] 文件 $file 看起来不是有效的加密格式！"
-        echo "   可能你直接编辑了它而没有通过 chezmoi 加密。"
         echo "   提交已被拦截。请检查文件内容或重新添加。"
         exit 1
     fi
