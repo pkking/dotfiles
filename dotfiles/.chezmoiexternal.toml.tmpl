@@ -26,3 +26,8 @@
     url = "https://github.com/runkids/skillshare/releases/download/{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString }}/skillshare_{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString | trimPrefix "v" }}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.tar.gz"
     refreshPeriod = "168h"
 
+[".local/bin"]
+    type = "archive"
+    url = "https://github.com/Adembc/lazyssh/releases/download/{{ (gitHubLatestRelease "Adembc/lazyssh").TagName | toString }}/lazyssh_{{ .chezmoi.os | replaceAllRegex "linux" "Linux" }}_{{ .chezmoi.arch | replaceAllRegex "amd64" "x86_64" }}.tar.gz"
+    refreshPeriod = "168h"
+

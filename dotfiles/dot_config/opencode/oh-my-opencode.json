@@ -13,7 +13,7 @@
     "oracle": {
       "model": "google/gemini-3-flash-preview"
     },
-    "Atlas": {
+    "atlas": {
       "model": "google/gemini-3-flash-preview"
     },
     "multimodal-looker": {
