@@ -61,4 +61,6 @@ eval "$(mise activate zsh --shims)"
 eval "$(starship init zsh)"
 # use shims to enable system use
 export PATH="$HOME/.local/share/mise/shims:$PATH"
+# homebrew
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
