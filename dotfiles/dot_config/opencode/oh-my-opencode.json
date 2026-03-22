@@ -1,34 +1,64 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
-    "sisyphus": {
-      "model": "google/gemini-3.1-pro-preview"
-    },
-    "librarian": {
-      "model": "google/gemini-3.1-pro-preview"
-    },
-    "explore": {
-      "model": "google/gemini-3-flash-preview"
+    "hephaestus": {
+      "model": "gemini/gemini-3.1-pro-preview"
     },
     "oracle": {
-      "model": "google/gemini-3-flash-preview"
+      "model": "gemini/gemini-3-flash-preview"
     },
-    "atlas": {
-      "model": "google/gemini-3-flash-preview"
+    "librarian": {
+      "model": "gemini/gemini-3.1-pro-preview"
+    },
+    "explore": {
+      "model": "gemini/gemini-3-flash-preview"
     },
     "multimodal-looker": {
-      "model": "google/gemini-3-flash-preview"
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "prometheus": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "metis": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "momus": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "atlas": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "sisyphus-junior": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "sisyphus": {
+      "model": "gemini/gemini-3.1-pro-preview"
     }
   },
   "categories": {
-    "quick": {
-      "model": "google/gemini-3-flash-preview"
-    },
     "visual-engineering": {
-      "model": "google/gemini-3-flash-preview"
+      "model": "gemini/gemini-3-flash-preview"
     },
     "ultrabrain": {
-      "model": "google/gemini-3-flash-preview"
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "deep": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "artistry": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "quick": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "unspecified-low": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "unspecified-high": {
+      "model": "gemini/gemini-3-flash-preview"
+    },
+    "writing": {
+      "model": "gemini/gemini-3-flash-preview"
     }
   }
 }
