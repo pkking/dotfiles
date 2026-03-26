@@ -14,6 +14,7 @@ uv = "latest"
 "npm:skills" = "latest"
 "npm:openclaw" = "latest"
 "npm:@termly-dev/cli" = "latest"
+"npm:@google/gemini-cli" = "latest"
 bun = "1.3.6"
 "cargo:alacritty" = "latest"
 "github:cli/cli" = "latest"
@@ -94,3 +95,29 @@ echo "Fetching Litellm API KEY..."
 export OC_LITELLM_KEY=$(bw get password litellm)
 opencode "${MISE_ORIGINAL_CWD:-.}"
 """
+[tasks.gemini]
+description = "Inject Bitwarden secret and launch gemini cli"
+# 1. 检查 Bitwarden 是否解锁
+# 2. 获取密码并赋值给 OC_GITHUB_PAT
+# 3. 启动 VS Code (code .)，该进程将继承这个变量
+run = """
+#!/usr/bin/env bash
+set -e  # 遇到错误立即停止
+
+# 1. 检查状态。如果没有解锁，则执行解锁并捕获 Session Key
+if ! bw status | grep -q "unlocked"; then
+    echo "🔐 Bitwarden is locked. Prompting for unlock..."
+    
+    # 关键修改：使用 --raw 只获取 Key 字符串，并直接 export 到环境变量
+    export BW_SESSION=$(bw unlock --raw)
+    
+    echo "✅ Vault unlocked locally for this task."
+fi
+
+echo "Fetching GEMINI API KEY..."
+export GEMINI_API_KEY=$(bw get password gemini)
+
+cd "${MISE_ORIGINAL_CWD:-.}"
+gemini
+"""
+
