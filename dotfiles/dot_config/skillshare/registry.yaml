@@ -132,3 +132,5 @@ skills:
       source: github.com/phuryn/pm-skills/pm-product-strategy/skills/value-proposition
     - name: wwas
       source: github.com/phuryn/pm-skills/pm-execution/skills/wwas
+    - name: last30days-official
+      source: github.com/openclaw/skills/skills/mvanhorn/last30days-official
