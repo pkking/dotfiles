@@ -52,6 +52,19 @@ chezmoi apply
 
 Now all `tmux plugins` will be installed on a new machine due to [this tip](https://github.com/tmux-plugins/tpm/blob/master/docs/automatic_tpm_installation.md)
 
+### handle sensitive data
+
+- Encrypt a file with sensitive data
+
+```bash
+chezmoi add --encrypt <path to file>
+```
+
+- Re-encrypt all files when add a new public key
+```bash
+chezmoid re-add --encrypt
+```
+
 feel free to email me or commit a issue
 
 have fun :)
