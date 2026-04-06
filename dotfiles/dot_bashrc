@@ -118,8 +118,5 @@ fi
 
 [[ -s "/home/lcr/.gvm/scripts/gvm" ]] && source "/home/lcr/.gvm/scripts/gvm"
 
-. "$HOME/.local/bin/env"
 [[ -d ~/.bashrc.d ]] && source ~/.bashrc.d/*.sh
-# mise shim for system use
-export PATH="$HOME/.local/share/mise/shims:$PATH"
 
