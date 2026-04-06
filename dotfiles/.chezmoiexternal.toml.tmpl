@@ -26,18 +26,25 @@
     urls = ["https://github.com/runkids/skillshare/releases/download/{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString }}/skillshare_{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString | trimPrefix "v" }}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.tar.gz", "https://github.com/Adembc/lazyssh/releases/download/{{ (gitHubLatestRelease "Adembc/lazyssh").TagName | toString }}/lazyssh_{{ .chezmoi.os | replaceAllRegex "linux" "Linux" }}_{{ .chezmoi.arch | replaceAllRegex "amd64" "x86_64" }}.tar.gz", "https://github.com/rtk-ai/rtk/releases/download/{{ (gitHubLatestRelease "rtk-ai/rtk").TagName | toString }}/rtk-{{ .chezmoi.arch | replaceAllRegex "amd64" "x86_64" }}-unknown-linux-musl.tar.gz"]
     refreshPeriod = "168h"
 
-{{- $zellijArch := "x86_64" }}
+{{- $Arch := "x86_64" }}
 {{- if eq .chezmoi.arch "arm64" }}
-{{-   $zellijArch = "aarch64" }}
+{{-   $Arch = "aarch64" }}
 {{- end }}
-{{- $zellijOs := "unknown-linux-musl" }}
+{{- $Os := "unknown-linux" }}
 {{- if eq .chezmoi.os "darwin" }}
-{{-   $zellijOs = "apple-darwin" }}
+{{-   $Os = "apple-darwin" }}
 {{- end }}
+
+[".local/bin/yazi"]
+    type = "archive-file"
+    url = "https://github.com/sxyazi/yazi/releases/download/{{ (gitHubLatestRelease "sxyazi/yazi").TagName | toString }}/yazi-{{ $Arch }}-{{ $Os }}-gnu.zip"
+    path = "yazi-{{ $Arch }}-{{ $Os }}-gnu/yazi"
+    executable = true
+    refreshPeriod = "168h"
 
 [".local/bin/zellij"]
     type = "archive-file"
-    url = "https://github.com/zellij-org/zellij/releases/download/{{ (gitHubLatestRelease "zellij-org/zellij").TagName }}/zellij-{{ $zellijArch }}-{{ $zellijOs }}.tar.gz"
+    url = "https://github.com/zellij-org/zellij/releases/download/{{ (gitHubLatestRelease "zellij-org/zellij").TagName }}/zellij-{{ $Arch }}-{{ $Os }}-musl.tar.gz"
     path = "zellij"
     executable = true
     refreshPeriod = "168h"
