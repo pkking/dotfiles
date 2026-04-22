@@ -116,7 +116,5 @@ if ! shopt -oq posix; then
   fi
 fi
 
-[[ -s "/home/lcr/.gvm/scripts/gvm" ]] && source "/home/lcr/.gvm/scripts/gvm"
-
 [[ -d ~/.bashrc.d ]] && source ~/.bashrc.d/*.sh
 

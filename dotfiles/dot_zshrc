@@ -63,5 +63,3 @@ eval "$(starship init zsh)"
 # homebrew
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-# OpenClaw Completion
-source "/home/lcr/.openclaw/completions/openclaw.zsh"
