@@ -33,12 +33,6 @@ apt install git fontconfig zsh curl
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
 ```
 
-- Install [starship](https://starship.rs/guide/)
-
-```bash
-curl -sS https://starship.rs/install.sh | sh
-```
-
 - To install latest [alacritty](https://github.com/alacritty/alacritty) terminal, install build deps from [this guide](https://github.com/alacritty/alacritty/blob/master/INSTALL.md)
 
 - Then initialize and apply the configuration:
