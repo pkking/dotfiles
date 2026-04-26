@@ -23,17 +23,12 @@
 - Install `git` and `fontconfig` which are used in the process below
 
 for debian/ubuntu user
-```bash
-apt install git fontconfig zsh curl
-```
-
-- Install [chezmoi](https://www.chezmoi.io/install/)
 
 ```bash
-sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
+apt install git fontconfig zsh curl # chezmoi
+apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3 # for alacritty
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin # install chezmoi
 ```
-
-- To install latest [alacritty](https://github.com/alacritty/alacritty) terminal, install build deps from [this guide](https://github.com/alacritty/alacritty/blob/master/INSTALL.md)
 
 - Then initialize and apply the configuration:
 
