@@ -24,7 +24,7 @@
 
 for debian/ubuntu user
 ```bash
-apt install git fontconfig
+apt install git fontconfig zsh curl
 ```
 
 - Install [chezmoi](https://www.chezmoi.io/install/)
