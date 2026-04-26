@@ -25,9 +25,9 @@
 for debian/ubuntu user
 
 ```bash
-apt install git fontconfig zsh curl # chezmoi
-apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3 # for alacritty
-sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin # install chezmoi
+apt install git fontconfig zsh curl
+apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
 ```
 
 - Then initialize and apply the configuration:
