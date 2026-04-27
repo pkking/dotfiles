@@ -5,7 +5,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which theme was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="random"
+ZSH_THEME=""
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
@@ -55,11 +55,12 @@ fi
 [ -d /opt/anaconda/bin ] && alias conda='/opt/anaconda/bin/conda'
 mkdir -p $HOME/.local/bin
 export PATH=$PATH:$HOME/.local/bin:$HOME/.nix-profile/bin
-# mise
-eval "$(mise activate zsh)"
-eval "$(mise activate zsh --shims)"
-# starship
-eval "$(starship init zsh)"
 # homebrew
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# mise
+eval "$(mise activate zsh)"
+#eval "$(mise activate zsh --shims)"
+# starship
+eval "$(starship init zsh)"
 
