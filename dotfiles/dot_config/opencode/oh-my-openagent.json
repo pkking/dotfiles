@@ -1,0 +1,63 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
+  "agents": {
+    "oracle": {
+      "model": "alibaba-cn/glm5"
+    },
+    "explore": {
+      "model": "alibaba-cn/glm5"
+    },
+    "multimodal-looker": {
+      "model": "alibaba-cn/glm5"
+    },
+    "prometheus": {
+      "model": "alibaba-cn/glm5"
+    },
+    "metis": {
+      "model": "alibaba-cn/glm5"
+    },
+    "momus": {
+      "model": "alibaba-cn/glm5"
+    },
+    "atlas": {
+      "model": "alibaba-cn/glm5"
+    },
+    "sisyphus-junior": {
+      "model": "alibaba-cn/glm5"
+    },
+    "hephaestus": {
+      "model": "alibaba-cn/glm5"
+    },
+    "librarian": {
+      "model": "alibaba-cn/glm5"
+    },
+    "sisyphus": {
+      "model": "alibaba-cn/glm5"
+    }
+  },
+  "categories": {
+    "visual-engineering": {
+      "model": "alibaba-cn/glm5"
+    },
+    "ultrabrain": {
+      "model": "alibaba-cn/glm5"
+    },
+    "deep": {
+      "model": "alibaba-cn/glm5"
+    },
+    "artistry": {
+    },
+    "quick": {
+      "model": "alibaba-cn/glm5"
+    },
+    "unspecified-low": {
+      "model": "alibaba-cn/glm5"
+    },
+    "unspecified-high": {
+      "model": "alibaba-cn/glm5"
+    },
+    "writing": {
+      "model": "alibaba-cn/glm5"
+    }
+  }
+}

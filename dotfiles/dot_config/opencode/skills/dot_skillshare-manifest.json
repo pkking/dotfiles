@@ -1,0 +1,37 @@
+{
+  "managed": {
+    "algorithmic-art": "dd037e4347d9e37d2da7f013bdefe4ce3bd1f92d0440a25dc721c3f305579a15",
+    "brand-guidelines": "b8f0175af6318b5fdd51c6ee2cbc13f1e4f110868a2e973506c50f35241dc496",
+    "canvas-design": "b800951ec018b9547c4d72aa9ecc3f8ec4e16db37e9cf89ae0f6d6ce3dad5f0d",
+    "doc-coauthoring": "fd8325cb199c45d53792e9fbc144d72832900c77aa31bc3b781099d5cbe81266",
+    "docx": "f8e0eb6ba0a4c7064e19a1f8f8d5eed8cba48f6c00859e7ef6600a628f6bba33",
+    "internal-comms": "2f3b650ede9c830b29151aed7aa01786bffb2e925b56495490c5c58abfc2fbf4",
+    "mcp-builder": "6799e671b3c45029c174412f7e2683afba2314c1edac1560d3913e6b42aa8f4b",
+    "pdf": "6a01b6dc757b8856d7eba5e9985d8550783f946d7afdf86402ba324b93239fc0",
+    "pptx": "2798c6821e934d5ea0ce4102abd0b3745c00297ff2150add7b197fd6d0a8a6b2",
+    "skill-creator": "887b2027e7eeb09e4e6bcc48f2a0f7f76adc8033462139260a77c6d39799b779",
+    "slack-gif-creator": "c7418d991235d9a7eceb8266cfc41751ff377d70df1cbdde020603f99f478393",
+    "theme-factory": "e2f6846e247e522076ad2430cbee54f763d3d5eb429fd18cd3b475f7eca9f136",
+    "web-artifacts-builder": "a0198705db7627b25d4b7c516bc8e705d78ddad1c92ad860564b227a0b02c8b7",
+    "webapp-testing": "7b98f909adb4d1d892952d577b4f56a8b5b2dc732a2f8a82c7c137e8d1f1b1cf",
+    "xlsx": "eb217c1b8086a7ffdf2a66a77f0c83f4f48da508c9009e88a1c3adc2f49aa787"
+  },
+  "mtimes": {
+    "algorithmic-art": 1776389278780316242,
+    "brand-guidelines": 1776389278828316203,
+    "canvas-design": 1776389278848316188,
+    "doc-coauthoring": 1776389279336315799,
+    "docx": 1776389279356315783,
+    "internal-comms": 1776389279492315675,
+    "mcp-builder": 1776389279512315658,
+    "pdf": 1776389279608315582,
+    "pptx": 1776389279660315541,
+    "skill-creator": 1776389279792315436,
+    "slack-gif-creator": 1776389279928315327,
+    "theme-factory": 1776389279968315295,
+    "web-artifacts-builder": 1776389279988315280,
+    "webapp-testing": 1776389280016315257,
+    "xlsx": 1776389280040315238
+  },
+  "updated_at": "2026-04-17T09:28:04.865455856+08:00"
+}
