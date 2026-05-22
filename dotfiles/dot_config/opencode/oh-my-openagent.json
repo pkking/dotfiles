@@ -2,62 +2,62 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "oracle": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "explore": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "multimodal-looker": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "prometheus": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "metis": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "momus": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "atlas": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "sisyphus-junior": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "hephaestus": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "librarian": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "sisyphus": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     }
   },
   "categories": {
     "visual-engineering": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "ultrabrain": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "deep": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "artistry": {
     },
     "quick": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "unspecified-low": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "unspecified-high": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     },
     "writing": {
-      "model": "alibaba-cn/glm5"
+      "model": "alibaba-cn/qwen3.6-plus"
     }
   }
 }
