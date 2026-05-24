@@ -122,12 +122,8 @@ fi
 
 # 2. 获取 Github PAT
 # 这里的 --session "$BW_SESSION" 显式传递 Key，确保万无一失
-echo "Fetching GitHub PAT..."
-export OC_GITHUB_PAT=$(bw get password github-pat)
 echo "Fetching Context7 API KEY..."
 export CONTEXT7_KEY=$(bw get password context7)
-echo "Fetching Litellm API KEY..."
-export OC_LITELLM_KEY=$(bw get password litellm)
 export RTK_TELEMETRY_DISABLED=1
 opencode "${MISE_ORIGINAL_CWD:-.}"
 """
@@ -152,6 +148,9 @@ fi
 
 echo "Fetching GEMINI API KEY..."
 export GEMINI_API_KEY=$(bw get password gemini)
+echo "Fetching Context7 API KEY..."
+export CONTEXT7_KEY=$(bw get password context7)
+export RTK_TELEMETRY_DISABLED=1
 
 cd "${MISE_ORIGINAL_CWD:-.}"
 gemini
@@ -176,8 +175,9 @@ if ! bw status | grep -q "unlocked"; then
     echo "✅ Vault unlocked locally for this task."
 fi
 
-echo "Fetching GitHub PAT..."
-export GITHUB_PAT_TOKEN=$(bw get password github-pat)
+echo "Fetching Context7 API KEY..."
+export CONTEXT7_KEY=$(bw get password context7)
+export RTK_TELEMETRY_DISABLED=1
 
 cd "${MISE_ORIGINAL_CWD:-.}"
 codex --search -a never
@@ -202,8 +202,10 @@ if ! bw status | grep -q "unlocked"; then
     echo "✅ Vault unlocked locally for this task."
 fi
 
-echo "Fetching GitHub PAT..."
-export GITHUB_PAT_TOKEN=$(bw get password github-pat)
+echo "Fetching Context7 API KEY..."
+export CONTEXT7_KEY=$(bw get password context7)
+export RTK_TELEMETRY_DISABLED=1
+
 
 cd "${MISE_ORIGINAL_CWD:-.}"
 codex --search -a never

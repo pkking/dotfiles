@@ -17,9 +17,18 @@
     type = "file"
     url =  "https://github.com/alacritty/alacritty/releases/download/{{ (gitHubLatestRelease "alacritty/alacritty").TagName | toString }}/Alacritty.desktop"
 
-[".local/bin"]
-    type = "archive"
-    urls = ["https://github.com/runkids/skillshare/releases/download/{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString }}/skillshare_{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString | trimPrefix "v" }}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.tar.gz", "https://github.com/Adembc/lazyssh/releases/download/{{ (gitHubLatestRelease "Adembc/lazyssh").TagName | toString }}/lazyssh_{{ .chezmoi.os | replaceAllRegex "linux" "Linux" }}_{{ .chezmoi.arch | replaceAllRegex "amd64" "x86_64" }}.tar.gz"]
+[".local/bin/skillshare"]
+    type = "archive-file"
+    url = "https://github.com/runkids/skillshare/releases/download/{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString }}/skillshare_{{ (gitHubLatestRelease "runkids/skillshare").TagName | toString | trimPrefix "v" }}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.tar.gz"
+    path = "skillshare"
+    executable = true
+
+
+[".local/bin/lazyssh"]
+    type = "archive-file"
+    url = "https://github.com/Adembc/lazyssh/releases/download/{{ (gitHubLatestRelease "Adembc/lazyssh").TagName | toString }}/lazyssh_{{ .chezmoi.os | replaceAllRegex "linux" "Linux" }}_{{ .chezmoi.arch | replaceAllRegex "amd64" "x86_64" }}.tar.gz"
+    path = "lazyssh"
+    executable = true
 
 {{- $Arch := "x86_64" }}
 {{- if eq .chezmoi.arch "arm64" }}
