@@ -1,0 +1,136 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/runkids/skillshare/main/schemas/registry.schema.json
+skills:
+    - name: ab-test-analysis
+      source: github.com/phuryn/pm-skills/pm-data-analytics/skills/ab-test-analysis
+    - name: analyze-feature-requests
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/analyze-feature-requests
+    - name: ansoff-matrix
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/ansoff-matrix
+    - name: beachhead-segment
+      source: github.com/phuryn/pm-skills/pm-go-to-market/skills/beachhead-segment
+    - name: brainstorm-experiments-existing
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/brainstorm-experiments-existing
+    - name: brainstorm-experiments-new
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/brainstorm-experiments-new
+    - name: brainstorm-ideas-existing
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/brainstorm-ideas-existing
+    - name: brainstorm-ideas-new
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/brainstorm-ideas-new
+    - name: brainstorm-okrs
+      source: github.com/phuryn/pm-skills/pm-execution/skills/brainstorm-okrs
+    - name: business-model
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/business-model
+    - name: cohort-analysis
+      source: github.com/phuryn/pm-skills/pm-data-analytics/skills/cohort-analysis
+    - name: competitive-battlecard
+      source: github.com/phuryn/pm-skills/pm-go-to-market/skills/competitive-battlecard
+    - name: competitor-analysis
+      source: github.com/phuryn/pm-skills/pm-market-research/skills/competitor-analysis
+    - name: create-prd
+      source: github.com/phuryn/pm-skills/pm-execution/skills/create-prd
+    - name: customer-journey-map
+      source: github.com/phuryn/pm-skills/pm-market-research/skills/customer-journey-map
+    - name: draft-nda
+      source: github.com/phuryn/pm-skills/pm-toolkit/skills/draft-nda
+    - name: dummy-dataset
+      source: github.com/phuryn/pm-skills/pm-execution/skills/dummy-dataset
+    - name: grammar-check
+      source: github.com/phuryn/pm-skills/pm-toolkit/skills/grammar-check
+    - name: growth-loops
+      source: github.com/phuryn/pm-skills/pm-go-to-market/skills/growth-loops
+    - name: gtm-motions
+      source: github.com/phuryn/pm-skills/pm-go-to-market/skills/gtm-motions
+    - name: gtm-strategy
+      source: github.com/phuryn/pm-skills/pm-go-to-market/skills/gtm-strategy
+    - name: ideal-customer-profile
+      source: github.com/phuryn/pm-skills/pm-go-to-market/skills/ideal-customer-profile
+    - name: identify-assumptions-existing
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/identify-assumptions-existing
+    - name: identify-assumptions-new
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/identify-assumptions-new
+    - name: interview-script
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/interview-script
+    - name: job-stories
+      source: github.com/phuryn/pm-skills/pm-execution/skills/job-stories
+    - name: lean-canvas
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/lean-canvas
+    - name: market-segments
+      source: github.com/phuryn/pm-skills/pm-market-research/skills/market-segments
+    - name: market-sizing
+      source: github.com/phuryn/pm-skills/pm-market-research/skills/market-sizing
+    - name: marketing-ideas
+      source: github.com/phuryn/pm-skills/pm-marketing-growth/skills/marketing-ideas
+    - name: metrics-dashboard
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/metrics-dashboard
+    - name: monetization-strategy
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/monetization-strategy
+    - name: north-star-metric
+      source: github.com/phuryn/pm-skills/pm-marketing-growth/skills/north-star-metric
+    - name: opportunity-solution-tree
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/opportunity-solution-tree
+    - name: outcome-roadmap
+      source: github.com/phuryn/pm-skills/pm-execution/skills/outcome-roadmap
+    - name: pestle-analysis
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/pestle-analysis
+    - name: porters-five-forces
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/porters-five-forces
+    - name: positioning-ideas
+      source: github.com/phuryn/pm-skills/pm-marketing-growth/skills/positioning-ideas
+    - name: pre-mortem
+      source: github.com/phuryn/pm-skills/pm-execution/skills/pre-mortem
+    - name: pricing-strategy
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/pricing-strategy
+    - name: prioritization-frameworks
+      source: github.com/phuryn/pm-skills/pm-execution/skills/prioritization-frameworks
+    - name: prioritize-assumptions
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/prioritize-assumptions
+    - name: prioritize-features
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/prioritize-features
+    - name: privacy-policy
+      source: github.com/phuryn/pm-skills/pm-toolkit/skills/privacy-policy
+    - name: product-name
+      source: github.com/phuryn/pm-skills/pm-marketing-growth/skills/product-name
+    - name: product-strategy
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/product-strategy
+    - name: product-vision
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/product-vision
+    - name: release-notes
+      source: github.com/phuryn/pm-skills/pm-execution/skills/release-notes
+    - name: retro
+      source: github.com/phuryn/pm-skills/pm-execution/skills/retro
+    - name: review-resume
+      source: github.com/phuryn/pm-skills/pm-toolkit/skills/review-resume
+    - name: sentiment-analysis
+      source: github.com/phuryn/pm-skills/pm-market-research/skills/sentiment-analysis
+    - name: skillshare
+      source: github.com/runkids/skillshare/skills/skillshare
+    - name: sprint-plan
+      source: github.com/phuryn/pm-skills/pm-execution/skills/sprint-plan
+    - name: sql-queries
+      source: github.com/phuryn/pm-skills/pm-data-analytics/skills/sql-queries
+    - name: stakeholder-map
+      source: github.com/phuryn/pm-skills/pm-execution/skills/stakeholder-map
+    - name: startup-canvas
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/startup-canvas
+    - name: summarize-interview
+      source: github.com/phuryn/pm-skills/pm-product-discovery/skills/summarize-interview
+    - name: summarize-meeting
+      source: github.com/phuryn/pm-skills/pm-execution/skills/summarize-meeting
+    - name: swot-analysis
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/swot-analysis
+    - name: test-scenarios
+      source: github.com/phuryn/pm-skills/pm-execution/skills/test-scenarios
+    - name: user-personas
+      source: github.com/phuryn/pm-skills/pm-market-research/skills/user-personas
+    - name: user-segmentation
+      source: github.com/phuryn/pm-skills/pm-market-research/skills/user-segmentation
+    - name: user-stories
+      source: github.com/phuryn/pm-skills/pm-execution/skills/user-stories
+    - name: value-prop-statements
+      source: github.com/phuryn/pm-skills/pm-marketing-growth/skills/value-prop-statements
+    - name: value-proposition
+      source: github.com/phuryn/pm-skills/pm-product-strategy/skills/value-proposition
+    - name: wwas
+      source: github.com/phuryn/pm-skills/pm-execution/skills/wwas
+    - name: last30days-official
+      source: github.com/openclaw/skills/skills/mvanhorn/last30days-official

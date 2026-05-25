@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "entries": {
+    "analyzer": {
+      "source": "github.com/anthropics/skills/blob/main/skills/skill-creator/agents/analyzer.md",
+      "kind": "agent",
+      "type": "github-subdir",
+      "installed_at": "2026-05-24T08:25:05.134629374+08:00",
+      "repo_url": "https://github.com/anthropics/skills.git",
+      "subdir": "agents/analyzer.md",
+      "version": "690f15c",
+      "file_hashes": {
+        "analyzer.md": "sha256:bf68f4cac5a56c673a928c2e6d619586c5b93ea364026ab37547772cb45a663a"
+      }
+    },
+    "comparator": {
+      "source": "github.com/anthropics/skills/blob/main/skills/skill-creator/agents/comparator.md",
+      "kind": "agent",
+      "type": "github-subdir",
+      "installed_at": "2026-05-24T08:25:05.141262714+08:00",
+      "repo_url": "https://github.com/anthropics/skills.git",
+      "subdir": "agents/comparator.md",
+      "version": "690f15c",
+      "file_hashes": {
+        "comparator.md": "sha256:fe1fc9787c495d864c5d6eada47396478572325fde1b33a96d78bf4b849b7a3e"
+      }
+    },
+    "grader": {
+      "source": "github.com/anthropics/skills/blob/main/skills/skill-creator/agents/grader.md",
+      "kind": "agent",
+      "type": "github-subdir",
+      "installed_at": "2026-05-24T08:25:05.149369469+08:00",
+      "repo_url": "https://github.com/anthropics/skills.git",
+      "subdir": "agents/grader.md",
+      "version": "690f15c",
+      "file_hashes": {
+        "grader.md": "sha256:57134da0c1a4eea33fbd74a1c9c44aa814f07d6bc64de303edb586f941e5d21a"
+      }
+    }
+  }
+}

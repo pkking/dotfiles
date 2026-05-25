@@ -57,3 +57,9 @@
     url = "https://github.com/tsl0922/ttyd/releases/download/{{ (gitHubLatestRelease "tsl0922/ttyd").TagName }}/ttyd.{{ $Arch }}"
     path = "rtk"
     executable = true
+
+[".local/bin/obsidian"]
+    type = "file"
+    url = "https://github.com/obsidianmd/obsidian-releases/releases/download/{{ (gitHubLatestRelease "obsidianmd/obsidian-releases").TagName }}/obsidian-{{ (gitHubLatestRelease "obsidianmd/obsidian-releases").TagName | trimPrefix "v" }}.tar.gz"
+    path = "obsidian"
+    executable = true

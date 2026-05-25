@@ -2,14 +2,17 @@
 source: /home/lcr/.config/skillshare/skills
 mode: copy
 targets:
-    claude:
-        path: /home/lcr/.claude/skills
-    opencode:
-        path: /home/lcr/.config/opencode/skills
-    universal:
-        path: /home/lcr/.agents/skills
+  claude:
+    skills:
+      path: /home/lcr/.claude/skills
+  opencode:
+    skills:
+      path: /home/lcr/.config/opencode/skills
+  universal:
+    skills:
+      path: /home/lcr/.agents/skills
 ignore:
-    - '**/.DS_Store'
-    - '**/.git/**'
+  - '**/.DS_Store'
+  - '**/.git/**'
 audit:
-    block_threshold: CRITICAL
+  block_threshold: CRITICAL
