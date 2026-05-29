@@ -19,6 +19,7 @@ bun = "latest"
 "cargo:alacritty" = "latest"
 github-cli = "latest"
 ripgrep = "latest"
+rtk = "latest"
 
 
 [settings]
@@ -122,9 +123,12 @@ fi
 
 # 2. 获取 Github PAT
 # 这里的 --session "$BW_SESSION" 显式传递 Key，确保万无一失
+echo "Fetching GitHub PAT..."
+export OC_GITHUB_PAT=$(bw get password github-pat)
 echo "Fetching Context7 API KEY..."
 export CONTEXT7_KEY=$(bw get password context7)
 export RTK_TELEMETRY_DISABLED=1
+export OMO_DISABLE_POSTHOG=1
 opencode "${MISE_ORIGINAL_CWD:-.}"
 """
 [tasks.gemini]
@@ -175,6 +179,8 @@ if ! bw status | grep -q "unlocked"; then
     echo "✅ Vault unlocked locally for this task."
 fi
 
+echo "Fetching GitHub PAT..."
+export GITHUB_TOKEN=$(bw get password github-pat)
 echo "Fetching Context7 API KEY..."
 export CONTEXT7_KEY=$(bw get password context7)
 export RTK_TELEMETRY_DISABLED=1
@@ -183,8 +189,8 @@ cd "${MISE_ORIGINAL_CWD:-.}"
 codex --search -a never
 """
 
-[tasks.codexacp]
-description = "Inject Bitwarden secret and launch codex cli"
+[tasks.pi]
+description = "Inject Bitwarden secret and launch pi cli"
 # 1. 检查 Bitwarden 是否解锁
 # 2. 获取密码并赋值给 OC_GITHUB_PAT
 # 3. 启动 VS Code (code .)，该进程将继承这个变量
@@ -202,12 +208,13 @@ if ! bw status | grep -q "unlocked"; then
     echo "✅ Vault unlocked locally for this task."
 fi
 
+echo "Fetching GitHub PAT..."
+export GITHUB_TOKEN=$(bw get password github-pat)
 echo "Fetching Context7 API KEY..."
 export CONTEXT7_KEY=$(bw get password context7)
 export RTK_TELEMETRY_DISABLED=1
 
-
 cd "${MISE_ORIGINAL_CWD:-.}"
-codex --search -a never
+pi
 """
 

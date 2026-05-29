@@ -52,12 +52,6 @@
     path = "zellij"
     executable = true
 
-[".local/bin/rtk"]
-    type = "archive-file"
-    url = "https://github.com/rtk-ai/rtk/releases/download/{{ (gitHubLatestRelease "rtk-ai/rtk").TagName }}/rtk-{{ $Arch }}-{{ $Os }}-musl.tar.gz"
-    path = "rtk"
-    executable = true
-
 [".local/bin/ttyd"]
     type = "file"
     url = "https://github.com/tsl0922/ttyd/releases/download/{{ (gitHubLatestRelease "tsl0922/ttyd").TagName }}/ttyd.{{ $Arch }}"
