@@ -1,7 +1,3 @@
-[settings]
-go_download_mirror = "http://mirrors.aliyun.com/golang/"
-go_skip_checksum = true
-
 [settings.npm]
 package_manager = "bun"
 

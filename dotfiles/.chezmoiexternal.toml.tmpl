@@ -1,7 +1,9 @@
 [".local/bin/mise"]
-    type = "file"
+    type = "archive-file"
+    #type = "file"
     #url = "https://mise.jdx.dev/mise-latest-{{ .chezmoi.os }}-{{ .chezmoi.arch }}"
     url = "https://github.com/jdx/mise/releases/download/{{ (gitHubLatestRelease "jdx/mise").TagName | toString }}/mise-{{ (gitHubLatestRelease "jdx/mise").TagName | toString }}-{{ .chezmoi.os }}-{{ .chezmoi.arch | replaceAllRegex "amd64" "x64" }}.tar.gz"
+    path = "mise/bin/mise"
     executable = true
 
 [".oh-my-zsh"]
