@@ -3,6 +3,8 @@
 **Generated:** 2026-06-04
 **Branch:** main
 
+> **SYNC RULE**: This file and `CLAUDE.md` MUST be kept in sync for the sections: Overview, Structure, Where to Look, Commands. When updating one, update the other. CLAUDE.md additionally contains RTK instructions and Claude Code-specific guidance.
+
 ## OVERVIEW
 A `chezmoi`-managed dotfiles repository defining a Linux development environment (KDE Plasma, Starship, Alacritty, Cosmic Term, tmux, zellij, Zsh/Bash) with multiple AI coding agents (Claude Code, OpenCode, Pi, Codex, Gemini CLI) all powered by Bitwarden secret injection via `mise` tasks.
 
@@ -10,7 +12,7 @@ A `chezmoi`-managed dotfiles repository defining a Linux development environment
 ```
 .
 ├── dotfiles/                          # Source configurations (maps to ~/)
-│   ├── .chezmoiscripts/               # Lifecycle scripts (run_once_, run_onchange_)
+│   ├── .chezmoiscripts/               # Lifecycle scripts (run_once_, run_onchange_, run_after_)
 │   ├── dot_config/                    # Maps to ~/.config
 │   │   ├── alacritty/                 # Alacritty terminal config
 │   │   ├── chezmoi/                   # Chezmoi settings
@@ -84,6 +86,7 @@ chezmoi edit <path>       # Edit managed file
 chezmoi add --encrypt <p> # Add encrypted file
 
 mise install              # Install all managed tools
+mise run bootstrap        # Bootstrap environment (languages first, then tools)
 mise run claude           # Launch Claude Code (with BW secrets)
 mise run oc               # Launch OpenCode (with BW secrets)
 mise run pi               # Launch Pi (with BW secrets)

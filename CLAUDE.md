@@ -2,7 +2,100 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Development Commands
+> **SYNC RULE**: This file and `AGENTS.md` MUST be kept in sync for the sections: Overview, Structure, Where to Look, Commands. When updating one, update the other. This file additionally contains RTK instructions and Claude Code-specific guidance.
+
+<!-- ===== SYNCED SECTION (keep in sync with AGENTS.md) ===== -->
+
+## OVERVIEW
+A `chezmoi`-managed dotfiles repository defining a Linux development environment (KDE Plasma, Starship, Alacritty, Cosmic Term, tmux, zellij, Zsh/Bash) with multiple AI coding agents (Claude Code, OpenCode, Pi, Codex, Gemini CLI) all powered by Bitwarden secret injection via `mise` tasks.
+
+## STRUCTURE
+```
+.
+├── dotfiles/                          # Source configurations (maps to ~/)
+│   ├── .chezmoiscripts/               # Lifecycle scripts (run_once_, run_onchange_, run_after_)
+│   ├── dot_config/                    # Maps to ~/.config
+│   │   ├── alacritty/                 # Alacritty terminal config
+│   │   ├── chezmoi/                   # Chezmoi settings
+│   │   ├── cosmic/                    # Cosmic Term config
+│   │   ├── environment.d/             # Environment variables
+│   │   ├── fontconfig/                # Font configuration
+│   │   ├── mise/                      # Mise plugins & settings
+│   │   ├── opencode/                  # OpenCode config + skills
+│   │   ├── plasma-workspace/          # KDE Plasma workspace scripts
+│   │   ├── skillshare/                # Cross-tool AI skill sync
+│   │   ├── mise.toml                  # Tool versions + Bitwarden tasks
+│   │   └── starship.toml              # Starship prompt config
+│   ├── dot_gsd/agent/                 # GSD agent settings
+│   ├── dot_pi/agent/                  # Pi agent settings
+│   ├── dot_cargo/                     # Rust Cargo config
+│   ├── private_dot_ssh/               # SSH config (private)
+│   ├── private_dot_openclaw/          # OpenClaw config (private)
+│   ├── dot_bashrc.d/                  # Bash script snippets
+│   ├── dot_bashrc                     # Bash config
+│   ├── dot_zshrc                      # Zsh config (Oh My Zsh)
+│   ├── dot_tmux.conf                  # tmux config (with TPM)
+│   ├── dot_Xresources                 # X11 resources
+│   ├── dot_xinitrc                    # X session startup
+│   ├── dot_xprofile                   # X profile
+│   ├── dot_locale.conf                # Locale settings
+│   ├── dot_pip.conf                   # pip config
+│   ├── dot_uv.toml                    # uv config
+│   ├── dot_gitconfig.tmpl             # Git config (templated)
+│   └── .chezmoiexternal.toml.tmpl     # External tool auto-install definitions
+├── .chezmoiroot                       # Root pointer for chezmoi
+├── .chezmoi.yaml.tmpl                 # Chezmoi config template
+└── .chezmoignore                      # Ignore patterns
+```
+
+## WHERE TO LOOK
+| Task | Location | Notes |
+|------|----------|-------|
+| Add/Edit Skills | `dotfiles/dot_config/opencode/skills/` | Use `skill-creator` / skillshare sync |
+| Change CLI Tools | `dotfiles/dot_config/mise.toml` | Managed by `mise` |
+| Modify Setup Scripts | `dotfiles/.chezmoiscripts/` | Idempotent bash scripts |
+| Update Templates | `.chezmoidata.toml`, `*.tmpl`, `.chezmoiexternal.toml.tmpl` | Go-style templating |
+| Add External Tools | `.chezmoiexternal.toml.tmpl` | Auto-download on apply |
+| AI Agent Config | `dotfiles/dot_pi/agent/`, `dotfiles/dot_gsd/agent/` | Encrypted auth + settings |
+| Bitwarden Tasks | `dotfiles/dot_config/mise.toml` | `[tasks.claude]`, `[tasks.oc]`, `[tasks.pi]`, etc. |
+
+## CONVENTIONS
+- **Chezmoi**: Never apply automatically without explicit request. Always verify with `chezmoi diff`.
+- **Python Scripts**: PEP 8, Google-style docstrings, `snake_case`, type hints recommended.
+- **Bash Scripts**: Idempotent execution (`set -e`), output status via `echo`.
+- **Secrets**: Injected dynamically via Bitwarden CLI (`bw`) via `mise` tasks. Do not hardcode.
+- **mise tasks**: All AI agents launch via `mise run <name>` which handles BW unlock + secret injection.
+
+## ANTI-PATTERNS (THIS PROJECT)
+- **Hardcoding secrets** (Use `bw` integration via mise tasks)
+- **Running `chezmoi apply` blindly**
+- **Ignoring idempotency** in `.chezmoiscripts`
+
+## UNIQUE STYLES
+- Environment relies on `mise` for tool management and `chezmoi` for dotfiles
+- All AI coding agents (claude, opencode, pi, codex, gemini) share a common Bitwarden secret injection pattern
+- External tools (mise, fonts, yazi, zellij, etc.) auto-installed via `.chezmoiexternal.toml.tmpl`
+- Chinese mirrors configured for Rust (`rsproxy.cn`), Python/uv (`tuna.tsinghua.edu.cn`), and `GOTOOLCHAIN=local`
+- LiteLLM proxy used for Anthropic→Gemini routing (`ANTHROPIC_BASE_URL=http://127.0.0.1:4000`)
+
+## COMMANDS
+```bash
+chezmoi apply             # Apply changes
+chezmoi diff              # View diff
+chezmoi add <path>        # Add new file
+chezmoi edit <path>       # Edit managed file
+chezmoi add --encrypt <p> # Add encrypted file
+
+mise install              # Install all managed tools
+mise run bootstrap        # Bootstrap environment (languages first, then tools)
+mise run claude           # Launch Claude Code (with BW secrets)
+mise run oc               # Launch OpenCode (with BW secrets)
+mise run pi               # Launch Pi (with BW secrets)
+mise run codex            # Launch Codex CLI (with BW secrets)
+mise run gemini           # Launch Gemini CLI (with BW secrets)
+```
+
+## Development Commands (Claude Code Specific)
 
 ### Dotfile Management (chezmoi)
 - **Apply changes**: `chezmoi apply`
@@ -11,37 +104,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Edit managed file**: `chezmoi edit <path>`
 - **Re-manage/Update file**: `chezmoi re-add`
 
-### Toolchain & Environment (mise)
-- **Bootstrap environment**: `mise run bootstrap`
-- **Install tools**: `mise install`
-- **Launch OpenCode**: `mise run opencode` (Injects Bitwarden secrets)
-
 ### OpenCode Skills Development
 - **Initialize new skill**: `python3 dot_config/opencode/skills/skill-creator/scripts/executable_init_skill.py <name> --path <output-dir>`
 - **Package skill**: `python3 dot_config/opencode/skills/skill-creator/scripts/executable_package_skill.py <skill-folder-path>`
 - **Validate skill**: `python3 dot_config/opencode/skills/skill-creator/scripts/executable_quick_validate.py <skill-folder-path>`
 
-## High-Level Architecture
-
-### Repository Structure
-This is a **chezmoi** dotfiles repository with a custom layout.
-- `.chezmoiroot`: Points to the `dotfiles/` directory as the root of the source state.
-- `dotfiles/`: Contains the actual configuration source files using chezmoi's naming convention (e.g., `dot_config` -> `~/.config`).
-- `dotfiles/.chezmoiscripts/`: Contains lifecycle scripts (`run_once_*`, `run_onchange_*`, `run_after_*`) for automated installation and configuration.
-
-### Tooling & Configuration
-- **Mise**: Used for managing language runtimes (`python`, `node`, `go`, `rust`, `bun`) and CLI tools. Config is at `dotfiles/dot_config/mise.toml`.
-- **OpenCode**: A specialized environment with "Skills" located in `dotfiles/dot_config/opencode/skills/`.
-- **Secret Management**: Integration with **Bitwarden CLI (`bw`)** is used via mise tasks to inject credentials into applications.
-- **Starship**: Shell prompt configuration.
-- **Alacritty/Cosmic**: Terminal configurations.
-
-### Templating & Data
-- Files ending in `.tmpl` use Go-style templating.
-- Data variables are defined in:
-  - `dotfiles/.chezmoidata.toml` (static data)
-  - `.chezmoi.yaml.tmpl` (dynamic/prompt-based data)
-- Common template variables include `.email`, `.name`, and `.china_mirror`.
+<!-- /SYNCED SECTION -->
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
