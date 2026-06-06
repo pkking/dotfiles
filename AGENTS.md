@@ -89,6 +89,7 @@ mise install              # Install all managed tools
 mise run bootstrap        # Bootstrap environment (languages first, then tools)
 mise run claude           # Launch Claude Code (with BW secrets)
 mise run oc               # Launch OpenCode (with BW secrets)
+mise run ocacp            # Launch OpenCode ACP mode (stdio-to-ws bridge, with BW secrets)
 mise run pi               # Launch Pi (with BW secrets)
 mise run codex            # Launch Codex CLI (with BW secrets)
 mise run gemini           # Launch Gemini CLI (with BW secrets)

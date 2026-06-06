@@ -1,0 +1,16 @@
+repos:
+  - repo: local
+    hooks:
+      - id: check-doc-entrypoints
+        name: Check AGENTS.md / CLAUDE.md consistency
+        entry: scripts/check-doc-entrypoints.sh
+        language: system
+        pass_filenames: false
+        files: '^(AGENTS\.md|CLAUDE\.md)$'
+
+      - id: check-doc-commands
+        name: Check documented mise tasks exist
+        entry: python3 scripts/check-doc-commands.py
+        language: system
+        pass_filenames: false
+        files: '^(README\.md|AGENTS\.md|dotfiles/dot_config/mise\.toml)$'

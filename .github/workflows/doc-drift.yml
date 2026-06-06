@@ -1,0 +1,20 @@
+name: doc-drift
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  doc-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pre-commit
+        run: pipx install pre-commit
+
+      - name: Run doc drift checks
+        run: pre-commit run --all-files
