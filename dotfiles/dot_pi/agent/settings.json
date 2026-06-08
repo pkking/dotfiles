@@ -1,8 +1,13 @@
 {
-  "lastChangelogVersion": "0.74.1",
+  "lastChangelogVersion": "0.78.1",
   "defaultProvider": "alibaba-cloud",
   "defaultModel": "qwen3.6-plus",
   "packages": [
-    "npm:pi-alibaba-models"
+    "npm:pi-web-access",
+    "npm:pi-subagents",
+    "npm:pi-rtk-optimizer",
+    "npm:@narumitw/pi-codex-usage",
+    "npm:pi-powerline-footer",
+    "git:github.com/Fornace/pi-alibaba-models@main"
   ]
 }
