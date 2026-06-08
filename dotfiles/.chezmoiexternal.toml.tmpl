@@ -60,8 +60,3 @@
     path = "rtk"
     executable = true
 
-[".local/bin/obsidian"]
-    type = "file"
-    url = "https://github.com/obsidianmd/obsidian-releases/releases/download/{{ (gitHubLatestRelease "obsidianmd/obsidian-releases").TagName }}/obsidian-{{ (gitHubLatestRelease "obsidianmd/obsidian-releases").TagName | trimPrefix "v" }}.tar.gz"
-    path = "obsidian"
-    executable = true
