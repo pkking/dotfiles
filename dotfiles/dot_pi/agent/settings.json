@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.78.1",
+  "lastChangelogVersion": "0.79.0",
   "defaultProvider": "alibaba-cloud",
   "defaultModel": "qwen3.6-plus",
   "packages": [
@@ -8,6 +8,8 @@
     "npm:pi-rtk-optimizer",
     "npm:@narumitw/pi-codex-usage",
     "npm:pi-powerline-footer",
-    "git:github.com/Fornace/pi-alibaba-models@main"
+    "git:github.com/Fornace/pi-alibaba-models@main",
+    "npm:pi-cache-optimizer",
+    "npm:pi-advisor"
   ]
 }
