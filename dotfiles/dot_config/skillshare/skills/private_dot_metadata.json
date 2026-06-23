@@ -1,232 +1,66 @@
 {
   "version": 1,
   "entries": {
-    "ab-test-analysis": {
-      "source": "github.com/phuryn/pm-skills/pm-data-analytics/skills/ab-test-analysis",
+    "caveman": {
+      "source": "github.com/mattpocock/skills/skills/productivity/caveman",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.065564684+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-data-analytics/skills/ab-test-analysis",
-      "version": "36ccefd",
-      "tree_hash": "1f91cf05a785982eae7d0ff76978498125b28831",
+      "installed_at": "2026-06-09T09:17:32.182019832-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/productivity/caveman",
+      "version": "2bf7005",
+      "tree_hash": "17972a1bdbf5909b9dbdc435ad348f0bf45f8664",
       "file_hashes": {
-        "SKILL.md": "sha256:9956966671d6d19d42acb6150307fd7954d16d1d150e8fd8277f99eec9a949e0"
+        "SKILL.md": "sha256:b4bb6fe3bf3da222993ca0aee5e7c6f5368b182dd30ce1172e8f8e3280eb7052"
       }
     },
-    "analyze-feature-requests": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/analyze-feature-requests",
+    "design-an-interface": {
+      "source": "github.com/mattpocock/skills/skills/deprecated/design-an-interface",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.247664642+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/analyze-feature-requests",
-      "version": "36ccefd",
-      "tree_hash": "5aa15aecfaf0cc7eced687c356d6969637955a78",
+      "installed_at": "2026-06-09T09:17:31.99642274-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/deprecated/design-an-interface",
+      "version": "2bf7005",
+      "tree_hash": "59d5eca0fd23930d3d3821aa9da507f1bdb8a348",
       "file_hashes": {
-        "SKILL.md": "sha256:7615db7687a668a99e015664295f849bfab696a8dd7b3c02b0200a512c6ad3c2"
+        "SKILL.md": "sha256:a2596e9fa2d50e23ba014f64a5b8f9df4eb56b846a52cad152899ef5eb97b085"
       }
     },
-    "ansoff-matrix": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/ansoff-matrix",
+    "diagnose": {
+      "source": "github.com/mattpocock/skills/skills/engineering/diagnose",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.332628124+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/ansoff-matrix",
-      "version": "36ccefd",
-      "tree_hash": "6376e0a07bed8c41e4711a8a86f2cfda3b19b10b",
+      "installed_at": "2026-06-09T09:17:32.023807112-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/diagnose",
+      "version": "2bf7005",
+      "tree_hash": "43d464d0e9d1049b9d525975c0f7367ab7e01a5f",
       "file_hashes": {
-        "SKILL.md": "sha256:2f2ffa5bc380d8df5d217334ef7b9f19941beaa2602fd2e7ac4f321f447a4153"
+        "SKILL.md": "sha256:28886402bbfa0470248086eab9106a103b964b76ae9496e63ff0c8a6761b6d13",
+        "scripts/hitl-loop.template.sh": "sha256:b2932630950e5210075bcd6f850e5accf30c101c5367b29eac3a29b4dd8084c8"
       }
     },
-    "beachhead-segment": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-go-to-market/skills/beachhead-segment",
+    "edit-article": {
+      "source": "github.com/mattpocock/skills/skills/personal/edit-article",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.141180449+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-go-to-market/skills/beachhead-segment",
-      "version": "36ccefd",
-      "tree_hash": "944b1b038456a5722c43a268763d87b7d7786f5e",
+      "installed_at": "2026-06-09T09:17:32.173410132-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/personal/edit-article",
+      "version": "2bf7005",
+      "tree_hash": "d86427caec7ecdccd963eb5dabc300e2c2e243a4",
       "file_hashes": {
-        "SKILL.md": "sha256:a3f94e98c05315938ad80d5e2103eab70096abfa40881dfb2c22a731d923ea5f"
+        "SKILL.md": "sha256:cc372fb25b552017765aa0dac1b108f77eaee4555d607041efc1ad5d8c995b4a"
       }
     },
-    "brainstorm-experiments-existing": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/brainstorm-experiments-existing",
+    "git-guardrails-claude-code": {
+      "source": "github.com/mattpocock/skills/skills/misc/git-guardrails-claude-code",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.252909581+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/brainstorm-experiments-existing",
-      "version": "36ccefd",
-      "tree_hash": "da0cc60ce6f0a36ec54fca84e4e9998a3c118e26",
+      "installed_at": "2026-06-09T09:17:32.154765546-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/misc/git-guardrails-claude-code",
+      "version": "2bf7005",
+      "tree_hash": "f02ae7c2de75270e93a200e11a7e466ece897353",
       "file_hashes": {
-        "SKILL.md": "sha256:d72da1f4f08d5514662d7bad37dfc3ed4ef11fcc5b5ddec6ca5a8ac0e47f45c5"
-      }
-    },
-    "brainstorm-experiments-new": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/brainstorm-experiments-new",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.258265115+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/brainstorm-experiments-new",
-      "version": "36ccefd",
-      "tree_hash": "ad413d46f4e6aaa48ba51633358495d3f7ca602b",
-      "file_hashes": {
-        "SKILL.md": "sha256:fe66d9ba76cf6b0e156298c88f752d8e1e62549fe77a7c01c0a74d8679da9334"
-      }
-    },
-    "brainstorm-ideas-existing": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/brainstorm-ideas-existing",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.264905975+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/brainstorm-ideas-existing",
-      "version": "36ccefd",
-      "tree_hash": "86e72873831091ca89447290d918616394670c33",
-      "file_hashes": {
-        "SKILL.md": "sha256:cf950494541bd9b47e60054f1a917cef02094fe8c769d5feca86603282e2bd5b"
-      }
-    },
-    "brainstorm-ideas-new": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/brainstorm-ideas-new",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.270264831+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/brainstorm-ideas-new",
-      "version": "36ccefd",
-      "tree_hash": "6c86e89e55debbc9a121fe5120e031e8d13da275",
-      "file_hashes": {
-        "SKILL.md": "sha256:400e5e0760d6dc52bfe34953d90db6223df532ce720d7e85568696ab5c3d34d2"
-      }
-    },
-    "brainstorm-okrs": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/brainstorm-okrs",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.081883271+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/brainstorm-okrs",
-      "version": "36ccefd",
-      "tree_hash": "1ec7d337b8b57316ffb94d528f78de2a03169f96",
-      "file_hashes": {
-        "SKILL.md": "sha256:9d4fcbc779aad7bcf4b4793148be31bec4bfe70e08f5885cf34635ecd08c47ee"
-      }
-    },
-    "business-model": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/business-model",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.338785267+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/business-model",
-      "version": "36ccefd",
-      "tree_hash": "cdbae9e554eaf5efb8379c3dcd4d9a01a66f3d73",
-      "file_hashes": {
-        "SKILL.md": "sha256:515621fd8a41ecba5b7234d0d9e1e50185ba33805c4dd170b66364281f84acc8"
-      }
-    },
-    "cohort-analysis": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-data-analytics/skills/cohort-analysis",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.072116228+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-data-analytics/skills/cohort-analysis",
-      "version": "36ccefd",
-      "tree_hash": "3592373b6ac6ffd3d0f2b6d8377eee4d44610735",
-      "file_hashes": {
-        "SKILL.md": "sha256:bd721a429e58c71a1a488ac1e89ba2bcbb9e179cb9c0b5eac44a3c3b3e9fdb15"
-      }
-    },
-    "competitive-battlecard": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-go-to-market/skills/competitive-battlecard",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.144803437+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-go-to-market/skills/competitive-battlecard",
-      "version": "36ccefd",
-      "tree_hash": "0c49f81b7393608203c5b607242da578f6884fdc",
-      "file_hashes": {
-        "SKILL.md": "sha256:89a82a58675d7c82f9d9d2efc7ab81ca0597264804d4ab722ae354d767ebac21"
-      }
-    },
-    "competitor-analysis": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-market-research/skills/competitor-analysis",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.175477962+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-market-research/skills/competitor-analysis",
-      "version": "36ccefd",
-      "tree_hash": "642caf62446d246069018d255c729361bc8f7d79",
-      "file_hashes": {
-        "SKILL.md": "sha256:8e627fc7fba96f223ad9f8fd23c6033a429cc28f9e9ce2d672854c6851810c2b"
-      }
-    },
-    "create-prd": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/create-prd",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.08659886+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/create-prd",
-      "version": "36ccefd",
-      "tree_hash": "f82b9de5b5c5919fab588aae145c2b3ea0fa700c",
-      "file_hashes": {
-        "SKILL.md": "sha256:2a4059f16301c5559e10d0dfd00c9bdcde04d2cd964d8c360dbe43bd0161ed32"
-      }
-    },
-    "customer-journey-map": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-market-research/skills/customer-journey-map",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.18498835+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-market-research/skills/customer-journey-map",
-      "version": "36ccefd",
-      "tree_hash": "0bb72ea1b4d595e03475711e21884610d049189b",
-      "file_hashes": {
-        "SKILL.md": "sha256:656c0e16318b3b24870065a8eabb8a116b72e47c167472836ce76ea97ec5c75e"
-      }
-    },
-    "draft-nda": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-toolkit/skills/draft-nda",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.413430732+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-toolkit/skills/draft-nda",
-      "version": "36ccefd",
-      "tree_hash": "38dbf8e88f2f21378f12ae5fcd4be5345a70e3f2",
-      "file_hashes": {
-        "SKILL.md": "sha256:e37a613bae8038220aac1e45f73596a419920015abe28d4a012d339a0e018247"
-      }
-    },
-    "dummy-dataset": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/dummy-dataset",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.091227596+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/dummy-dataset",
-      "version": "36ccefd",
-      "tree_hash": "ceac642215f5114780993d051c79e9b8a900576d",
-      "file_hashes": {
-        "SKILL.md": "sha256:35ca70a479f3c9cbdbee2d59c56d777886a8788aa79bd4bf3258b2cf557937aa"
-      }
-    },
-    "find-skills": {
-      "source": "github.com/vercel-labs/skills/blob/main/skills/find-skills/",
-      "type": "github-subdir",
-      "installed_at": "2026-05-24T08:29:49.853066336+08:00",
-      "repo_url": "https://github.com/vercel-labs/skills.git",
-      "subdir": "skills/find-skills/",
-      "version": "e4243fb",
-      "tree_hash": "3013fdeb8a11b10b1eb795ec3ae8bfca38f7c26d",
-      "file_hashes": {
-        "SKILL.md": "sha256:1e85f6f9686e145aca4a124e3b704b9bbea9aa87e08515c1e352eee70f6e6e7a"
-      }
-    },
-    "grammar-check": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-toolkit/skills/grammar-check",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.421967368+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-toolkit/skills/grammar-check",
-      "version": "36ccefd",
-      "tree_hash": "089028ee9bb963d0a2afab63039a1e43c0920404",
-      "file_hashes": {
-        "SKILL.md": "sha256:67e4721b25541cea2f2b72e27dca0099cad66ac9a1a6fdc49d63adbae6450e02"
+        "SKILL.md": "sha256:03c4de7613c712aea336d64c467ea3ed14be2cbd52345925fe949c75c01c29f7",
+        "scripts/block-dangerous-git.sh": "sha256:234922b83c0a1737ee7300806c21ac0f389b07aaeb65c2d71ccedafbc5e1ea4b"
       }
     },
     "grill-me": {
@@ -241,400 +75,161 @@
         "SKILL.md": "sha256:74147eb6010a65957efef2b9e0f0b3ff935c1def7fc117697151b1d0f3610556"
       }
     },
-    "growth-loops": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-go-to-market/skills/growth-loops",
+    "grill-with-docs": {
+      "source": "github.com/mattpocock/skills/skills/engineering/grill-with-docs",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.150534147+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-go-to-market/skills/growth-loops",
-      "version": "36ccefd",
-      "tree_hash": "431ad612144778d542c95028b078e161b340682a",
+      "installed_at": "2026-06-09T09:17:32.033457941-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/grill-with-docs",
+      "version": "2bf7005",
+      "tree_hash": "2c3a4e48571bfe42203ed7b49cae85f31ef4b6f2",
       "file_hashes": {
-        "SKILL.md": "sha256:ce93f8c3f3a5db135aff02c5859bc153b9bd376b93f97a1c68e5ca498cf53557"
+        "ADR-FORMAT.md": "sha256:f1f36cd3f8d3b6474ddd5855da4e233bfc4ae1a1c5024909ccf11871819a41b2",
+        "CONTEXT-FORMAT.md": "sha256:b8cc318f2a4285b530e908b6bc43901c3c5cd11100362636bbc4216639bef597",
+        "SKILL.md": "sha256:3e35025119ba03efe7983dfdec3c8b96918142e3978512f3c2bf66d428310c7e"
       }
     },
-    "gtm-motions": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-go-to-market/skills/gtm-motions",
+    "handoff": {
+      "source": "github.com/mattpocock/skills/skills/productivity/handoff",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.157255517+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-go-to-market/skills/gtm-motions",
-      "version": "36ccefd",
-      "tree_hash": "716375ceefef552f7f8987dbc5c5b5ea6fc6df6f",
+      "installed_at": "2026-06-09T09:17:32.185528479-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/productivity/handoff",
+      "version": "2bf7005",
+      "tree_hash": "7bbb60d64c911617cee7f71b2ba9e24364faa14e",
       "file_hashes": {
-        "SKILL.md": "sha256:b26db17f9eee4f04aa3d53bf3c393da0574a3fa54d59eb7427e0cf5edf2377c3"
+        "SKILL.md": "sha256:d215dd8f2a19bf85fdaf67a3cdb5077641f6b4108f229ba79579414793d7b0a3"
       }
     },
-    "gtm-strategy": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-go-to-market/skills/gtm-strategy",
+    "improve-codebase-architecture": {
+      "source": "github.com/mattpocock/skills/skills/engineering/improve-codebase-architecture",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.162401786+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-go-to-market/skills/gtm-strategy",
-      "version": "36ccefd",
-      "tree_hash": "f0598ffb6219b241d3417b4d2a4d97df4775b456",
+      "installed_at": "2026-06-09T09:17:32.054007374-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/improve-codebase-architecture",
+      "version": "2bf7005",
+      "tree_hash": "688c17ec27fe9309d84987716aca37b5ce7f3a88",
       "file_hashes": {
-        "SKILL.md": "sha256:fcc7c24dda6b4fec94d1d847e0ba2b42cff38b5ec6215bb1749a65d8b885f91e"
+        "DEEPENING.md": "sha256:9577485f4fc32c0267639a9151bb41c8af0f8f6086e4bf8b84d5b236e30604e9",
+        "HTML-REPORT.md": "sha256:8a8bcdbb578066271efe6ff675c831a6a4c4c7fd2081d6b5c9bc2e5fabc741d5",
+        "INTERFACE-DESIGN.md": "sha256:678c3e34f1339015053212b3316bf0b676c70aa251050a0613667d4e755fb35e",
+        "LANGUAGE.md": "sha256:6feca2140439c54a774749e8367f18350899ff69c777144ed2248cd4407949fa",
+        "SKILL.md": "sha256:f00de04c7bb83cfd0ed1f97f3401a83838212c30856912ee44ba406649e6c749"
       }
     },
-    "ideal-customer-profile": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-go-to-market/skills/ideal-customer-profile",
+    "migrate-to-shoehorn": {
+      "source": "github.com/mattpocock/skills/skills/misc/migrate-to-shoehorn",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.16842217+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-go-to-market/skills/ideal-customer-profile",
-      "version": "36ccefd",
-      "tree_hash": "e30478f8f4b17c24a55b4ab1a42005be9b143433",
+      "installed_at": "2026-06-09T09:17:32.159715842-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/misc/migrate-to-shoehorn",
+      "version": "2bf7005",
+      "tree_hash": "ad722b79beb1c1fb998678d498ba11760d53714b",
       "file_hashes": {
-        "SKILL.md": "sha256:8d434df786db2290efb575f1d219c7e19650e7a7e3df9a5f4b82b0bd0d2ce298"
+        "SKILL.md": "sha256:de4da4c11d924fac79c924b2ee3d2db4a5cb98386eb490a599119463d036ae72"
       }
     },
-    "identify-assumptions-existing": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/identify-assumptions-existing",
+    "obsidian-vault": {
+      "source": "github.com/mattpocock/skills/skills/personal/obsidian-vault",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.274837614+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/identify-assumptions-existing",
-      "version": "36ccefd",
-      "tree_hash": "1e4cb40e331006a7ec677840fc97d0a27fe78d5b",
+      "installed_at": "2026-06-09T09:17:32.177613919-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/personal/obsidian-vault",
+      "version": "2bf7005",
+      "tree_hash": "1e814d168a215762391895aee58f4de06c8e3b7f",
       "file_hashes": {
-        "SKILL.md": "sha256:59d788213014552ac64f589c71ce82b135f9ef4b84fec457446ad90795fd439f"
+        "SKILL.md": "sha256:7bed1d552aa5e9345e493cd62cb13e65c5d829d153c349afdb2cb91c809fa6c4"
       }
     },
-    "identify-assumptions-new": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/identify-assumptions-new",
+    "prototype": {
+      "source": "github.com/mattpocock/skills/skills/engineering/prototype",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.281496703+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/identify-assumptions-new",
-      "version": "36ccefd",
-      "tree_hash": "309cddbc4aa258d1be8065947c90906abb98fe87",
+      "installed_at": "2026-06-09T09:17:32.069328993-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/prototype",
+      "version": "2bf7005",
+      "tree_hash": "c91bdc5d02d42ed88a3082a8fa83338895b55bd4",
       "file_hashes": {
-        "SKILL.md": "sha256:962b1e0c01e45ceb930e4d806c0ffb05e36cf25dcfef5497e7828d89d6ae474b"
+        "LOGIC.md": "sha256:da91dc92195c00d5dc33863b8c1a030998025a0f8583ebf2babd770825b7f70c",
+        "SKILL.md": "sha256:a653deb65afa2ee8f45c68f6ef4f593147171b386e994c8cccf89292d9ea9d75",
+        "UI.md": "sha256:d76d565149ee50456c5ddc5e29c27fec8737637874fe5c37d970db085a200b27"
       }
     },
-    "interview-script": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/interview-script",
+    "qa": {
+      "source": "github.com/mattpocock/skills/skills/deprecated/qa",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.288686622+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/interview-script",
-      "version": "36ccefd",
-      "tree_hash": "baefcb1232dff679b3218ac2030a68c961aa1c93",
+      "installed_at": "2026-06-09T09:17:32.003622115-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/deprecated/qa",
+      "version": "2bf7005",
+      "tree_hash": "3eed5beeb18e77776349782ed087ee4560fd69c5",
       "file_hashes": {
-        "SKILL.md": "sha256:892ca53da9852d4e6516d2305f0c0eb2db370bf39693c6c6797154b44bec9b4c"
+        "SKILL.md": "sha256:d9727aac6503981bf69bdd8b37e0d85b32b8fbd353a57528c252dac1337ab761"
       }
     },
-    "job-stories": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/job-stories",
+    "request-refactor-plan": {
+      "source": "github.com/mattpocock/skills/skills/deprecated/request-refactor-plan",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.095085879+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/job-stories",
-      "version": "36ccefd",
-      "tree_hash": "bd192fa658078713badabecfbc60524f6547bd2b",
+      "installed_at": "2026-06-09T09:17:32.008176174-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/deprecated/request-refactor-plan",
+      "version": "2bf7005",
+      "tree_hash": "b0617c9cf69ac1e73a6b30f78c82ff81372079fd",
       "file_hashes": {
-        "SKILL.md": "sha256:69f75264b311418a1ebaf06c9872ed1271203cfc6316466fcb99cc948ade800b"
+        "SKILL.md": "sha256:d59de4ba6cc1fe2dd267e8b9b5a1fd88e3e739e2130bc9dd78061d2a072830b8"
       }
     },
-    "lean-canvas": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/lean-canvas",
+    "review": {
+      "source": "github.com/mattpocock/skills/skills/in-progress/review",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.343761165+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/lean-canvas",
-      "version": "36ccefd",
-      "tree_hash": "9c39ffdf212c4dc4474a03d9e5999f55c8d1d4f1",
+      "installed_at": "2026-06-09T09:17:32.13307694-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/in-progress/review",
+      "version": "2bf7005",
+      "tree_hash": "756c8dd5c0f097682b45ff10d64ca23087b19159",
       "file_hashes": {
-        "SKILL.md": "sha256:5bafe7a33cf57631937fa863ebc6c3d3b0679808a6e5b5fa04b70be615fbc240"
+        "SKILL.md": "sha256:5700f30d3f06706ee56c099adceec222fef26dbcf82817ff604962634e246b2e"
       }
     },
-    "market-segments": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-market-research/skills/market-segments",
+    "scaffold-exercises": {
+      "source": "github.com/mattpocock/skills/skills/misc/scaffold-exercises",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.189465628+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-market-research/skills/market-segments",
-      "version": "36ccefd",
-      "tree_hash": "4eccef64e6ac95817c18e7d78b77ee8b23be82cd",
+      "installed_at": "2026-06-09T09:17:32.165525857-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/misc/scaffold-exercises",
+      "version": "2bf7005",
+      "tree_hash": "ef19ca90ec6645b23dc7e68601552ab795e3e6ee",
       "file_hashes": {
-        "SKILL.md": "sha256:f8425da0486d844a661fe18f809de1e055d7125c74ed423ee750cf2be74a2319"
+        "SKILL.md": "sha256:75f5c9d771606fb9762f16522efc954df11c324f87148d8ff069bce166257de9"
       }
     },
-    "market-sizing": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-market-research/skills/market-sizing",
+    "setup-matt-pocock-skills": {
+      "source": "github.com/mattpocock/skills/skills/engineering/setup-matt-pocock-skills",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.19791319+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-market-research/skills/market-sizing",
-      "version": "36ccefd",
-      "tree_hash": "8077fd4aa75eb17431d54e2c52fd756ec8deed4c",
+      "installed_at": "2026-06-09T09:17:32.083042475-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/setup-matt-pocock-skills",
+      "version": "2bf7005",
+      "tree_hash": "77638955bebe492948244f1338e54ca1a9445c29",
       "file_hashes": {
-        "SKILL.md": "sha256:96d1250ba0ab7e5b64c9be8278f63f9661b510237e423b42ef70ab914184faf8"
+        "SKILL.md": "sha256:c778d4e3d86ecc9125c357279a86780657b5db23110e1f7acf4f46d2441e7204",
+        "domain.md": "sha256:a8cc3d1c11c9cdea455f39c4090cf61ac273f2474dd6f229ab0c2b9b1deec759",
+        "issue-tracker-github.md": "sha256:f0e138631d1fc8aedc9e05d25bc688b97679f81eae7a7c760dd35e0790568370",
+        "issue-tracker-gitlab.md": "sha256:94c574647c4755f2a807742f5e78e7cef586c100266d54501d0e55445c1b1807",
+        "issue-tracker-local.md": "sha256:9a052f4599525e581721ec24cb2ae3e0296b79053e39f684b540d34d3a4f6528",
+        "triage-labels.md": "sha256:4f53c9b40ce2651e3611aa090eaedbd6dbc9b71ef8c5f7e65eac0d8263190d0d"
       }
     },
-    "marketing-ideas": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-marketing-growth/skills/marketing-ideas",
+    "setup-pre-commit": {
+      "source": "github.com/mattpocock/skills/skills/misc/setup-pre-commit",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.227064264+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-marketing-growth/skills/marketing-ideas",
-      "version": "36ccefd",
-      "tree_hash": "b193b9b14112f3135d8c4cff5233ca72caa38906",
+      "installed_at": "2026-06-09T09:17:32.170010936-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/misc/setup-pre-commit",
+      "version": "2bf7005",
+      "tree_hash": "5e6e9301b4826bd820401ea4114a797adb169f47",
       "file_hashes": {
-        "SKILL.md": "sha256:83242a3a8f5feae768820fee5ae8f4b6b4f7eaf12c8a450c49b134995bd76a89"
-      }
-    },
-    "metrics-dashboard": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/metrics-dashboard",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.294945563+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/metrics-dashboard",
-      "version": "36ccefd",
-      "tree_hash": "77b4aa48a0efa407f777c7dd759743c865e135ad",
-      "file_hashes": {
-        "SKILL.md": "sha256:fa74abf49be9f034ae43110528028402e5e63809540302b95567018d478ef4e9"
-      }
-    },
-    "monetization-strategy": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/monetization-strategy",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.349729098+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/monetization-strategy",
-      "version": "36ccefd",
-      "tree_hash": "cab0f597bbb96d6b6bd740dca1bd25a561382d9d",
-      "file_hashes": {
-        "SKILL.md": "sha256:2306d3c987e9572258fa1327a864049965dda3e4e873093482c6b671d686eea5"
-      }
-    },
-    "north-star-metric": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-marketing-growth/skills/north-star-metric",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.231555642+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-marketing-growth/skills/north-star-metric",
-      "version": "36ccefd",
-      "tree_hash": "4fdb048371a45b53ebdfed25eedaf8d061848eae",
-      "file_hashes": {
-        "SKILL.md": "sha256:00242397486a88bb7e91a1d6c99e29fd51bdc9a1cd5def9771988fb40c195fb8"
-      }
-    },
-    "opportunity-solution-tree": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/opportunity-solution-tree",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.301952285+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/opportunity-solution-tree",
-      "version": "36ccefd",
-      "tree_hash": "3f3ea6e00d19547e45db8ad4606389d2a140dc15",
-      "file_hashes": {
-        "SKILL.md": "sha256:6b23e44a5ace86aa20d64cc130322265ace6a53a29831cc403b974098a379bcc"
-      }
-    },
-    "outcome-roadmap": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/outcome-roadmap",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.099105635+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/outcome-roadmap",
-      "version": "36ccefd",
-      "tree_hash": "7f0c3b92c255cc91d53a0ac602767b13b42c1089",
-      "file_hashes": {
-        "SKILL.md": "sha256:3d2da8f82f4cbe4c8d06593765e2fbb94913676e9a65663b7da9e53c9a0082c8"
-      }
-    },
-    "pestle-analysis": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/pestle-analysis",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.355968025+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/pestle-analysis",
-      "version": "36ccefd",
-      "tree_hash": "f8853efdf889619904ab19665c72dec5e06fec12",
-      "file_hashes": {
-        "SKILL.md": "sha256:6b264055b74a8632ad41edf51766a56c4f20c7e90a4d16603915f4e17194c857"
-      }
-    },
-    "porters-five-forces": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/porters-five-forces",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.367509777+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/porters-five-forces",
-      "version": "36ccefd",
-      "tree_hash": "3fb4511ac0aaa4961dff2c42daffa476a1a1e79b",
-      "file_hashes": {
-        "SKILL.md": "sha256:a010cd7e52e29456f5a11f1d40eb0342fde738e8cf685e81b4dd50a0ebb81309"
-      }
-    },
-    "positioning-ideas": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-marketing-growth/skills/positioning-ideas",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.235690841+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-marketing-growth/skills/positioning-ideas",
-      "version": "36ccefd",
-      "tree_hash": "1987e6172ba46346b05762b0600adfc50891b6b5",
-      "file_hashes": {
-        "SKILL.md": "sha256:8864f284e66c8bb106c46dc5e51656a47ae4792e39091eb3a49f63cde00c3850"
-      }
-    },
-    "pre-mortem": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/pre-mortem",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.103329415+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/pre-mortem",
-      "version": "36ccefd",
-      "tree_hash": "1b5cb59a2f7fd53c38add90febd6ab9bfbaa9814",
-      "file_hashes": {
-        "SKILL.md": "sha256:4e5cf10a46ac1d1cdde6aa009ba2b860c532f55c0c3d9ec53a82082cad073052"
-      }
-    },
-    "pricing-strategy": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/pricing-strategy",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.37263772+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/pricing-strategy",
-      "version": "36ccefd",
-      "tree_hash": "50fb96f519ce29ee75f6f3bcb7dd329a5ef17e93",
-      "file_hashes": {
-        "SKILL.md": "sha256:09321c5984f3654077bd58921ec4b7235f47e00caf44445bd2e5a5ed13bcb895"
-      }
-    },
-    "prioritization-frameworks": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/prioritization-frameworks",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.107574606+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/prioritization-frameworks",
-      "version": "36ccefd",
-      "tree_hash": "2ed51156a75ced537f4029e8374cb582115c85e8",
-      "file_hashes": {
-        "SKILL.md": "sha256:5dab45be9e46397ec1c35a6a6aaa85233843184fd1e9d8e5f279dd02d6e4fc21"
-      }
-    },
-    "prioritize-assumptions": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/prioritize-assumptions",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.307713256+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/prioritize-assumptions",
-      "version": "36ccefd",
-      "tree_hash": "5426256959adc3dd4c64812140f8cbd3747d630b",
-      "file_hashes": {
-        "SKILL.md": "sha256:18160a0138c788790c9dd22995ffdcfac485c1f0599c170d8668678e59766073"
-      }
-    },
-    "prioritize-features": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/prioritize-features",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.314713888+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/prioritize-features",
-      "version": "36ccefd",
-      "tree_hash": "509fe2f036f6351d8880eebe8ca1028bfdd38cf9",
-      "file_hashes": {
-        "SKILL.md": "sha256:d05c001ea9d71ccf6aca975e0530a2a85545192b1eec9e06cc6d1339156c0f87"
-      }
-    },
-    "privacy-policy": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-toolkit/skills/privacy-policy",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.431387532+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-toolkit/skills/privacy-policy",
-      "version": "36ccefd",
-      "tree_hash": "128fedce2733769b0a8951e2e9cc3a229d83f34b",
-      "file_hashes": {
-        "SKILL.md": "sha256:4388e746dbde28b3eb04bbd88f8a8fe526545fce68a6e5a058d2f70ecadf364f"
-      }
-    },
-    "product-name": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-marketing-growth/skills/product-name",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.238867515+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-marketing-growth/skills/product-name",
-      "version": "36ccefd",
-      "tree_hash": "8256ccfd21f516f21457391d52c9d4177f90741b",
-      "file_hashes": {
-        "SKILL.md": "sha256:16d715bbe6ab07b024a63a1a38f3616a3d9602bf4ca9425e1bb33496becce0b3"
-      }
-    },
-    "product-strategy": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/product-strategy",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.378528886+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/product-strategy",
-      "version": "36ccefd",
-      "tree_hash": "a3b0ee95a0c99ca7a5c6e77f3017742ce61832a4",
-      "file_hashes": {
-        "SKILL.md": "sha256:50d4bfe62ae71a321271a491148e8dca4715a6a7550f82ffba2ded06f036d5b8"
-      }
-    },
-    "product-vision": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/product-vision",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.382517475+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/product-vision",
-      "version": "36ccefd",
-      "tree_hash": "d0038f5d51e03a6f2bbd020cea8c1b15e24c166d",
-      "file_hashes": {
-        "SKILL.md": "sha256:1414332e0f7893963a3308b8bea0d3ac05f5d704ad344f1c0013f7d7804a12fe"
-      }
-    },
-    "release-notes": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/release-notes",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.110714645+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/release-notes",
-      "version": "36ccefd",
-      "tree_hash": "1af884c5d1fd997c698182ef54279ca69912cd50",
-      "file_hashes": {
-        "SKILL.md": "sha256:b617edd39e721267c9726286b6304f086991f5e2215b848c952a8ad9e001a0d3"
-      }
-    },
-    "retro": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/retro",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.113990896+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/retro",
-      "version": "36ccefd",
-      "tree_hash": "c8e73385a0a1e20c7bf0aa0b8a12279390d5f887",
-      "file_hashes": {
-        "SKILL.md": "sha256:9ca1986756ce028a83314d49450ff390c00fce224099ff5678cdc83db0998b03"
-      }
-    },
-    "review-resume": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-toolkit/skills/review-resume",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.442497715+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-toolkit/skills/review-resume",
-      "version": "36ccefd",
-      "tree_hash": "83662def51306c58d1d4306a47aa87f01df93d9a",
-      "file_hashes": {
-        "SKILL.md": "sha256:cec1de0916b608a559844c5f39a3b18e65f88d6694d3bb9c1ff04bde9e062c2f"
-      }
-    },
-    "sentiment-analysis": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-market-research/skills/sentiment-analysis",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.205554643+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-market-research/skills/sentiment-analysis",
-      "version": "36ccefd",
-      "tree_hash": "7ed1b795d7cde38c0907e24a6f0bc7d44257098a",
-      "file_hashes": {
-        "SKILL.md": "sha256:516357ba8366845d13c4ee17acf96884571ad0fc8d3d48a2809c5cb84c95a01c"
+        "SKILL.md": "sha256:872f4037cb7e6e0e340d4175c086550072959925dffc87b160d1a30dc9f63bbd"
       }
     },
     "skill-creator": {
@@ -690,172 +285,147 @@
         "scripts/run.sh": "sha256:e434ebdb7d3ae0b37c00ddc36687bc975da9e766b8cb863f9aed9a624ebbdfa9"
       }
     },
-    "sprint-plan": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/sprint-plan",
+    "tdd": {
+      "source": "github.com/mattpocock/skills/skills/engineering/tdd",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.11708642+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/sprint-plan",
-      "version": "36ccefd",
-      "tree_hash": "e8332f7734c5b43d6e32ace1b3008e6344da73cc",
+      "installed_at": "2026-06-09T09:17:32.09664863-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/tdd",
+      "version": "2bf7005",
+      "tree_hash": "75beb3030b4c979205dd771ff85ac600baeb68f4",
       "file_hashes": {
-        "SKILL.md": "sha256:54ac27165fd7d57fe3f598f1ef66087d03fbf56d9f583adf7608ccaca9ce3382"
+        "SKILL.md": "sha256:af059705061156fd4845ddbb736fe92b564118ac5f03551e09ef9e8f6d970638",
+        "deep-modules.md": "sha256:f2123700bf953db1740625686c75bdd145efd486357c47c6818c869fee657a32",
+        "interface-design.md": "sha256:764c5ff0e3fa6b4ab7095eb65ccc7201e090baf19fa16051dfdb72c06d27417d",
+        "mocking.md": "sha256:3ceb807fdf4a47d6a93d4d9a891e5ba6d362a6247bd08adc451feebfc17361ef",
+        "refactoring.md": "sha256:54fced22dd1911b7094c3fe7979b7c1a40d40be307482c4adf7dc0588f27d6cc",
+        "tests.md": "sha256:e12182f5c4c6a844b7c6ab4b8d2623b642aaaae5460fe58ed087efd4f3d5fb8a"
       }
     },
-    "sql-queries": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-data-analytics/skills/sql-queries",
+    "teach": {
+      "source": "github.com/mattpocock/skills/skills/productivity/teach",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.076166445+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-data-analytics/skills/sql-queries",
-      "version": "36ccefd",
-      "tree_hash": "f1fefc80be136029a02e7bf0bae4ebab94bb79d0",
+      "installed_at": "2026-06-09T09:17:32.201444128-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/productivity/teach",
+      "version": "2bf7005",
+      "tree_hash": "fdc61615b4d56a04d88a69a135337f0cad9df235",
       "file_hashes": {
-        "SKILL.md": "sha256:18da062d5171607dcaa31eb277be420560e061bdcb0c960201e86c7067e2e59a"
+        "GLOSSARY-FORMAT.md": "sha256:d177def491519d97873291f2e860d8f1d60ead78feecb82eee022177958069c6",
+        "LEARNING-RECORD-FORMAT.md": "sha256:855f81017625256584bbf62bd5edb9b0c86605c4cc1139c56acc36b802595d17",
+        "MISSION-FORMAT.md": "sha256:8da6d3ac84eb2eb19f17c260b6acf01c560d3ac7a4501c415eea0e985602f4d7",
+        "RESOURCES-FORMAT.md": "sha256:2bc634a64b0d0daa10904f9222e7aa0d361420dfacabbf092fbe3a72222edc08",
+        "SKILL.md": "sha256:d34d0d5e6860726151d0f6c423a0690e75d80f9d3945ae14995d292da4a41ea8"
       }
     },
-    "stakeholder-map": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/stakeholder-map",
+    "to-issues": {
+      "source": "github.com/mattpocock/skills/skills/engineering/to-issues",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.120402158+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/stakeholder-map",
-      "version": "36ccefd",
-      "tree_hash": "04ff4755f5ac500040102cfb3699f3e553153495",
+      "installed_at": "2026-06-09T09:17:32.102092667-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/to-issues",
+      "version": "2bf7005",
+      "tree_hash": "b38c5aa6ae5d6903e60d3f74a7aafd32d02f2c06",
       "file_hashes": {
-        "SKILL.md": "sha256:0cc656200848c710e50a4240cfe9aee3bcd08ebc536a5b87b01d38a96ffe4174"
+        "SKILL.md": "sha256:0e6a2973fa5bdf32570227c578f7e474d945dd9281615d31439664c3ef016fce"
       }
     },
-    "startup-canvas": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/startup-canvas",
+    "to-prd": {
+      "source": "github.com/mattpocock/skills/skills/engineering/to-prd",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.388975652+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/startup-canvas",
-      "version": "36ccefd",
-      "tree_hash": "f3405562ab05651cd037c5b922d7fe70e8180545",
+      "installed_at": "2026-06-09T09:17:32.106891351-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/to-prd",
+      "version": "2bf7005",
+      "tree_hash": "fb4503f54bc618da08df2fd74109fbe57e4d8150",
       "file_hashes": {
-        "SKILL.md": "sha256:356f02faf7bc60a71de658dbb6469e1e10bc4a7907b34c2096dc617a99616495"
+        "SKILL.md": "sha256:5212dee3af6a95e60d7daaedac08f15f2789b170468d57d23f722e516a255269"
       }
     },
-    "summarize-interview": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-discovery/skills/summarize-interview",
+    "triage": {
+      "source": "github.com/mattpocock/skills/skills/engineering/triage",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.320950339+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-discovery/skills/summarize-interview",
-      "version": "36ccefd",
-      "tree_hash": "89059fa57cdb8db1774bf479d8659cd7e66fcf27",
+      "installed_at": "2026-06-09T09:17:32.123539455-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/triage",
+      "version": "2bf7005",
+      "tree_hash": "de4f182c30876a2460ca307e2f601b9b892527e5",
       "file_hashes": {
-        "SKILL.md": "sha256:5a2a0c8257f5e2f7ef098d4531acbbcd3087bb07bb87d4cabfe1a97ef1ad037c"
+        "AGENT-BRIEF.md": "sha256:1c71c747aa97d938f75ec7a4b8fe87451763b38a3ce6348acf2b222e5819b2e5",
+        "OUT-OF-SCOPE.md": "sha256:8ed8cf27833444060c81b3961a83c0e3d8e6cf2fcb2ddf6f8b07c6655cbb0d85",
+        "SKILL.md": "sha256:b819f0285e4e5814ac6472d0217f07dc9f23d2fdae3ebb0dd31d98360d8ac029"
       }
     },
-    "summarize-meeting": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/summarize-meeting",
+    "ubiquitous-language": {
+      "source": "github.com/mattpocock/skills/skills/deprecated/ubiquitous-language",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.124212293+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/summarize-meeting",
-      "version": "36ccefd",
-      "tree_hash": "0cee0b6ffb5c8db81061a0e30fb172d220c2bd4d",
+      "installed_at": "2026-06-09T09:17:32.014397818-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/deprecated/ubiquitous-language",
+      "version": "2bf7005",
+      "tree_hash": "483fe10b01bed81b7eba7ee26df3f1bef9540c88",
       "file_hashes": {
-        "SKILL.md": "sha256:4deabdd7f99c692ee800a80a4eaf6a688fb8873cdaaaea44b7f472499205f8e7"
+        "SKILL.md": "sha256:2449e2345b96b9f1e861c697b5eab50d03ae1254481a4306b6f815684e523b3a"
       }
     },
-    "swot-analysis": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/swot-analysis",
+    "write-a-skill": {
+      "source": "github.com/mattpocock/skills/skills/productivity/write-a-skill",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.394083183+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/swot-analysis",
-      "version": "36ccefd",
-      "tree_hash": "739d529a70a32a2bd18bf99b6164214ca6cabbbe",
+      "installed_at": "2026-06-09T09:17:32.206957517-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/productivity/write-a-skill",
+      "version": "2bf7005",
+      "tree_hash": "2f252b35aa238879afc5a230ac30343708dee0b3",
       "file_hashes": {
-        "SKILL.md": "sha256:ef5efbc2d4b84237469808cc9ce90016d926c0b3d65977f7edf21c60e3d5f85b"
+        "SKILL.md": "sha256:be8f20e66309258034b82a7db5040b03798aa40546f9d387662c2bd86be23123"
       }
     },
-    "test-scenarios": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/test-scenarios",
+    "writing-beats": {
+      "source": "github.com/mattpocock/skills/skills/in-progress/writing-beats",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.12809716+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/test-scenarios",
-      "version": "36ccefd",
-      "tree_hash": "2bc166c85ef16e57ab550431551d2bb3aa7be0b7",
+      "installed_at": "2026-06-09T09:17:32.13788073-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/in-progress/writing-beats",
+      "version": "2bf7005",
+      "tree_hash": "5e947c333ec8502246992f3e7ad340545796ac67",
       "file_hashes": {
-        "SKILL.md": "sha256:2dc10ebb6359604275f26234d3c66c9ccc952e501ad5b685c23a5c0f34f634d4"
+        "SKILL.md": "sha256:0843367d0a653bb17e61b3771d0ec08fa463663bc0ab6f3f421141b2687c4429"
       }
     },
-    "user-personas": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-market-research/skills/user-personas",
+    "writing-fragments": {
+      "source": "github.com/mattpocock/skills/skills/in-progress/writing-fragments",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.212669848+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-market-research/skills/user-personas",
-      "version": "36ccefd",
-      "tree_hash": "58bbb0463cd8360fbda860d388146a4cfb6b4b4c",
+      "installed_at": "2026-06-09T09:17:32.143084736-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/in-progress/writing-fragments",
+      "version": "2bf7005",
+      "tree_hash": "d12fe507a3226039cfb74894ff67411051aef974",
       "file_hashes": {
-        "SKILL.md": "sha256:012eb8ea4a6ec51bb72ddf41f48d8520f26c7f4e43ff82d69d1074e3503087ca"
+        "SKILL.md": "sha256:4ffa34a701caff27da54b9e073fef48471f0ccafee009d404c22ae542d0e8dea"
       }
     },
-    "user-segmentation": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-market-research/skills/user-segmentation",
+    "writing-shape": {
+      "source": "github.com/mattpocock/skills/skills/in-progress/writing-shape",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.221786792+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-market-research/skills/user-segmentation",
-      "version": "36ccefd",
-      "tree_hash": "0c721989374c5a8618e59ff9abea6c582025537f",
+      "installed_at": "2026-06-09T09:17:32.149303357-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/in-progress/writing-shape",
+      "version": "2bf7005",
+      "tree_hash": "3da82ab342a9fef004368cd48a9aa80ac1dd7b29",
       "file_hashes": {
-        "SKILL.md": "sha256:d91f745c9520e6a31c07e37c14bfa01e7982570e30a398be71cf324ac93be9c8"
+        "SKILL.md": "sha256:81a542b95fa865325835bf5ec7644a98e657c1e0f3374c56cb9f3b42b374660f"
       }
     },
-    "user-stories": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/user-stories",
+    "zoom-out": {
+      "source": "github.com/mattpocock/skills/skills/engineering/zoom-out",
       "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.13153994+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/user-stories",
-      "version": "36ccefd",
-      "tree_hash": "75579bd44b4a9e0aefe2e4d9387093ca601be01b",
+      "installed_at": "2026-06-09T09:17:32.126987209-07:00",
+      "repo_url": "https://github.com/mattpocock/skills.git",
+      "subdir": "skills/engineering/zoom-out",
+      "version": "2bf7005",
+      "tree_hash": "6ecebabdea814d12888f56a611da7bf182b5fb26",
       "file_hashes": {
-        "SKILL.md": "sha256:8ce89cd81de5a3df7d504380d18c54cec6c59ccdb7fd18cbcb62b6b6183d0a55"
-      }
-    },
-    "value-prop-statements": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-marketing-growth/skills/value-prop-statements",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.243319229+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-marketing-growth/skills/value-prop-statements",
-      "version": "36ccefd",
-      "tree_hash": "e0d7deae792d7645b217f172f36727d43889e456",
-      "file_hashes": {
-        "SKILL.md": "sha256:5f4e89542439b16d18af608d91d0a319c0e66a6d89257da38d6652a655aae5bc"
-      }
-    },
-    "value-proposition": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-product-strategy/skills/value-proposition",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.404441478+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-product-strategy/skills/value-proposition",
-      "version": "36ccefd",
-      "tree_hash": "a840c9572a21b901a24cf3154c36ae76dc2dbd75",
-      "file_hashes": {
-        "SKILL.md": "sha256:b07cc0399582fc178be31b513b313d2420c7941dd568b52a0bf6cfb0ab6c4ec7"
-      }
-    },
-    "wwas": {
-      "source": "https://github.com/phuryn/pm-skills.git/pm-execution/skills/wwas",
-      "type": "github-subdir",
-      "installed_at": "2026-03-16T22:14:35.135061243+08:00",
-      "repo_url": "https://github.com/phuryn/pm-skills.git",
-      "subdir": "pm-execution/skills/wwas",
-      "version": "36ccefd",
-      "tree_hash": "5c42edd41a39fe8bd21a75e9976c81e1f3e17ea7",
-      "file_hashes": {
-        "SKILL.md": "sha256:7fad2bed16046679a9eb2941573f978c692db425e5e5b7a7c31a8be2e4dd10a4"
+        "SKILL.md": "sha256:2a6894c7f9b1c9c55f451c625a834c4f377e217b623a85280e55db5fe9cacf48"
       }
     }
   }
