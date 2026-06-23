@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.79.0",
+  "lastChangelogVersion": "0.79.10",
   "defaultProvider": "alibaba-cloud",
-  "defaultModel": "qwen3.6-plus",
+  "defaultModel": "qwen3.7-plus",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-subagents",
@@ -10,6 +10,8 @@
     "npm:pi-powerline-footer",
     "git:github.com/Fornace/pi-alibaba-models@main",
     "npm:pi-cache-optimizer",
-    "npm:pi-advisor"
-  ]
+    "npm:pi-advisor",
+    "git:github.com/DietrichGebert/ponytail"
+  ],
+  "theme": "dark"
 }
