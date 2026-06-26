@@ -1,17 +1,21 @@
 ---
 name: skillshare
-version: v0.17.2
 description: |
-  Manages and syncs AI CLI skills across 50+ tools from a single source.
+  Manages and syncs AI CLI skills and agents across 50+ tools from a single source.
   Use this skill whenever the user mentions "skillshare", runs skillshare commands,
-  manages skills (install, update, uninstall, sync, audit, check, diff, search),
-  or troubleshoots skill configuration (orphaned symlinks, broken targets, sync
+  manages skills or agents (install, update, uninstall, sync, commit, audit, analyze, check, diff, search),
+  or troubleshoots skill/agent configuration (orphaned symlinks, broken targets, sync
   issues). Covers both global (~/.config/skillshare/) and project (.skillshare/)
   modes. Also use when: adding new AI tool targets (Claude, Cursor, Windsurf, etc.),
   setting target include/exclude filters or copy vs symlink mode, using backup/restore
   or trash recovery, piping skillshare output to scripts (--json), setting up CI/CD
-  audit pipelines, or building/sharing skill hubs (hub index, hub add).
+  audit pipelines, building/sharing skill hubs (hub index, hub add), or working with
+  agents (single .md files synced to agent-capable targets like Claude, Cursor,
+  Augment, OpenCode) via positional `agents` filter or `--kind agent`, plus
+  `.agentignore` and `enable`/`disable` for per-agent toggles.
 argument-hint: "[command] [target] [--json] [--dry-run] [-p|-g]"
+metadata:
+  version: v0.20.20
 ---
 
 # Skillshare CLI
@@ -35,28 +39,70 @@ skillshare install user/repo --all               # Install everything
 skillshare install user/repo --into frontend     # Place in subdirectory
 skillshare install gitlab.com/team/repo          # Any Git host
 skillshare install user/repo --track             # Enable `update` later
+skillshare install user/repo -b develop --all    # Install from branch
+skillshare install user/repo --track -b develop  # Track specific branch
 skillshare install user/repo -s pdf -p           # Install to project
-skillshare install                               # Reinstall all tracked remotes from config
+skillshare install                               # Rehydrate remote skills/tracked repos
 skillshare sync                                  # Always sync after install
 ```
 ### Extras (Rules, Commands, Prompts)
 ```bash
 skillshare extras init rules --target ~/.claude/rules --target ~/.cursor/rules
 skillshare extras init commands --target ~/.claude/commands --mode copy
-skillshare extras init                               # Interactive TUI wizard
+skillshare extras init rules --target ~/.claude/rules --source ~/shared/rules  # custom source (global only)
+skillshare extras init rules --target ~/.cursor/rules --force                  # overwrite existing
+skillshare extras init                               # Interactive TUI wizard (incl. source step)
+skillshare extras source                             # Show current extras_source
+skillshare extras source ~/shared/extras             # Set global extras_source
 skillshare extras list                               # Show status per target
-skillshare extras list --json                        # JSON output
+skillshare extras list --json                        # JSON with source_type field
 skillshare extras collect rules                      # Pull local files into source
 skillshare extras remove rules                       # Remove from config (source preserved)
+skillshare extras init agents --target ~/.claude/agents --flatten  # Flatten subdirs into root
 skillshare extras rules --mode copy                  # Change sync mode of a target
+skillshare extras agents --flatten                   # Enable flatten on existing target
+skillshare extras rules --add-target ~/.cursor/rules            # Add a target to an existing extra
+skillshare extras rules --remove-target ~/.cursor/rules --prune # Remove a target (--prune deletes synced files)
 skillshare sync extras                               # Sync all extras to targets
 skillshare sync extras --dry-run --force             # Preview / overwrite conflicts
 skillshare sync --all                                # Sync skills + extras together
 ```
-See [extras.md](references/extras.md) for details.
+Project extras always read from `<sources.extras>/<name>` (default `.skillshare/extras/<name>`); per-extra `source` and `extras source` are global-only. For project agents, prefer target `agents:` unless you need extras-only flatten/extension.
+
+A target can set an `extension:` field in config.yaml to transform each source file during sync (e.g. markdown → TOML for Gemini/Codex); implies `copy` mode. See [extras.md](references/extras.md) for details.
+### Extensions (Content Transformation)
+```bash
+# Extension is a directory at .skillshare/extensions/<name>/
+# extension.yaml controls: run command, output_ext, description
+# Official extensions: https://github.com/runkids/skillshare/tree/main/extensions
+```
+
+extension.yaml format:
+```yaml
+run: ["node", "convert.js"]   # or ["python3", "convert.py"] etc.
+output_ext: toml              # renames output file extension
+description: "MD → Codex TOML"
+```
+
+Add extension to an extras target in config.yaml:
+```yaml
+extras:
+  - name: agents
+    targets:
+      - path: .claude/agents          # plain copy/merge
+      - path: .codex/agents
+        extension: codex-agents       # transform + rename to .toml
+```
+
+Caveats:
+- `extension:` is only supported on **extras** targets — native agents targets ignore it
+- Implies `copy` mode; merge/symlink won't apply
+- Claude Code sets NODE_OPTIONS that break node extensions — use `env -u NODE_OPTIONS node convert.js` in run
+- Files missing required frontmatter fields fail validation and are skipped
 ### Creating & Discovering Skills
 ```bash
-skillshare new my-skill                          # Create a new skill from template
+skillshare new my-skill                          # Create with interactive pattern selection
+skillshare new my-skill -P reviewer              # Use reviewer pattern directly
 skillshare search "react testing"                # Search GitHub for skills
 skillshare collect                               # Pull target-local changes back to source
 ```
@@ -67,11 +113,21 @@ skillshare uninstall skill-a skill-b             # Remove multiple
 skillshare uninstall -G frontend                 # Remove entire group
 skillshare sync                                  # Always sync after uninstall
 ```
+### Enable / Disable Skills
+```bash
+skillshare disable draft-*                       # Hide from sync (adds to .skillignore)
+skillshare enable draft-*                        # Restore (removes from .skillignore)
+skillshare disable my-skill -p                   # Project mode
+skillshare disable my-skill --dry-run            # Preview
+# TUI: press E in `skillshare list` to toggle
+skillshare sync                                  # Always sync after toggle
+```
 ### Team / Organization
 ```bash
 # Creator: init project (see Getting Started) → add skills → commit .skillshare/
 skillshare install -p && skillshare sync                  # Member: clone → install → sync
 skillshare install github.com/team/repo --track -p        # Track shared repo
+skillshare commit -m "Update skill"                       # Local checkpoint, no push
 skillshare push                                           # Cross-machine: push on A
 skillshare pull                                           # Cross-machine: pull on B
 ```
@@ -79,6 +135,7 @@ skillshare pull                                           # Cross-machine: pull 
 ```bash
 skillshare hub add https://example.com/hub.json          # Save a hub source
 skillshare hub add https://example.com/hub.json --label my-hub  # With custom label
+skillshare hub add git@ghe.corp.com:team/skills.git --label ghe  # SSH/private/GHE hub source
 skillshare hub list                                      # List saved hubs
 skillshare hub default my-hub                            # Set default hub
 skillshare hub remove my-hub                             # Remove a hub
@@ -86,10 +143,16 @@ skillshare hub index --source ~/.config/skillshare/skills/ --full --audit  # Bui
 ```
 ### Controlling Where Skills Go
 ```bash
-# SKILL.md frontmatter: targets: [claude]        → only syncs to Claude
+# SKILL.md frontmatter: metadata.targets: [claude] → only syncs to Claude
 skillshare target claude --add-include "team-*"   # glob filter
+skillshare target claude --add-agent-include "team-*"  # agent glob filter
 skillshare target claude --add-exclude "_legacy*"  # exclude pattern
+skillshare target claude --agent-mode copy         # agents copy mode
 skillshare target codex --mode copy && skillshare sync --force  # copy mode
+# .skillignore — hide skills/dirs from discovery (gitignore syntax)
+#   Root-level: <source>/.skillignore (affects all commands)
+#   Repo-level: <source>/_repo/.skillignore (scoped to that repo)
+#   .skillignore.local — local override (not committed), negation overrides base
 ```
 See [targets.md](references/targets.md) for details.
 ### Updates & Maintenance
@@ -113,6 +176,7 @@ skillshare target list --json                  # Target list as JSON
 skillshare list --json                         # Skill list as JSON
 skillshare search react --json                 # Search results as JSON
 skillshare audit --format json                 # Audit results as JSON
+skillshare doctor --json                       # Health check as JSON (exit 1 on errors)
 ```
 ### Recovery & Troubleshooting
 ```bash
@@ -127,12 +191,13 @@ See [TROUBLESHOOTING.md](references/TROUBLESHOOTING.md) for more.
 ## Quick Lookup
 | Commands | Project? | `--json`? |
 |----------|:--------:|:---------:|
-| `status`, `diff`, `list`, `doctor` | ✓ (auto) | ✓ (except doctor) |
+| `status`, `diff`, `list`, `doctor` | ✓ (auto) | ✓ |
 | `sync`, `collect` | ✓ (auto) | ✓ |
 | `install`, `uninstall`, `update`, `check`, `search`, `new` | ✓ (`-p`) | ✓ (except new) |
-| `target`, `audit`, `trash`, `log`, `hub` | ✓ (`-p`) | ✓ (target list, audit, log) |
-| `extras init/list/remove/collect/mode` | ✓ (`-p`) | ✓ (list, mode) |
-| `push`, `pull`, `backup`, `restore` | ✗ | ✗ |
+| `target`, `audit`, `analyze`, `trash`, `log`, `hub` | ✓ (`-p`) | ✓ (target list, audit, analyze, log) |
+| `extras init/list/remove/collect/source` (+ `--mode`/`--add-target`/`--remove-target` flags on `extras <name>`) | ✓ (`-p`, except source) | ✓ (list, mode, targets) |
+| `enable`, `disable` | ✓ (auto) | ✗ |
+| `commit`, `push`, `pull`, `backup`, `restore` | ✗ | ✗ |
 | `tui`, `upgrade` | ✗ | ✗ |
 | `ui` | ✓ (`-p`) | ✗ |
 
@@ -141,13 +206,14 @@ See [TROUBLESHOOTING.md](references/TROUBLESHOOTING.md) for more.
 2. **Sync after mutations** — `install`, `uninstall`, `update`, `collect`, `target` all need `sync`.
 3. **Audit** — `install` auto-scans; CRITICAL blocks. `--force` to override, `--skip-audit` to bypass. Detects hardcoded secrets (API keys, tokens, private keys).
 4. **Uninstall safely** — moves to trash (7 days). `trash restore <name>` to undo. **NEVER** `rm -rf` symlinks.
-5. **Output** — `--json` for structured data (12 commands support it, see Quick Lookup). `--no-tui` for plain text on TUI commands (`list`, `log`, `audit`, `diff`, `trash list`, `backup list`). `tui off` disables TUI globally. `--dry-run` to preview.
+5. **Output** — `--json` for structured data (12 commands support it, see Quick Lookup). `--no-tui` for plain text on TUI commands (`list`, `log`, `audit`, `analyze`, `diff`, `trash list`, `backup list`, `target list`). `tui off` disables TUI globally. `--dry-run` to preview.
+6. **Node extensions in Claude Code** — `NODE_OPTIONS` is preloaded by the Claude Code harness and causes node to crash when running extensions. Always use `run: ["env", "-u", "NODE_OPTIONS", "node", "convert.js"]` in `extension.yaml` when writing extensions that use Node.js.
 
 ## References
 | Topic | File |
 |-------|------|
 | Init flags | [init.md](references/init.md) |
-| Sync/collect/push/pull | [sync.md](references/sync.md) |
+| Sync/collect/commit/push/pull | [sync.md](references/sync.md) |
 | Install/update/uninstall/new | [install.md](references/install.md) |
 | Status/diff/list/search/check | [status.md](references/status.md) |
 | Security audit | [audit.md](references/audit.md) |

@@ -20,6 +20,7 @@ bun = "latest"
 github-cli = "latest"
 ripgrep = "latest"
 rtk = "latest"
+pre-commit = "latest"
 
 
 [settings]
