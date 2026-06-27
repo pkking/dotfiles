@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "provider": "openai",
+  "model": "gpt-5.5",
+  "maxUsesPerRun": 3,
+  "maxTokens": 8192,
+  "reasoning": "medium",
+  "maxContextMessages": 18
+}

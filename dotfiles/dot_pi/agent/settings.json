@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.79.10",
-  "defaultProvider": "alibaba-cloud",
-  "defaultModel": "qwen3.7-plus",
+  "lastChangelogVersion": "0.80.2",
+  "defaultProvider": "litellm",
+  "defaultModel": "glm-5.2",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-subagents",
@@ -11,7 +11,8 @@
     "git:github.com/Fornace/pi-alibaba-models@main",
     "npm:pi-cache-optimizer",
     "npm:pi-advisor",
-    "git:github.com/DietrichGebert/ponytail"
+    "git:github.com/DietrichGebert/ponytail",
+    "npm:pi-mcp-adapter"
   ],
   "theme": "dark"
 }
