@@ -27,7 +27,7 @@
 - [x] Skills: [skillshare](https://github.com/runkids/skillshare) for cross-tool AI skill sync
 
 ### Dotfile management: [chezmoi](https://www.chezmoi.io/)
-- [x] External tools auto-installed: mise, oh-my-zsh, monaspace fonts, alacritty desktop entry, skillshare, lazyssh, yazi, zellij, ttyd
+- [x] External tools auto-installed: mise, oh-my-zsh, monaspace fonts, alacritty desktop entry, skillshare, lazyssh, yazi, zellij
 - [x] Encryption: age-encrypted files for personal tokens
 
 ### Other

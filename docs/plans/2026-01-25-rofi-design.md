@@ -1,6 +1,6 @@
 # Rofi Configuration Design
 Date: 2026-01-25
-Status: Approved
+Status: Abandoned
 
 ## Overview
 Add a minimalist, integrated Rofi configuration to the dotfiles. Rofi will serve as the application launcher and window switcher, filling the gap in the current i3 setup.
@@ -46,3 +46,9 @@ A "Catppuccin-esque" dark theme to match Alacritty/Neovim.
 ## Future Work
 *   Bind to `Super+d` in i3 config (separate task).
 *   Add power menu mode script.
+
+## Repo Status Check (2026-06-27)
+
+- 这条路线已废弃，不再作为当前仓库的实现目标。
+- `dotfiles/dot_config/rofi/` 未实现，且 i3 路线也不再推进。
+- 这份 plan 仅保留为历史记录，不再继续落地。

@@ -53,10 +53,3 @@
     url = "https://github.com/zellij-org/zellij/releases/download/{{ (gitHubLatestRelease "zellij-org/zellij").TagName }}/zellij-{{ $Arch }}-{{ $Os }}-musl.tar.gz"
     path = "zellij"
     executable = true
-
-[".local/bin/ttyd"]
-    type = "file"
-    url = "https://github.com/tsl0922/ttyd/releases/download/{{ (gitHubLatestRelease "tsl0922/ttyd").TagName }}/ttyd.{{ $Arch }}"
-    path = "rtk"
-    executable = true
-

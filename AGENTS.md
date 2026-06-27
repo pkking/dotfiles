@@ -1,7 +1,7 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-06-04
-**Branch:** main
+**Generated:** 2026-06-27
+**Branch:** master
 
 > **SYNC RULE**: This file and `CLAUDE.md` MUST be kept in sync for the sections: Overview, Structure, Where to Look, Commands. When updating one, update the other. CLAUDE.md additionally contains RTK instructions and Claude Code-specific guidance.
 
