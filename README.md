@@ -8,7 +8,7 @@
 - [x] Terminal multiplexer: [tmux](https://github.com/tmux/tmux) configs
 - [x] Terminal multiplexer: [zellij](https://zellij.dev/) (auto-installed)
 - [x] Shell prompt: [Starship](https://starship.rs/) configs
-- [x] Shell: [Zsh](https://zsh.org/) (with [Oh My Zsh](https://ohmyz.sh/)) + [Bash](https://www.gnu.org/software/bash/)
+- [x] Shell: [Zsh](https://zsh.org/) (with [Oh My Zsh](https://ohmyzsh.org/)) + [Bash](https://www.gnu.org/software/bash/)
 - [x] File manager: [Yazi](https://yazi-rs.github.io/) (auto-installed)
 - [x] Font: monospace font set to [Monaspace Nerd Fonts](https://monaspace.githubnext.com/) (auto-installed)
 
@@ -27,7 +27,7 @@
 - [x] Skills: [skillshare](https://github.com/runkids/skillshare) for cross-tool AI skill sync
 
 ### Dotfile management: [chezmoi](https://www.chezmoi.io/)
-- [x] External tools auto-installed: mise, oh-my-zsh, monaspace fonts, alacritty desktop entry, skillshare, lazyssh, yazi, zellij, ttyd
+- [x] External tools auto-installed: mise, oh-my-zsh, monaspace fonts, alacritty desktop entry, skillshare, lazyssh, yazi, zellij
 - [x] Encryption: age-encrypted files for personal tokens
 
 ### Other
