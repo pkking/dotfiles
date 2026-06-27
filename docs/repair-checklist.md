@@ -9,7 +9,7 @@ Status: Completed
 
 | Priority | Item | Status | Evidence | Next step |
 | --- | --- | --- | --- | --- |
-| P1 | 修复 `ttyd` 外部安装路径写成 `rtk` 的问题 | Done | `dotfiles/.chezmoiexternal.toml.tmpl` 现在把 `ttyd` 落到正确路径 | 已修复 |
+| P1 | 删除已废弃的 `ttyd` 外部安装方案 | Removed | `dotfiles/.chezmoiexternal.toml.tmpl` 已不再包含 `ttyd` | 已删除 |
 | P2 | 更新 `docs/structure.md` 以匹配当前仓库 | Done | 旧的 i3 / nvim 迁移草案已替换成当前仓库结构说明 | 已修复 |
 | P2 | 统一 `AGENTS.md` / `CLAUDE.md` 的仓库元数据 | Done | `AGENTS.md` 头部已刷新为当前日期和分支 | 已修复 |
 
