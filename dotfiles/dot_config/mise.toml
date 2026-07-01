@@ -20,6 +20,7 @@ github-cli = "latest"
 ripgrep = "latest"
 rtk = "latest"
 pre-commit = "latest"
+antigravity-cli = "latest"
 
 
 [settings]
@@ -60,10 +61,7 @@ if ! bw status | grep -q "unlocked"; then
     echo "✅ Vault unlocked locally for this task."
 fi
 
-export ANTHROPIC_BASE_URL=http://127.0.0.1:4000
-export ANTHROPIC_AUTH_TOKEN=$(bw get password litellm)
-export ANTHROPIC_MODEL=gemini/gemini-3.1-pro-preview
-echo "Fetching GitHub PAT..."
+echo "Fetching CONTEXT 7 TOKEN..."
 export CONTEXT7_KEY=$(bw get password context7)
 
 cd "${MISE_ORIGINAL_CWD:-.}"
@@ -90,8 +88,6 @@ fi
 
 echo "Fetching Context7 API KEY..."
 export CONTEXT7_KEY=$(bw get password context7)
-echo "Fetching Litellm API KEY..."
-export OC_LITELLM_KEY=$(bw get password litellm)
 export RTK_TELEMETRY_DISABLED=1
 npx @rebornix/stdio-to-ws "opencode acp ${MISE_ORIGINAL_CWD}" --port 3000 --persist --grace-period -1
 """
