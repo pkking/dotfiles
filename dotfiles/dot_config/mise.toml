@@ -21,6 +21,7 @@ ripgrep = "latest"
 rtk = "latest"
 pre-commit = "latest"
 antigravity-cli = "latest"
+turso = "latest"
 
 
 [settings]
