@@ -17,7 +17,7 @@ jobs:
     if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ready' }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo $(( github.event.action }}; echo ${{ github.event.label.name }}
+      - run: echo ${{ github.event.action }}; echo ${{ github.event.label.name }}
 
   final:
     if: always()
