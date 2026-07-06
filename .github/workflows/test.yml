@@ -1,0 +1,26 @@
+name: test event
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ready' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo $(( github.event.action }}; echo ${{ github.event.label.name }}
+
+  final:
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo $(( github.event.action }}; echo ${{ github.event.label.name }}
