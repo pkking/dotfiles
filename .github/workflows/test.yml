@@ -23,4 +23,4 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - run: echo $(( github.event.action }}; echo ${{ github.event.label.name }}
+      - run: echo ${{ github.event.action }}; echo ${{ github.event.label.name }}
