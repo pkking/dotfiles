@@ -3,3 +3,7 @@ package_manager = "bun"
 
 [settings.github]
 github_attestations = false
+
+[settings.go]
+skip_checksum = true
+download_mirror = "https://mirrors.aliyun.com/golang/"
