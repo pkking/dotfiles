@@ -9,22 +9,23 @@
     "aihot": {
       "source": "https://github.com/KKKKhazix/khazix-skills.git/aihot",
       "type": "github-subdir",
-      "installed_at": "2026-06-27T16:03:56.983965065+08:00",
+      "installed_at": "2026-07-12T22:25:53.93981496+08:00",
       "repo_url": "https://github.com/KKKKhazix/khazix-skills.git",
       "subdir": "aihot",
-      "version": "ff55436",
-      "tree_hash": "306853a5cce5c9ba5a18e6a1e2bddf7b55e66b7a",
+      "version": "077f63b",
+      "tree_hash": "1b6c190fed2a746cff008e6b37f70738c461731e",
       "file_hashes": {
-        "SKILL.md": "sha256:50859a57f643f855a184a492330528ae196987dcd37ee5171757c0032880c77a"
+        "README.md": "sha256:24842d6a2797289d6bab1dec5a048d796bddd02eb743a5ec2941a431388c0d42",
+        "SKILL.md": "sha256:a6c26d8b65ac648163afafaddd20cafdb6e41aa0204b54203c79276b1b3a2ea5"
       }
     },
     "hv-analysis": {
       "source": "https://github.com/KKKKhazix/khazix-skills.git/hv-analysis",
       "type": "github-subdir",
-      "installed_at": "2026-06-27T16:03:57.003519433+08:00",
+      "installed_at": "2026-07-12T22:25:53.967240377+08:00",
       "repo_url": "https://github.com/KKKKhazix/khazix-skills.git",
       "subdir": "hv-analysis",
-      "version": "ff55436",
+      "version": "077f63b",
       "tree_hash": "42ad2881b1e65b708a326d0b7b274f1b156b5c5d",
       "file_hashes": {
         "SKILL.md": "sha256:898f21b1f7b45456a54419b1b31765c896662a1e3f614d2c3413f809824de3a2",
@@ -35,10 +36,10 @@
     "khazix-writer": {
       "source": "https://github.com/KKKKhazix/khazix-skills.git/khazix-writer",
       "type": "github-subdir",
-      "installed_at": "2026-06-27T16:03:57.025226028+08:00",
+      "installed_at": "2026-07-12T22:25:53.988875746+08:00",
       "repo_url": "https://github.com/KKKKhazix/khazix-skills.git",
       "subdir": "khazix-writer",
-      "version": "ff55436",
+      "version": "077f63b",
       "tree_hash": "4759236e589e1eb4dd29298e392ccc772a843d17",
       "file_hashes": {
         "SKILL.md": "sha256:081bfbf5bc0f0c9a2c5a6410eaaa9de18a0cc50f932a1195f45df04e30018602",
@@ -49,13 +50,14 @@
     "mermaid-skill": {
       "source": "https://github.com/Agents365-ai/mermaid-skill.git/skills/mermaid-skill",
       "type": "github-subdir",
-      "installed_at": "2026-06-27T16:03:59.192618874+08:00",
+      "installed_at": "2026-07-12T22:25:57.187985651+08:00",
       "repo_url": "https://github.com/Agents365-ai/mermaid-skill.git",
       "subdir": "skills/mermaid-skill",
-      "version": "b3f12a1",
-      "tree_hash": "fbc53fd9fc1020d89d953525229ea10c11aea81b",
+      "version": "15d09cf",
+      "tree_hash": "6422de314abc3020351eafbc2cc83f870198eff6",
       "file_hashes": {
-        "SKILL.md": "sha256:25484f708b42fb3ce423d85289e8ddd8b1b9cbfd02954131592d33d40877b1b3",
+        "SKILL.md": "sha256:7bde48e6e31928f476b45c458696025f2f5b222bb709d8fb2d527e2022e716b5",
+        "reference/ARCHITECTURE.md": "sha256:72c698d84d109dbb074fd33210ece695707e45e313724accfadf679793f82424",
         "reference/CLASS-ER.md": "sha256:c8a0d2baa3492763b9f916855b21a3be509ff1d6b1b4d2d08d08602cca431651",
         "reference/FLOWCHART.md": "sha256:f731beefed962d608d5b0d17285e4b22979a25d25ecf29ec3ca9093d5922378f",
         "reference/OTHER-TYPES.md": "sha256:dbc0e308c0978bbb97db96162d42c602b93593eadac773afc189b13e3f5df637",
@@ -65,24 +67,25 @@
     "neat-freak": {
       "source": "https://github.com/KKKKhazix/khazix-skills.git/neat-freak",
       "type": "github-subdir",
-      "installed_at": "2026-06-27T16:03:57.039399317+08:00",
+      "installed_at": "2026-07-12T22:25:54.015589958+08:00",
       "repo_url": "https://github.com/KKKKhazix/khazix-skills.git",
       "subdir": "neat-freak",
-      "version": "ff55436",
-      "tree_hash": "b7325349d8afdbb214415ddb5dbcc56aa97128e2",
+      "version": "077f63b",
+      "tree_hash": "f33d9340e376d208bc2dbdff834eba338bcadeeb",
       "file_hashes": {
-        "SKILL.md": "sha256:dce714be4158c6a9895ad641343a29ca5a4f4e71a0e51b0df46e1961685cda3b",
-        "references/agent-paths.md": "sha256:7e739076a005599463cd77e4b2deff22502c8cb1f97d258bc02c115ceafbe50f",
-        "references/sync-matrix.md": "sha256:0dc219f53695d722e69b82e3c1e5573937c110ec625311f78f1e811c049079eb"
+        "SKILL.md": "sha256:31ab2058d60664799af767e46c985a59025934315bee1b9c20d7ff442b0af687",
+        "references/agent-paths.md": "sha256:451005676270aa419be71f81d0f22d9fac6639a5f4cebe88fb9ab686f2a75782",
+        "references/governance.md": "sha256:2dcff1df7b84e89ce20a606044ccb15d5015d2208c35d608995f75c437c688c6",
+        "references/sync-matrix.md": "sha256:f09956c1af6d65ae62c50c970404474ffdf4670fe0c3979d88882df4834b188e"
       }
     },
     "skill-creator": {
       "source": "https://github.com/anthropics/skills.git/skills/skill-creator",
       "type": "github-subdir",
-      "installed_at": "2026-06-27T16:04:02.572870188+08:00",
+      "installed_at": "2026-07-12T22:26:01.533395504+08:00",
       "repo_url": "https://github.com/anthropics/skills.git",
       "subdir": "skills/skill-creator",
-      "version": "5754626",
+      "version": "9d2f1ae",
       "tree_hash": "3cf9a8db32597ba3e24b584a3d696f4e11c7d7b6",
       "file_hashes": {
         "LICENSE.txt": "sha256:bc6b3af2f331cbc7fb0da1344efb2cbe5877a31498b4d70dbc7000f3405a1362",

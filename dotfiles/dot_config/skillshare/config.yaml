@@ -8,6 +8,9 @@ targets:
   opencode:
     skills:
       path: /home/lcr/.config/opencode/skills
+  pi:
+    skills:
+      path: /home/lcr/.pi/agent/skills
   universal:
     skills:
       path: /home/lcr/.agents/skills

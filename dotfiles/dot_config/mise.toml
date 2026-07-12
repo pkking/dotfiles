@@ -23,6 +23,7 @@ pre-commit = "latest"
 antigravity-cli = "latest"
 turso = "latest"
 vscode-cli = "latest"
+kind = "latest"
 
 [settings]
 activate_aggressive = true # append this tools into PATH automatic

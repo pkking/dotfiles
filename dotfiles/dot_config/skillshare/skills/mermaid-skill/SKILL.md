@@ -1,6 +1,6 @@
 ---
-name: creating-mermaid-diagrams
-description: Generate Mermaid diagrams (.mmd) and export to PNG/SVG/PDF using mmdc CLI or Kroki API. USE THIS SKILL when user mentions diagram, flowchart, sequence diagram, class diagram, ER diagram, state machine, architecture, visualize, git graph, 画图, 架构图, 流程图, 时序图. PROACTIVELY USE when explaining ANY system with 3+ components, API flows, authentication sequences, class hierarchies, database schemas, or state machines. Supports 11+ diagram types with fully automatic layout.
+name: mermaid-skill
+description: Generate Mermaid diagrams (.mmd) and export to PNG/SVG/PDF using mmdc CLI or Kroki API. USE THIS SKILL when user mentions diagram, flowchart, sequence diagram, class diagram, ER diagram, state machine, architecture, visualize, git graph, 画图, 架构图, 流程图, 时序图. PROACTIVELY USE when explaining ANY system with 3+ components, API flows, authentication sequences, class hierarchies, database schemas, or state machines. Supports 12+ diagram types with fully automatic layout.
 homepage: https://github.com/Agents365-ai/creating-mermaid-diagrams
 metadata: {"openclaw":{"requires":{"bins":["curl"]},"emoji":"📊"}}
 ---
@@ -13,7 +13,7 @@ Generate `.mmd` text files and export to PNG/SVG/PDF using `mmdc` (local) or Kro
 
 ## When to use / when NOT to use
 
-**Use this skill for:** diagrams-as-code with automatic layout (flowchart, sequence, class, state, ER, gantt, mindmap) — text source that lives in git and embeds in Markdown.
+**Use this skill for:** diagrams-as-code with automatic layout (flowchart, sequence, class, state, ER, gantt, mindmap, architecture) — text source that lives in git and embeds in Markdown.
 
 **Do NOT use it — route elsewhere — for:**
 - Pixel-precise placement, custom layout, branded icons, or heavy styling → **drawio**.
@@ -113,7 +113,8 @@ After self-check, show the exported image and collect feedback. Apply the **mini
 | Gantt | `gantt` | project timelines |
 | Pie | `pie` | proportions |
 | Git Graph | `gitGraph` | branch strategies |
-| C4 Context | `C4Context` | high-level architecture |
+| C4 Context | `C4Context` | high-level system context |
+| Architecture | `architecture-beta` | cloud / CI/CD service layouts |
 | Mind Map | `mindmap` | topic breakdowns |
 | User Journey | `journey` | user-experience flows |
 
@@ -122,6 +123,7 @@ After self-check, show the exported image and collect feedback. Apply the **mini
 **Flowchart**: See [reference/FLOWCHART.md](reference/FLOWCHART.md)
 **Sequence**: See [reference/SEQUENCE.md](reference/SEQUENCE.md)
 **Class & ER**: See [reference/CLASS-ER.md](reference/CLASS-ER.md)
+**Architecture**: See [reference/ARCHITECTURE.md](reference/ARCHITECTURE.md)
 **Other types**: See [reference/OTHER-TYPES.md](reference/OTHER-TYPES.md)
 
 ## Examples
@@ -211,6 +213,28 @@ stateDiagram-v2
 ```
 
 **Output files:** `order-states.mmd` + `order-states.png`
+
+---
+
+### Example 4: Cloud Architecture
+
+**User prompt:**
+> Draw a simple service architecture for an API
+
+**Generated `.mmd`:**
+```mermaid
+architecture-beta
+  group api(cloud)[API]
+
+  service gateway(internet)[Gateway] in api
+  service db(database)[Database] in api
+  service cache(disk)[Cache] in api
+
+  gateway:R --> L:db
+  gateway:B --> T:cache
+```
+
+**Output files:** `api-architecture.mmd` + `api-architecture.png`
 
 ## Export Commands
 
