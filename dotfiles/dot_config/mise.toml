@@ -44,7 +44,7 @@ run = [
     "mise install -y"
 ]
 
-[tasks.claude]
+[tasks.cc]
 description = "Inject Bitwarden secret and launch claude code"
 # 1. 检查 Bitwarden 是否解锁
 # 2. 获取密码并赋值给 OC_GITHUB_PAT

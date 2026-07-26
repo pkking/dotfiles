@@ -13,7 +13,7 @@
 - [x] Font: monospace font set to [Monaspace Nerd Fonts](https://monaspace.githubnext.com/) (auto-installed)
 
 ### AI Coding Agents (all via Bitwarden secret injection)
-- [x] [Claude Code](https://github.com/anthropics/claude-code) — `mise run claude`
+- [x] [Claude Code](https://github.com/anthropics/claude-code) — `mise run cc`
 - [x] [OpenCode](https://opencode.ai) — `mise run oc`
 - [x] [Pi](https://github.com/anthropics/pi) — `mise run pi`
 - [x] [Codex CLI](https://github.com/openai/codex) — `mise run codex`

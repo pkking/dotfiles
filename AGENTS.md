@@ -56,7 +56,7 @@ A `chezmoi`-managed dotfiles repository defining a Linux development environment
 | Update Templates | `.chezmoidata.toml`, `*.tmpl`, `.chezmoiexternal.toml.tmpl` | Go-style templating |
 | Add External Tools | `.chezmoiexternal.toml.tmpl` | Auto-download on apply |
 | AI Agent Config | `dotfiles/dot_pi/agent/`, `dotfiles/dot_gsd/agent/` | Encrypted auth + settings |
-| Bitwarden Tasks | `dotfiles/dot_config/mise.toml` | `[tasks.claude]`, `[tasks.oc]`, `[tasks.pi]`, etc. |
+| Bitwarden Tasks | `dotfiles/dot_config/mise.toml` | `[tasks.cc]`, `[tasks.oc]`, `[tasks.pi]`, etc. |
 
 ## CONVENTIONS
 - **Chezmoi**: Never apply automatically without explicit request. Always verify with `chezmoi diff`.
@@ -87,7 +87,7 @@ chezmoi add --encrypt <p> # Add encrypted file
 
 mise install              # Install all managed tools
 mise run bootstrap        # Bootstrap environment (languages first, then tools)
-mise run claude           # Launch Claude Code (with BW secrets)
+mise run cc               # Launch Claude Code (with BW secrets)
 mise run oc               # Launch OpenCode (with BW secrets)
 mise run ocacp            # Launch OpenCode ACP mode (stdio-to-ws bridge, with BW secrets)
 mise run pi               # Launch Pi (with BW secrets)
