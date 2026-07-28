@@ -14,6 +14,7 @@ targets:
 ignore:
   - '**/.DS_Store'
   - '**/.git/**'
+preserve_tilde_on_save: true
 audit:
   block_threshold: CRITICAL
 tui: false
