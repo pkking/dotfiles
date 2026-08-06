@@ -1,18 +1,21 @@
 {
-  "lastChangelogVersion": "0.80.2",
-  "defaultProvider": "litellm",
+  "lastChangelogVersion": "0.83.0",
+  "defaultProvider": "alibaba-cloud",
   "defaultModel": "glm-5.2",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-subagents",
     "npm:pi-rtk-optimizer",
-    "npm:@narumitw/pi-codex-usage",
     "npm:pi-powerline-footer",
     "git:github.com/Fornace/pi-alibaba-models@main",
     "npm:pi-cache-optimizer",
     "npm:pi-advisor",
     "git:github.com/DietrichGebert/ponytail",
-    "npm:pi-mcp-adapter"
+    "npm:pi-mcp-adapter",
+    "npm:pi-extensible-workflows",
+    "npm:@narumitw/pi-usage"
   ],
-  "theme": "dark"
+  "theme": "dark",
+  "defaultThinkingLevel": "medium",
+  "hideThinkingBlock": false
 }
