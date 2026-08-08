@@ -29,6 +29,7 @@ kind = "latest"
 activate_aggressive = true # append this tools into PATH automatic
 auto_install = true
 python.uv_venv_auto = "create|source"
+minimum_release_age = "0s" # new release will be upgradable immediately
 
 [env]
 # disable tool chain auto download

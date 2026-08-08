@@ -74,7 +74,7 @@
 - `score`
 - `selected`
 
-其中 `originalTitle`、`summary`、`publishedAt`、`category` 和 `score` 的键始终存在，但值可以是 `null`；展示前必须判空。`id`、`title`、`source.name`、`links.aihot`、`links.original`、`discoveredAt` 和 `selected` 为非空值。响应还可能带可选的 `attribution`，客户端不得依赖它一定存在，也不得因未来新增未知字段而报错。`page.count` 是本页条数，不是全库总数。
+其中 `originalTitle`、`summary`、`publishedAt`、`category` 和 `score` 的键始终存在，但值可以是 `null`；展示前必须判空。`id`、`title`、`source.name`、`links.aihot`、`links.original`、`discoveredAt` 和 `selected` 为非空值。响应还可能带可选的 `attribution`，客户端不得依赖它一定存在，也不得因未来新增未知字段而报错。公开产品只需在正常可发现的位置标注一次「数据来源：AI HOT」并链接本站，无需逐条展示 `attribution`；私人自用或仅内部使用无需界面署名。`page.count` 是本页条数，不是全库总数。
 
 示例：
 
@@ -89,7 +89,13 @@ GET /api/v1/items?mode=all&window=24h&limit=50
 
 `GET /api/v1/hot-topics`
 
-响应为 `{schemaVersion, count, items}`，不是可续页集合。保持 API 热度顺序。item 包含 `sourceCount`、`signalCount`、`sourceNames` 与 `latestAt`；其中 `sourceCount` 是独立信源数。热点与普通资讯字段不同，不得把两种响应强行混成同一列表协议。
+响应为 `{schemaVersion, count, items}`，不是可续页集合，最多返回热点榜 Top 10。item 包含从 1 开始的 `rank`、`sourceCount`、`signalCount`、`sourceNames`、`latestAt`，并可能包含可选的 `links.story`（给人阅读的 HTML 事件页）。按 `rank` 从小到大展示「第 N 名」；接口不返回热度值，也不得根据 `sourceCount`、`signalCount` 或普通资讯的 `score` 推算热度。热点与普通资讯字段不同，不得把两种响应强行混成同一列表协议。
+
+### 事件详情
+
+`GET /api/v1/stories/{publicId}`
+
+publicId 只取自实际返回的 hot-topics `links.story`，或另一个 story 响应里 storyline／related 的引用。对于 `links.story`，先确认 URL 属于 `https://aihot.virxact.com/story/{publicId}`，只提取路径末段的实际 `publicId`，再调用本 API；不得直接请求该 HTML 网页 URL，也不得把网页响应当 API 数据。字段缺失或 URL 格式不符时不得猜测 id，改用 items 关键词查询。响应为 `{schemaVersion, story}`：`story.reports` 是逆序报道时间线（每条含站内 `links.aihot`）；`story.digest` 是随事件演化增量更新的 AI 综述（与旧结论矛盾处会显式标注），`story.latest` 是最新进展一句话；`storyline`／`related` 是关联事件引用（含 `links.api` 可直接续跳）。事件被合并时返回 308，跟随 Location 即可；404 表示事件层或该事件当前不可用，回落到 items。`status` 为 `settled` 表示事件已收束（超过 48 小时无新报道）。
 
 ### 日报
 
