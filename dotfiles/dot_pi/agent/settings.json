@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.83.0",
-  "defaultProvider": "alibaba-cloud",
-  "defaultModel": "glm-5.2",
+  "lastChangelogVersion": "0.84.4",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-terra",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-subagents",
@@ -13,7 +13,8 @@
     "git:github.com/DietrichGebert/ponytail",
     "npm:pi-mcp-adapter",
     "npm:pi-extensible-workflows",
-    "npm:@narumitw/pi-usage"
+    "npm:@narumitw/pi-usage",
+    "npm:pi-autoresearch"
   ],
   "theme": "dark",
   "defaultThinkingLevel": "medium",
