@@ -14,7 +14,8 @@
     "npm:pi-mcp-adapter",
     "npm:pi-extensible-workflows",
     "npm:@narumitw/pi-usage",
-    "npm:pi-autoresearch"
+    "npm:pi-autoresearch",
+    "npm:pi-antigravity"
   ],
   "theme": "dark",
   "defaultThinkingLevel": "medium",

@@ -24,6 +24,7 @@ antigravity-cli = "latest"
 turso = "latest"
 vscode-cli = "latest"
 kind = "latest"
+opentofu = "latest"
 
 [settings]
 activate_aggressive = true # append this tools into PATH automatic
