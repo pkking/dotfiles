@@ -147,7 +147,7 @@ export CONTEXT7_KEY=$(bw get password context7)
 export RTK_TELEMETRY_DISABLED=1
 
 cd "${MISE_ORIGINAL_CWD:-.}"
-gemini
+agy --dangerously-skip-permissions
 """
 
 [tasks.codex]
