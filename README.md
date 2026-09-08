@@ -61,7 +61,40 @@ chezmoi init pkking
 chezmoi apply
 ```
 
-- If you already have a age key, place it in `~/.config/chezmoi/key.txt`
+### Recovery from another device 
+
+- install deps
+
+```bash
+apt install git fontconfig zsh curl
+apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
+```
+
+- recover age key
+
+```bash
+mkdir -p ~/.config/chezmoi
+# 将私钥内容写入 key.txt，并设置严格的文件权限
+nano ~/.config/chezmoi/key.txt
+chmod 600 ~/.config/chezmoi/key.txt
+```
+
+- place chezmoi age key config in `~/.config/chezmoi/chezmoi.toml`
+
+```toml
+# cat ~/.config/chezmoi/chezmoi.toml
+encryption = "age"
+[age]
+    identity = "~/.config/chezmoi/key.txt"
+    recipient = "age1..." # 你的公钥（可选配置，解密阶段主要依赖 identity）
+```
+
+- init dotfiles
+
+```bash
+chezmoi init --apply pkking
+```
 
 ~~Install tmux plugins by pressing `Ctrl + a` and `Shift+i`~~
 
