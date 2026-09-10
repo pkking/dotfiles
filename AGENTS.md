@@ -6,7 +6,7 @@
 > **SYNC RULE**: This file and `CLAUDE.md` MUST be kept in sync for the sections: Overview, Structure, Where to Look, Commands. When updating one, update the other. CLAUDE.md additionally contains RTK instructions and Claude Code-specific guidance.
 
 ## OVERVIEW
-A `chezmoi`-managed dotfiles repository defining a Linux development environment (KDE Plasma, Starship, Alacritty, Cosmic Term, tmux, zellij, Zsh/Bash) with multiple AI coding agents (Claude Code, OpenCode, Pi, Codex, Gemini CLI) all powered by Bitwarden secret injection via `mise` tasks.
+A `chezmoi`-managed dotfiles repository defining a Linux development environment (KDE Plasma, Starship, Alacritty, Cosmic Term, tmux, zellij, Zsh/Bash) with multiple AI coding agents (Claude Code, OpenCode, Pi, Codex, Antigravity CLI) all powered by Bitwarden secret injection via `mise` tasks.
 
 ## STRUCTURE
 ```
@@ -72,7 +72,7 @@ A `chezmoi`-managed dotfiles repository defining a Linux development environment
 
 ## UNIQUE STYLES
 - Environment relies on `mise` for tool management and `chezmoi` for dotfiles
-- All AI coding agents (claude, opencode, pi, codex, gemini) share a common Bitwarden secret injection pattern
+- All AI coding agents (claude, opencode, pi, codex, agy) share a common Bitwarden secret injection pattern
 - External tools (mise, fonts, yazi, zellij, etc.) auto-installed via `.chezmoiexternal.toml.tmpl`
 - Chinese mirrors configured for Rust (`rsproxy.cn`), Python/uv (`tuna.tsinghua.edu.cn`), and `GOTOOLCHAIN=local`
 - LiteLLM proxy used for Anthropic→Gemini routing (`ANTHROPIC_BASE_URL=http://127.0.0.1:4000`)
@@ -92,5 +92,5 @@ mise run oc               # Launch OpenCode (with BW secrets)
 mise run ocacp            # Launch OpenCode ACP mode (stdio-to-ws bridge, with BW secrets)
 mise run pi               # Launch Pi (with BW secrets)
 mise run codex            # Launch Codex CLI (with BW secrets)
-mise run gemini           # Launch Gemini CLI (with BW secrets)
+mise run agy              # Launch Antigravity CLI (with BW secrets)
 ```

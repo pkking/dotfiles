@@ -17,7 +17,7 @@
 - [x] [OpenCode](https://opencode.ai) — `mise run oc`
 - [x] [Pi](https://github.com/anthropics/pi) — `mise run pi`
 - [x] [Codex CLI](https://github.com/openai/codex) — `mise run codex`
-- [x] [Gemini CLI](https://ai.google.dev/gemini-api/docs/cli) — `mise run gemini`
+- [x] [Antigravity CLI](https://github.com/google-antigravity/antigravity-cli) — `mise run agy`
 
 ### Dev Tools (managed by [mise](https://mise.jdx.dev/))
 - [x] Languages: Python 3.13, Node 24, Go, Rust (latest)

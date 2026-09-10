@@ -123,8 +123,8 @@ export RTK_TELEMETRY_DISABLED=1
 export OMO_DISABLE_POSTHOG=1
 opencode "${MISE_ORIGINAL_CWD:-.}"
 """
-[tasks.gemini]
-description = "Inject Bitwarden secret and launch gemini cli"
+[tasks.agy]
+description = "Inject Bitwarden secret and launch antigravity cli"
 # 1. 检查 Bitwarden 是否解锁
 # 2. 获取密码并赋值给 OC_GITHUB_PAT
 # 3. 启动 VS Code (code .)，该进程将继承这个变量
