@@ -1,16 +1,14 @@
 {
-  "lastChangelogVersion": "0.84.4",
+  "lastChangelogVersion": "0.85.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-terra",
   "packages": [
     "npm:pi-web-access",
-    "npm:pi-subagents",
     "npm:pi-rtk-optimizer",
     "npm:pi-powerline-footer",
     "git:github.com/Fornace/pi-alibaba-models@main",
     "npm:pi-cache-optimizer",
     "npm:pi-advisor",
-    "git:github.com/DietrichGebert/ponytail",
     "npm:pi-mcp-adapter",
     "npm:pi-extensible-workflows",
     "npm:@narumitw/pi-usage",
