@@ -2,6 +2,9 @@
 source: ~/.config/skillshare/skills
 mode: copy
 targets:
+  agy:
+    skills:
+      path: ~/.gemini/antigravity-cli/skills
   claude:
     skills:
       path: ~/.claude/skills
@@ -14,7 +17,7 @@ targets:
 ignore:
   - '**/.DS_Store'
   - '**/.git/**'
-preserve_tilde_on_save: true
 audit:
   block_threshold: CRITICAL
 tui: false
+preserve_tilde_on_save: true

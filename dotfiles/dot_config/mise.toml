@@ -25,6 +25,7 @@ turso = "latest"
 vscode-cli = "latest"
 kind = "latest"
 opentofu = "latest"
+kustomize = "latest"
 
 [settings]
 activate_aggressive = true # append this tools into PATH automatic
