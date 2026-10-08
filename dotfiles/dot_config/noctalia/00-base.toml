@@ -1,0 +1,12 @@
+# Noctalia v5+ machine-independent, user-managed TOML baseline.
+# Files in this directory merge in alphabetical order. GUI/state overrides win.
+# Do not store ~/.local/state/noctalia/settings.toml in Git.
+
+[theme]
+mode = "dark"
+
+[bar.default]
+position = "top"
+
+[shell]
+polkit_agent = true

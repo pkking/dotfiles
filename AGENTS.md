@@ -58,6 +58,16 @@ A `chezmoi`-managed dotfiles repository defining a Linux development environment
 | AI Agent Config | `dotfiles/dot_pi/agent/`, `dotfiles/dot_gsd/agent/` | Encrypted auth + settings |
 | Bitwarden Tasks | `dotfiles/dot_config/mise.toml` | `[tasks.cc]`, `[tasks.oc]`, `[tasks.pi]`, etc. |
 
+## NIRI + NOCTALIA DESKTOP (OPT-IN)
+- **Source of truth:** `dotfiles/dot_config/niri/` and `dotfiles/dot_config/noctalia/`, not the live `~/.config` copies. See `docs/desktop.md`.
+- **Version contract:** niri >= 25.11 for KDL `include`; Noctalia >= v5 for TOML. Never generate legacy Noctalia v4 JSON or Quickshell commands.
+- **Preserve KDE/X11:** Do not replace Plasma, `dot_xinitrc`, `dot_xprofile`, login manager, display/session selection, or existing input-method settings as part of desktop config changes.
+- **Hardware:** Never copy output names, resolutions, DPI, physical monitor placement, wallpapers, or absolute home paths from third-party dotfiles. Per-device overrides are optional chezmoi template data.
+- **No surprise deployment:** Before proposing any apply, render/diff the target files and validate them. Never run `chezmoi apply`, install system packages, switch sessions, or restart niri/Noctalia unless explicitly requested.
+- **Validation:** For changed Niri files, run `niri validate` against an assembled/rendered config; for Noctalia, run `noctalia config validate` against the rendered TOML directory. A plain TOML parser or brace matcher does not replace the application validators. CI coverage is follow-up work.
+- **Config precedence:** Noctalia GUI writes `~/.local/state/noctalia/settings.toml`, which overrides managed `~/.config/noctalia/*.toml`. Compare `noctalia config export` when investigating config drift; never silently delete GUI state.
+- **Safety:** Keep a working alternate desktop and a rollback path when changing key bindings, display rules, locking, or login/session integration. Show the diff for review first.
+
 ## CONVENTIONS
 - **Chezmoi**: Never apply automatically without explicit request. Always verify with `chezmoi diff`.
 - **Python Scripts**: PEP 8, Google-style docstrings, `snake_case`, type hints recommended.

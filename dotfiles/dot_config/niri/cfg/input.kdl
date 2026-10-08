@@ -1,0 +1,7 @@
+// Minimal pointer defaults. Leave keyboard layout to the system/input method.
+input {
+    touchpad {
+        tap
+        natural-scroll
+    }
+}

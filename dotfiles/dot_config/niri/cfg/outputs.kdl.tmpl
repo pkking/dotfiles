@@ -1,0 +1,9 @@
+{{- $outputs := dig "desktop_niri_outputs" "" . -}}
+// Machine-specific niri outputs for {{ .chezmoi.hostname }}.
+// Safe default: no connector assumptions; niri auto-discovers outputs.
+// Add multiline KDL through local chezmoi data.desktop_niri_outputs, not Git.
+{{ if ne $outputs "" -}}
+{{ $outputs }}
+{{- else -}}
+// No local output overrides configured.
+{{ end -}}
