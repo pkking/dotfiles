@@ -1,0 +1,9 @@
+{{- $machine := dig "desktop_noctalia_machine" "" . -}}
+# Per-machine Noctalia v5 overrides for {{ .chezmoi.hostname }}.
+# Safe default: none. Add TOML via local chezmoi data.desktop_noctalia_machine.
+# This file loads after 00-base.toml but before GUI-managed state.
+{{ if ne $machine "" -}}
+{{ $machine }}
+{{- else -}}
+# No local Noctalia overrides configured.
+{{ end -}}

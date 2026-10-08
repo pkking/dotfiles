@@ -1,0 +1,11 @@
+// Niri >= 25.11: modular baseline for the optional Niri + Noctalia session.
+// Existing KDE and X11 session files are intentionally untouched.
+// Includes are relative to this file; niri watches and reloads them.
+prefer-no-csd
+spawn-at-startup "noctalia"
+
+include "cfg/input.kdl"
+include "cfg/layout.kdl"
+include "cfg/rules.kdl"
+include "cfg/binds.kdl"
+include "cfg/outputs.kdl"

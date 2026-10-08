@@ -4,6 +4,7 @@
 
 ### Desktop & Terminal
 - [x] DE: [KDE Plasma](https://kde.org/) configs
+- [x] Optional desktop configs: [Niri](https://github.com/niri-wm/niri) + [Noctalia v5](https://github.com/noctalia-dev/noctalia) (not auto-installed; see [desktop guide](docs/desktop.md))
 - [x] Terminal: [Alacritty](https://alacritty.org/) + [Cosmic Term](https://github.com/pop-os/cosmic-term) configs
 - [x] Terminal multiplexer: [tmux](https://github.com/tmux/tmux) configs
 - [x] Terminal multiplexer: [zellij](https://zellij.dev/) (auto-installed)

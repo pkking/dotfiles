@@ -1,0 +1,7 @@
+// App-specific window rules live here once a requirement is proven.
+// Do not copy machine-specific app IDs and workspace routing from other rice.
+// Example (commented):
+// window-rule {
+//     match app-id="^org.gnome.Calculator$"
+//     open-floating true
+// }
