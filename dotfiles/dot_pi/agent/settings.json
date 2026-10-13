@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.85.1",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-terra",
+  "lastChangelogVersion": "1.2.0",
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6.1-sol",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-rtk-optimizer",
@@ -9,7 +9,6 @@
     "git:github.com/Fornace/pi-alibaba-models@main",
     "npm:pi-cache-optimizer",
     "npm:pi-advisor",
-    "npm:pi-mcp-adapter",
     "npm:pi-extensible-workflows",
     "npm:@narumitw/pi-usage",
     "npm:pi-autoresearch",
@@ -17,5 +16,6 @@
   ],
   "theme": "dark",
   "defaultThinkingLevel": "medium",
-  "hideThinkingBlock": false
+  "hideThinkingBlock": false,
+  "deviceId": "61f6c919-5bd7-4128-80a2-31fdf636f21f"
 }
