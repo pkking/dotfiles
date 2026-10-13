@@ -1,0 +1,242 @@
+# Noctalia 5.2+: Tokyo Night / Omarchy sunset lake.
+# GUI overrides in ~/.local/state/noctalia/settings.toml load LAST.
+# See docs/niri-noctalia.md before applying for the first time.
+
+[theme]
+source = "custom"
+custom_palette = "TokyoNight"
+mode = "dark"
+
+[shell]
+font_family = "Noto Sans"
+corner_radius_scale = 1.0
+setup_wizard_enabled = false
+telemetry_enabled = false
+
+[shell.animation]
+enabled = true
+speed = 1.15
+
+[bar]
+order = ["default"]
+
+[bar.default]
+position = "top"
+margin_edge = 10
+margin_ends = 12
+thickness = 36
+padding = 14
+widget_spacing = 8
+radius = 12
+concave_edge_corners = false
+background_opacity = 0.96
+border = "outline"
+border_width = 1.0
+shadow = true
+reserve_space = true
+start = ["launcher", "workspaces"]
+center = ["clock"]
+end = ["media", "tray", "clipboard", "notifications", "network", "volume", "control-center", "session"]
+
+[bar.default.monitor.portrait]
+match = "HDMI-A-1"
+margin_ends = 10
+thickness = 34
+padding = 10
+widget_spacing = 6
+start = ["launcher", "workspaces"]
+center = ["clock"]
+end = ["volume", "notifications", "control-center"]
+
+[widget.clock]
+type = "clock"
+format = "{:%a  %m-%d  %H:%M}"
+
+[widget.media]
+max_length = 180.0
+
+[dock]
+enabled = false
+
+[wallpaper]
+enabled = true
+directory = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/omarchy"
+fill_mode = "crop"
+transition = ["fade"]
+transition_duration = 900.0
+transition_on_startup = true
+fill_color = "surface"
+
+[wallpaper.default]
+path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/omarchy/sunset-lake-4k.webp"
+
+[wallpaper.monitors.DP-1]
+path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/omarchy/sunset-lake-4k.webp"
+
+[wallpaper.monitors.HDMI-A-1]
+path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/omarchy/sunset-lake-portrait.webp"
+
+[wallpaper.automation]
+enabled = false
+
+[backdrop]
+enabled = true
+blur_intensity = 0.6
+tint_intensity = 0.35
+
+[lockscreen]
+enabled = true
+blurred_desktop = false
+blur_intensity = 0.25
+tint_intensity = 0.35
+lock_before_suspend = true
+transition = ["fade"]
+transition_duration = 900.0
+# Empty wallpaper follows each output's own desktop wallpaper.
+wallpaper = ""
+
+[lockscreen_widgets]
+enabled = true
+schema_version = 2
+widget_order = ["main-clock", "main-date", "portrait-clock", "portrait-date", "lockscreen-login-box@DP-1", "lockscreen-login-box@HDMI-A-1"]
+
+[lockscreen_widgets.grid]
+visible = false
+
+[lockscreen_widgets.widget.main-clock]
+type = "clock"
+output = "DP-1"
+cx = 1280.0
+cy = 450.0
+box_width = 640.0
+box_height = 180.0
+placement_width = 2560.0
+placement_height = 1440.0
+
+[lockscreen_widgets.widget.main-clock.settings]
+format = "{:%H:%M}"
+font_family = "Monaspace Neon NF"
+color = "on_surface"
+center_text = true
+shadow = true
+
+[lockscreen_widgets.widget.main-date]
+type = "clock"
+output = "DP-1"
+cx = 1280.0
+cy = 570.0
+box_width = 420.0
+box_height = 40.0
+placement_width = 2560.0
+placement_height = 1440.0
+
+[lockscreen_widgets.widget.main-date.settings]
+format = "{:%A · %Y-%m-%d}"
+color = "on_surface"
+center_text = true
+shadow = true
+
+[lockscreen_widgets.widget.portrait-clock]
+type = "clock"
+output = "HDMI-A-1"
+cx = 540.0
+cy = 650.0
+box_width = 600.0
+box_height = 160.0
+placement_width = 1080.0
+placement_height = 1920.0
+
+[lockscreen_widgets.widget.portrait-clock.settings]
+format = "{:%H:%M}"
+font_family = "Monaspace Neon NF"
+color = "on_surface"
+center_text = true
+shadow = true
+
+[lockscreen_widgets.widget.portrait-date]
+type = "clock"
+output = "HDMI-A-1"
+cx = 540.0
+cy = 760.0
+box_width = 420.0
+box_height = 40.0
+placement_width = 1080.0
+placement_height = 1920.0
+
+[lockscreen_widgets.widget.portrait-date.settings]
+format = "{:%A · %Y-%m-%d}"
+color = "on_surface"
+center_text = true
+shadow = true
+
+[lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
+type = "login_box"
+output = "DP-1"
+enabled = true
+cx = 1280.0
+cy = 1120.0
+box_width = 810.0
+box_height = 196.0
+placement_width = 2560.0
+placement_height = 1440.0
+
+[lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
+layout = "compact"
+background_opacity = 0.9
+background_radius = 16.0
+input_radius = 10.0
+show_weather = false
+show_media = false
+show_session_buttons = false
+center_password_text = true
+
+[lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1"]
+type = "login_box"
+output = "HDMI-A-1"
+enabled = true
+cx = 540.0
+cy = 1560.0
+box_width = 810.0
+box_height = 196.0
+placement_width = 1080.0
+placement_height = 1920.0
+
+[lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1".settings]
+layout = "compact"
+background_opacity = 0.9
+background_radius = 16.0
+input_radius = 10.0
+show_weather = false
+show_media = false
+show_session_buttons = false
+center_password_text = true
+# Keep a password box on each output so unplugging the main screen is safe.
+
+[idle]
+behavior_order = ["lock", "screen-off"]
+pre_action_fade_seconds = 3.0
+
+[idle.behavior.lock]
+action = "lock"
+enabled = true
+timeout = 300.0
+
+[idle.behavior.screen-off]
+action = "screen_off"
+enabled = true
+timeout = 600.0
+
+[idle.behavior.lock-and-suspend]
+enabled = false
+
+[notification]
+follow_focused_output = true
+width = 360
+background_opacity = 0.96
+
+[osd]
+follow_focused_output = true
+position = "top_center"
+
+[weather]
+enabled = false

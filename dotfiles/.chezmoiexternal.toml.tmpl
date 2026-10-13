@@ -16,9 +16,8 @@
     url =  "https://github.com/githubnext/monaspace/releases/download/{{ (gitHubLatestRelease "githubnext/monaspace").TagName | toString }}/monaspace-nerdfonts-{{ (gitHubLatestRelease "githubnext/monaspace").TagName | toString }}.zip"
     path = "monaspace"
 
-[".local/share/applications/alacritty.desktop"]
-    type = "file"
-    url =  "https://github.com/alacritty/alacritty/releases/download/{{ (gitHubLatestRelease "alacritty/alacritty").TagName | toString }}/Alacritty.desktop"
+# Alacritty's desktop entry is managed locally by
+# dot_local/share/applications/alacritty.desktop.tmpl (mise shim Exec/TryExec).
 
 [".local/bin/skillshare"]
     type = "archive-file"

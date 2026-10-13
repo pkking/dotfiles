@@ -4,7 +4,8 @@
 
 ### Desktop & Terminal
 - [x] DE: [KDE Plasma](https://kde.org/) configs
-- [x] Terminal: [Alacritty](https://alacritty.org/) + [Cosmic Term](https://github.com/pop-os/cosmic-term) configs
+- [x] Wayland desktop: [Niri](https://github.com/YaLTeR/niri) + [Noctalia v5](https://noctalia.dev/), Tokyo Night palette, Omarchy wallpaper, dual-monitor layout and native idle locking — [setup guide](docs/niri-noctalia.md)
+- [x] Terminal: [Alacritty](https://alacritty.org/) (installed via mise, with a locally managed desktop entry) + [Cosmic Term](https://github.com/pop-os/cosmic-term) configs
 - [x] Terminal multiplexer: [tmux](https://github.com/tmux/tmux) configs
 - [x] Terminal multiplexer: [zellij](https://zellij.dev/) (auto-installed)
 - [x] Shell prompt: [Starship](https://starship.rs/) configs
@@ -27,7 +28,8 @@
 - [x] Skills: [skillshare](https://github.com/runkids/skillshare) for cross-tool AI skill sync
 
 ### Dotfile management: [chezmoi](https://www.chezmoi.io/)
-- [x] External tools auto-installed: mise, oh-my-zsh, monaspace fonts, alacritty desktop entry, skillshare, lazyssh, yazi, zellij
+- [x] External tools auto-installed: mise, oh-my-zsh, monaspace fonts, skillshare, lazyssh, yazi, zellij
+- [x] Alacritty desktop entry: local chezmoi template using the stable mise shim, independent of the compositor's PATH
 - [x] Encryption: age-encrypted files for personal tokens
 
 ### Other
@@ -35,6 +37,13 @@
 - [x] Rust: Cargo config (`~/.cargo`)
 - [x] X11: `~/.Xresources`, `~/.xinitrc`, `~/.xprofile`
 - [x] SSH & OpenClaw (private dirs)
+
+### Niri / Noctalia notes
+
+- The monitor layout targets this machine: `DP-1` at 3840×2160 / 150% scale, with `HDMI-A-1` rotated 90° on the right. Adjust connector names and geometry on other machines.
+- `Super+T` opens Alacritty; `Super+D` opens the Noctalia application launcher. Alacritty launches through the mise shim because a graphical session may not inherit shell PATH settings.
+- Noctalia handles notifications; the managed user-service mask disables mako to prevent competing notification daemons. The mako package is not uninstalled.
+- Niri and Noctalia must already be installed. See the [desktop guide](docs/niri-noctalia.md) for first-apply state overrides, lockscreen testing and rollback details.
 
 ## Screenshot
 
