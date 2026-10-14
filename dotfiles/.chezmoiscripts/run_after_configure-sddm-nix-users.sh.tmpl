@@ -1,0 +1,46 @@
+#!/bin/bash
+{{ if eq .chezmoi.os "linux" }}
+set -euo pipefail
+
+# This optional system configuration only applies to machines with SDDM.
+command -v sddm >/dev/null 2>&1 || exit 0
+
+target=/etc/sddm.conf.d/90-hide-nix-users.conf
+
+# Refresh the list on every apply, including newly created Nix build users.
+users=$(getent passwd |
+  awk -F: '$1 ~ /^nixbld[0-9]+$/ {print $1}' |
+  LC_ALL=C sort |
+  paste -sd, -)
+
+[ -n "$users" ] || exit 0
+
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+printf '[Users]\nHideUsers=%s\n' "$users" > "$tmp"
+
+# Avoid requesting privileges when the configuration has not changed.
+if cmp -s "$tmp" "$target"; then
+  exit 0
+fi
+
+if ! command -v sudo >/dev/null 2>&1; then
+  echo "Skipping SDDM configuration: sudo is not installed." >&2
+  exit 0
+fi
+
+# Prompt for a password if needed; skip this optional step if denied.
+if ! sudo -v; then
+  echo "Skipping SDDM configuration: sudo authorization failed." >&2
+  exit 0
+fi
+
+echo "Updating SDDM configuration: $target"
+if ! {
+  sudo install -d -m 0755 /etc/sddm.conf.d &&
+  sudo install -m 0644 "$tmp" "$target"
+}; then
+  echo "Skipping SDDM configuration: installation failed; check sudo permissions." >&2
+  exit 0
+fi
+{{ end }}
