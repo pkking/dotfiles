@@ -16,11 +16,12 @@ fi
 
 # 2. 核心保护：防止明文敏感文件被提交
 # 逻辑：在暂存区寻找那些应该被加密但在 Git 看来是新增明文的文件
-STAGED_ENCRYPTED_FILES=$(git diff --cached --name-only | grep "\.age$")
+STAGED_ENCRYPTED_FILES=$(git diff --cached --diff-filter=ACMRT --name-only -- '*.age')
 
 for file in $STAGED_ENCRYPTED_FILES; do
-    # 增加对 Armor 格式的判断：匹配 'age-encryption.org' OR 'BEGIN AGE ENCRYPTED'
-    if ! head -n 2 "$file" | grep -Eq "age-encryption.org|BEGIN AGE ENCRYPTED"; then
+    # Read the staged blob, not the working-tree path (which may be deleted).
+    # Match 'age-encryption.org' OR 'BEGIN AGE ENCRYPTED' in Armor format.
+    if ! git show ":$file" | head -n 2 | grep -Eq "age-encryption.org|BEGIN AGE ENCRYPTED"; then
         echo "❌ [Critical Error] 文件 $file 看起来不是有效的加密格式！"
         echo "   提交已被拦截。请检查文件内容或重新添加。"
         exit 1
