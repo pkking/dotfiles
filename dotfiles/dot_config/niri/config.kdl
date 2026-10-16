@@ -667,4 +667,5 @@ binds {
 // user defined contents
 spawn-at-startup "noctalia"
 spawn-at-startup "fcitx5" "-d"
+spawn-at-startup "sh" "-c" "sleep 2; exec /opt/v2rayn-bin/v2rayN"
 
