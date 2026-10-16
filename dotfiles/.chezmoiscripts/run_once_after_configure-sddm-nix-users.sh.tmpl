@@ -5,19 +5,13 @@ set -euo pipefail
 # This optional system configuration only applies to machines with SDDM.
 command -v sddm >/dev/null 2>&1 || exit 0
 
-target=/etc/sddm.conf.d/90-hide-nix-users.conf
-
-# Refresh the list on every apply, including newly created Nix build users.
-users=$(getent passwd |
-  awk -F: '$1 ~ /^nixbld[0-9]+$/ {print $1}' |
-  LC_ALL=C sort |
-  paste -sd, -)
-
-[ -n "$users" ] || exit 0
+# Hide Nix build users (nixbld1-32) whose login shell is nologin.
+# HideShells covers every nixbld user regardless of how many Nix creates.
+target=/etc/sddm.conf.d/10-hide-nix-users.conf
 
 tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
-printf '[Users]\nHideUsers=%s\n' "$users" > "$tmp"
+printf '[Users]\n# Hide Nix build users (nixbld1-32, shell /sbin/nologin, UID 30001-30032)\nHideShells=/sbin/nologin,/usr/bin/nologin,/bin/false\n' > "$tmp"
 
 # Avoid requesting privileges when the configuration has not changed.
 if cmp -s "$tmp" "$target"; then
