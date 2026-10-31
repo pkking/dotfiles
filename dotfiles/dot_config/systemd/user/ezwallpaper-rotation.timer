@@ -1,0 +1,10 @@
+[Unit]
+Description=Opt-in hourly niri/Noctalia wallpaper rotation
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+Unit=ezwallpaper-rotation.service
+
+[Install]
+WantedBy=timers.target
