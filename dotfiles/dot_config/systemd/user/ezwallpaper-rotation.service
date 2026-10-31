@@ -1,0 +1,14 @@
+[Unit]
+Description=Rotate niri/Noctalia wallpaper per output using existing ezwallpaper
+Documentation=https://github.com/pkking/ezwallpaper
+
+[Service]
+Type=oneshot
+# This unit is NOT enabled by chezmoi. The binary and two real-image
+# directories must be prepared separately; never launch swaybg/mpvpaper.
+# Missing prerequisites are a failed service, not a fake successful rotation.
+ExecStartPre=/usr/bin/test -x %h/.local/bin/ezwallpaper
+ExecStartPre=/usr/bin/test -d %h/.local/share/wallpapers/landscape
+ExecStartPre=/usr/bin/test -d %h/.local/share/wallpapers/portrait
+ExecStart=%h/.local/bin/ezwallpaper rotate next --profile %h/.config/ezwallpaper/rotation.json --rotation-backend noctalia --apply --json
+NoNewPrivileges=true
