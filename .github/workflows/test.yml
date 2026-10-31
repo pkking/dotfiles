@@ -17,10 +17,22 @@ jobs:
     if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ready' }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo $(( github.event.action }}; echo ${{ github.event.label.name }}
+      - name: Inspect pull request event safely
+        env:
+          PR_ACTION: ${{ github.event.action }}
+          PR_LABEL: ${{ github.event.label.name || '' }}
+        run: |
+          printf 'action=%s\n' "$PR_ACTION"
+          printf 'label=%s\n' "$PR_LABEL"
 
   final:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - run: echo $(( github.event.action }}; echo ${{ github.event.label.name }}
+      - name: Inspect pull request event safely
+        env:
+          PR_ACTION: ${{ github.event.action }}
+          PR_LABEL: ${{ github.event.label.name || '' }}
+        run: |
+          printf 'action=%s\n' "$PR_ACTION"
+          printf 'label=%s\n' "$PR_LABEL"
