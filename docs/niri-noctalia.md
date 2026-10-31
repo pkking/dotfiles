@@ -145,7 +145,7 @@ noctalia config export
 
 这是一套**配置交付**，不是已经完成的本机部署：chezmoi 新增 `~/.config/ezwallpaper/rotation.json` 和 `~/.config/systemd/user/ezwallpaper-rotation.{service,timer}`，仅管理源文件，**not automatically** installed/enabled by this PR. 不自动下载、执行 `chezmoi apply`、启用定时器、修改 Noctalia 或终止旧服务。使用已有 [ezwallpaper Noctalia v5 接口](https://github.com/pkking/ezwallpaper/blob/master/docs/examples/rotation-profile.json)，明确调用 `--rotation-backend noctalia`；Noctalia 仍是唯一壁纸渲染器。
 
-**准备条件：** 你的 DP-1 是 3840×2160 / scale 1.5，HDMI-A-1 旋转后是 1080×1920。模板分别使用两个**实际普通文件**池：`~/.local/share/wallpapers/landscape` 和 `~/.local/share/wallpapers/portrait`。不修改原有 `omarchy/` 壁纸。profile 设置 `follow_symlinks=false`，所以原先可能存在的指向 `omarchy/` 的符号链接**不会**加入候选；请把经过解码验证的图像实际复制进对应池。每个池需要 **at least two distinct / two distinct** (SHA-256 不同、且画面确实不同) 的候选才能保证相邻小时有机会换新图；现有 omarchy 的 sunset-lake 单图/裁切版本不构成两个独立主题。任一池为空或只有单张时 CLI 会返回 `empty_local_pool` / `no_distinct_candidate`，不是成功换新。下载补池 **尚未自动化**，`wallpaper-daily` 旧任务不能被此 timer 代替。
+**准备条件：** 你的 DP-1 是 3840×2160 / scale 1.5，HDMI-A-1 旋转后是 1080×1920。模板分别使用两个**实际普通文件**池：`~/.local/share/wallpapers/landscape` 和 `~/.local/share/wallpapers/portrait`。不修改原有 `omarchy/` 壁纸。profile 设置 `follow_symlinks=false`，所以原先可能存在的指向 `omarchy/` 的符号链接**不会**加入候选；请把经过解码验证的图像实际复制进对应池。每个池需要 **two distinct**（至少两个 SHA-256 不同、且画面确实不同）的候选才能保证相邻小时有机会换新图；现有 omarchy 的 sunset-lake 单图/裁切版本不构成两个独立主题。任一池为空或只有单张时 CLI 会返回 `empty_local_pool` / `no_distinct_candidate`，不是成功换新。下载补池 **尚未自动化**，`wallpaper-daily` 旧任务不能被此 timer 代替。
 
 **先只读盘点和检查差异**（可在本人终端操作，但本 PR 不执行）：
 
