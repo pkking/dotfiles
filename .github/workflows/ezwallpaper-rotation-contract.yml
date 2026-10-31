@@ -1,0 +1,20 @@
+name: niri Noctalia rotation config contract
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ezwallpaper-rotation-contract.yml'
+      - 'dotfiles/dot_config/ezwallpaper/**'
+      - 'dotfiles/dot_config/systemd/user/ezwallpaper-rotation.*'
+      - 'docs/niri-noctalia.md'
+      - 'scripts/test-ezwallpaper-rotation-contract.py'
+  workflow_dispatch:
+
+jobs:
+  config-contract:
+    name: Offline profile and systemd contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate staged configuration without desktop access
+        run: python3 scripts/test-ezwallpaper-rotation-contract.py -v
