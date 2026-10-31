@@ -141,6 +141,56 @@ noctalia config export
 
 本机已应用并验证：Niri 实际输出为主屏 3840×2160 / 1.5 倍缩放，右侧副屏为 1080×1920 / transform 90；Noctalia 实际加载 Tokyo Night 和各屏独立壁纸；通知服务归属为 Noctalia，mako 状态为 masked；通过 Niri 启动命令成功创建了 Alacritty 窗口，且 shim 在精简 PATH 下可运行。没有主动触发锁屏；PAM 密码解锁及空闲后的双屏锁定仍需手动测试。
 
+## ezwallpaper 双屏小时轮换（已纳入 chezmoi，默认不启用）
+
+这是一套**配置交付**，不是已经完成的本机部署：chezmoi 新增 `~/.config/ezwallpaper/rotation.json` 和 `~/.config/systemd/user/ezwallpaper-rotation.{service,timer}`，仅管理源文件，**not automatically** installed/enabled by this PR. 不自动下载、执行 `chezmoi apply`、启用定时器、修改 Noctalia 或终止旧服务。使用已有 [ezwallpaper Noctalia v5 接口](https://github.com/pkking/ezwallpaper/blob/master/docs/examples/rotation-profile.json)，明确调用 `--rotation-backend noctalia`；Noctalia 仍是唯一壁纸渲染器。
+
+**准备条件：** 你的 DP-1 是 3840×2160 / scale 1.5，HDMI-A-1 旋转后是 1080×1920。模板分别使用两个**实际普通文件**池：`~/.local/share/wallpapers/landscape` 和 `~/.local/share/wallpapers/portrait`。不修改原有 `omarchy/` 壁纸。profile 设置 `follow_symlinks=false`，所以原先可能存在的指向 `omarchy/` 的符号链接**不会**加入候选；请把经过解码验证的图像实际复制进对应池。每个池需要 **at least two distinct / two distinct** (SHA-256 不同、且画面确实不同) 的候选才能保证相邻小时有机会换新图；现有 omarchy 的 sunset-lake 单图/裁切版本不构成两个独立主题。任一池为空或只有单张时 CLI 会返回 `empty_local_pool` / `no_distinct_candidate`，不是成功换新。下载补池 **尚未自动化**，`wallpaper-daily` 旧任务不能被此 timer 代替。
+
+**先只读盘点和检查差异**（可在本人终端操作，但本 PR 不执行）：
+
+```sh
+# 查看所有现有换图/场景/状态服务，先识别真实运行者。
+systemctl --user list-timers --all
+systemctl --user list-unit-files | grep -E 'wallpaper|ezwallpaper|beautify-scene-follow|agent-status'
+systemctl --user show-environment | grep -E '^(WAYLAND_DISPLAY|XDG_SESSION_TYPE|XDG_CURRENT_DESKTOP)='
+niri msg outputs
+noctalia msg wallpaper-get DP-1
+noctalia msg wallpaper-get HDMI-A-1
+
+# 只预览将部署的文件；不会对整个 dotfiles 仓库盲目 apply。
+chezmoi diff ~/.config/ezwallpaper/rotation.json \
+  ~/.config/systemd/user/ezwallpaper-rotation.service \
+  ~/.config/systemd/user/ezwallpaper-rotation.timer
+```
+
+**本机准备及只读验证（先经人工确认）**：
+
+```sh
+# 确认自构建且版本功能匹配的 ezwallpaper 二进制在此路径。
+test -x "$HOME/.local/bin/ezwallpaper"
+"$HOME/.local/bin/ezwallpaper" --help
+
+# 建议每池 >= 2 个经验证的不同图片，按物理尺寸准备（不是逻辑尺寸）。
+mkdir -p "$HOME/.local/share/wallpapers/landscape" \
+  "$HOME/.local/share/wallpapers/portrait"
+"$HOME/.local/bin/ezwallpaper" probe /absolute/path/example.png --json
+# 手动将合适的真实图像文件复制到各自池中，勿启用越界符号链接。
+
+# 完成 chezmoi 的限定部署后，先 dry-run：不连接 Noctalia、不写 rotation state。
+"$HOME/.local/bin/ezwallpaper" rotate next \
+  --profile "$HOME/.config/ezwallpaper/rotation.json" \
+  --rotation-backend noctalia --dry-run --json
+```
+
+`ezwallpaper` 当前是 source-first CLI；此配置**不自动安装二进制**，使用 `%h/.local/bin/ezwallpaper` 作为固定且可审计的路径。来自不同发行版本的二进制不应未经检查就假定支持 `--rotation-backend noctalia`。手动下载时优先 Wallhaven SFW：`ezwallpaper --backend wallhaven --orientation landscape --min-width 3840 --min-height 2160 --count 12 -d "$HOME/.local/share/wallpapers/landscape" fetch --json`，竖屏改为 `--orientation portrait --min-width 1080 --min-height 1920`；远端尺寸只是候选元数据，仍要用 `probe` 验证解码。此处仅是**可选人工命令**，没有定时/凭据/网络副作用。
+
+**受控切换与回滚**：先为已有 `wallpaper-daily.*`、`wallpaper-hourly.*`、`beautify-scene-follow.*`、壁纸 hooks/follower、Noctalia 自带 automation 做运行中控制权盘点；它们可能覆盖壁纸。不要批量 `disable` 或 `pkill`，尤其不能停掉无关的 `agent-status`。备份当前 `noctalia msg wallpaper-get` 的两个路径、旧任务的 enabled/active 状态和配置，再在**获得部署授权**后通过 scoped `chezmoi apply` 安装新文件。只有确认唯一调度者和可回退后，才可手动运行一次 `systemctl --user start ezwallpaper-rotation.service`，读取 `journalctl --user -u ezwallpaper-rotation.service -n 60 --no-pager`，分别检查两屏 IPC 与实际画面；最后再**显式启用** `systemctl --user enable --now ezwallpaper-rotation.timer`。服务文件缺少二进制或图像池目录会失败，不会启动其他 renderer、自动获取图片或伪报换图成功。用户管理器必须能访问当前 Wayland/Noctalia 会话，缺环境时先排查，不盲目导入密码或 token。
+
+回退新调度：`systemctl --user disable --now ezwallpaper-rotation.timer`；停止尚在执行的新 service、恢复事先记录的两个 Noctalia wallpaper 路径及原有 scheduler 状态。归档/移除本次三个 chezmoi 目标前必须先从 chezmoi 源中去掉对应文件，否则后续 `chezmoi apply` 会再次部署。**本机正式 niri 物理双屏/缩放、锁屏 PAM、热插拔、休眠、每日自动补池、SDDM/Plymouth 仍未验收**。现有虚拟 Niri PR #3800 证据不能替代它们。
+
+设计/代码依据：[dotfiles #84](https://github.com/pkking/dotfiles/issues/84) · [本次集成 #91](https://github.com/pkking/dotfiles/issues/91) · [ezwallpaper Noctalia backend](https://github.com/pkking/ezwallpaper/blob/master/src/backend/noctalia.rs) · [持久化轮换状态机](https://github.com/pkking/ezwallpaper/blob/master/src/rotation_cli.rs)。
+
 ## 参考
 
 - [Noctalia v5.2.1 壁纸配置](https://github.com/noctalia-dev/noctalia/blob/v5.2.1/docs/user/desktop/wallpaper.mdx)
