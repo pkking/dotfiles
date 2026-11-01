@@ -1,0 +1,8 @@
+[Unit]
+Description=Rotate local ezwallpaper pools through Noctalia
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStartPre=%h/.local/bin/ezwallpaper-rotation-preflight.py
+ExecStart=/usr/bin/flock --nonblock --conflict-exit-code=75 %t/ezwallpaper-rotate.lock %h/.local/bin/ezwallpaper rotate next --profile %h/.config/ezwallpaper/rotation-profile.json --apply

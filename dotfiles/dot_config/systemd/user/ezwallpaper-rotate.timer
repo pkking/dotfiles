@@ -1,0 +1,10 @@
+[Unit]
+Description=Hourly local ezwallpaper rotation
+
+[Timer]
+OnCalendar=hourly
+Persistent=false
+Unit=ezwallpaper-rotate.service
+
+[Install]
+WantedBy=timers.target
