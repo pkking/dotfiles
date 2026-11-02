@@ -60,21 +60,28 @@ enabled = false
 
 [wallpaper]
 enabled = true
-directory = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/omarchy"
+directory = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/landscape"
 fill_mode = "crop"
 transition = ["fade"]
 transition_duration = 900.0
 transition_on_startup = true
 fill_color = "surface"
+per_monitor_directories = true
 
 [wallpaper.default]
-path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/omarchy/sunset-lake-4k.webp"
+path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/landscape/mocha-flat-landscape.png"
 
 [wallpaper.monitors.DP-1]
-path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/omarchy/sunset-lake-4k.webp"
+path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/landscape/mocha-flat-landscape.png"
 
 [wallpaper.monitors.HDMI-A-1]
-path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/omarchy/sunset-lake-portrait.webp"
+path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/portrait/mocha-flat-portrait.png"
+
+[wallpaper.monitor.DP-1]
+directory = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/landscape"
+
+[wallpaper.monitor.HDMI-A-1]
+directory = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/portrait"
 
 [wallpaper.automation]
 enabled = false
