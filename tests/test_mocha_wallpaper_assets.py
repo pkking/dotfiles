@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "dotfiles/dot_local/share/wallpapers/ezwallpaper-mocha"
 TEMPLATE = ROOT / "dotfiles/dot_config/noctalia/desktop.toml.tmpl"
 DOC = ROOT / "docs/mocha-wallpaper-assets.md"
+B_PROFILE = ROOT / "dotfiles/dot_config/ezwallpaper/rotation.json.tmpl"
+B_PREFLIGHT = ROOT / "dotfiles/dot_local/bin/executable_ezwallpaper-rotation-preflight.py"
 EXPECTED = {
     "landscape/mocha-flat-landscape.png": (3840, 2160),
     "portrait/mocha-flat-portrait.png": (2160, 3840),
@@ -107,15 +109,36 @@ class MochaWallpaperContractTests(unittest.TestCase):
 
     def test_docs_disclose_static_default_and_b_prerequisites(self) -> None:
         doc = DOC.read_text(encoding="utf-8")
+        profile = B_PROFILE.read_text(encoding="utf-8")
+        preflight = B_PREFLIGHT.read_text(encoding="utf-8")
+        for path in (
+            ".local/share/wallpapers/landscape",
+            ".local/share/wallpapers/portrait",
+        ):
+            self.assertIn(path, profile)
+        for path in (
+            ".local/share/wallpapers/ezwallpaper-mocha/landscape",
+            ".local/share/wallpapers/ezwallpaper-mocha/portrait",
+        ):
+            self.assertIn(path, preflight)
+        self.assertIn("~/.local/share/wallpapers/{landscape,portrait}", doc)
+        self.assertIn(
+            "~/.local/share/wallpapers/ezwallpaper-mocha/{landscape,portrait}",
+            doc,
+        )
+        self.assertIn("hard-coded", doc)
+        self.assertIn(
+            "does not make the guard support arbitrary pool paths",
+            doc,
+        )
         for phrase in (
             "remain static",
             "native automation",
             "ezwallpaper-rotation-b.md",
-            "at least two distinct validated",
             "private/local",
-            "enable --now ezwallpaper-rotate.timer",
             "ezwallpaper-rotation",
             "wallpapers/{landscape,portrait}",
+            "native automation is a distinct alternative",
             "cannot prove",
         ):
             self.assertIn(phrase, doc)
