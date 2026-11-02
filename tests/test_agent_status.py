@@ -5,6 +5,7 @@ import os
 import tempfile
 import tomllib
 import unittest
+import subprocess
 from pathlib import Path
 from unittest import mock
 
@@ -64,18 +65,80 @@ class AgentStatusTests(unittest.TestCase):
         self.assertEqual(result["total"], 5)
         self.assertNotIn("fixture-secret", json.dumps(result))
 
-    def test_skips_disappearing_or_malformed_process_without_failing_scan(self):
+    def test_ancestry_walks_through_unsupported_process_and_keeps_separate_trees(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            proc = ProcFixture(root)
+            proc.add(100, "claude")
+            proc.add(101, "bash", 100)
+            proc.add(102, "claude", 101)
+            proc.add(103, "claude")  # unrelated tree must remain distinct
+            counts = collector.scan(root, os.getuid())
+        self.assertEqual(counts["claude"], 2)
+
+    def test_same_uid_ancestry_cycle_terminates_and_different_tools_remain_distinct(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            proc = ProcFixture(root)
+            proc.add(110, "claude", 111)
+            proc.add(111, "claude", 110)
+            proc.add(112, "codex", 110)
+            counts = collector.scan(root, os.getuid())
+        self.assertEqual(counts["claude"], 1)
+        self.assertEqual(counts["codex"], 1)
+
+    def test_disappearing_and_permission_denied_proc_metadata_are_skipped(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             proc = ProcFixture(root)
             proc.add(200, "claude")
-            broken = root / "201"
+            proc.add(201, "pi")
+            original = Path.read_text
+
+            def read_with_races(path, *args, **kwargs):
+                if path == root / "201" / "stat":
+                    raise FileNotFoundError("disappeared fixture")
+                if path == root / "200" / "comm":
+                    raise PermissionError("inaccessible fixture")
+                return original(path, *args, **kwargs)
+
+            with mock.patch.object(Path, "read_text", read_with_races):
+                counts = collector.scan(root, os.getuid())
+        self.assertEqual(counts["claude"], 0)
+        self.assertEqual(counts["pi"], 0)
+
+    def test_foreign_uid_pid_is_not_counted_or_used_as_ancestor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            proc = ProcFixture(root)
+            proc.add(210, "claude")
+            proc.add(211, "bash", 210)
+            proc.add(212, "claude", 211)
+            original = Path.stat
+
+            def foreign_owner(path, *args, **kwargs):
+                result = original(path, *args, **kwargs)
+                if path == root / "211":
+                    return type("Stat", (), {"st_uid": os.getuid() + 1})()
+                return result
+
+            with mock.patch.object(Path, "stat", foreign_owner):
+                counts = collector.scan(root, os.getuid())
+        self.assertEqual(counts["claude"], 2)
+
+    def test_malformed_stat_is_skipped_without_claiming_it_tests_a_race(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            proc = ProcFixture(root)
+            proc.add(220, "claude")
+            broken = root / "221"
             broken.mkdir()
-            (broken / "comm").write_text("pi\n", encoding="utf-8")
+            (broken / "comm").write_text("pi\\n", encoding="utf-8")
             (broken / "stat").write_text("bad stat", encoding="ascii")
             os.symlink("/usr/bin/pi", broken / "exe")
-            self.assertEqual(collector.scan(root, os.getuid())["claude"], 1)
-            self.assertEqual(collector.scan(root, os.getuid())["pi"], 0)
+            counts = collector.scan(root, os.getuid())
+        self.assertEqual(counts["claude"], 1)
+        self.assertEqual(counts["pi"], 0)
 
     def test_process_table_enumeration_failure_is_an_error_not_false_zero(self):
         with self.assertRaises(RuntimeError):
@@ -109,6 +172,21 @@ class AgentStatusTests(unittest.TestCase):
                     collector.atomic_write(target, "new")
             self.assertEqual(target.read_text(encoding="utf-8"), old)
             self.assertEqual(list(Path(tmp).glob(".status.toml.*")), [])
+
+    def test_update_script_honors_custom_xdg_state_home_with_spaces(self):
+        root = Path(__file__).resolve().parents[1]
+        script = (root / "dotfiles/dot_local/bin/executable_agent-status-update.sh").read_text()
+        self.assertIn('state_home=${XDG_STATE_HOME:-"$HOME/.local/state"}', script)
+        self.assertIn('"$state_home/agent-status/status.toml"', script)
+        with tempfile.TemporaryDirectory(prefix="agent status ") as tmp:
+            home = Path(tmp) / "home with spaces"
+            xdg = Path(tmp) / "state dir with spaces"
+            home.mkdir()
+            command = 'state_home=${XDG_STATE_HOME:-"$HOME/.local/state"}; printf "%s" "$state_home/agent-status/status.toml"'
+            result = subprocess.run(["bash", "-c", command], check=True, text=True,
+                                    capture_output=True, env={**os.environ, "HOME": str(home),
+                                                              "XDG_STATE_HOME": str(xdg)})
+            self.assertEqual(result.stdout, str(xdg / "agent-status/status.toml"))
 
     def test_unit_timeout_and_absolute_chezmoi_exec_path_are_explicit(self):
         root = Path(__file__).resolve().parents[1]

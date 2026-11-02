@@ -28,7 +28,10 @@ def parse_ppid(stat: str) -> int:
 
 def scan(proc_root: Path, uid: int) -> dict[str, int]:
     """Count top-level same-tool process trees for uid; skip racing/inaccessible PIDs."""
-    rows: dict[int, tuple[str, int]] = {}
+    # Keep ancestry for every readable same-UID PID, including unsupported
+    # intermediaries (e.g. bash). Agent classification is separate so walking
+    # through wrappers does not require guessing from argv or environment.
+    rows: dict[int, tuple[str | None, int]] = {}
     try:
         entries = list(proc_root.iterdir())
     except OSError as exc:
@@ -41,25 +44,43 @@ def scan(proc_root: Path, uid: int) -> dict[str, int]:
             pid = int(entry.name)
             if entry.stat().st_uid != uid:
                 continue
+            stat = (entry / "stat").read_text(encoding="ascii")
+            parent = parse_ppid(stat)
             # comm and exe are kernel process identity metadata; cmdline/environ are
             # deliberately never opened, so prompts, credentials, and flags stay out.
-            comm = (entry / "comm").read_text(encoding="utf-8").strip()
-            exe = os.readlink(entry / "exe")
-            tool = classify(Path(exe).name) or classify(comm)
-            if tool is None:
-                continue
-            stat = (entry / "stat").read_text(encoding="ascii")
-            rows[pid] = (tool, parse_ppid(stat))
+            # If identity metadata races or is inaccessible, retain ancestry only.
+            try:
+                comm = (entry / "comm").read_text(encoding="utf-8").strip()
+                exe = os.readlink(entry / "exe")
+                tool = classify(Path(exe).name) or classify(comm)
+            except (OSError, UnicodeError, ValueError):
+                tool = None
+            rows[pid] = (tool, parent)
         except (OSError, UnicodeError, ValueError, IndexError, PermissionError):
             continue
 
-    roots = set(rows)
-    for pid, (tool, parent) in rows.items():
-        seen = {pid}
-        while parent in rows and parent not in seen:
-            seen.add(parent)
+    roots = {pid for pid, (tool, _) in rows.items() if tool is not None}
+    for pid in tuple(roots):
+        tool = rows[pid][0]
+        parent = rows[pid][1]
+        path = [pid]
+        positions = {pid: 0}
+        while parent in rows:
+            if parent in positions:
+                cycle = path[positions[parent]:]
+                same_type = [member for member in cycle
+                             if rows[member][0] == tool]
+                if same_type:
+                    representative = min(same_type)
+                    roots.difference_update(same_type)
+                    roots.add(representative)
+                break
+            positions[parent] = len(path)
+            path.append(parent)
             parent_tool, parent = rows[parent]
-            if parent_tool == tool:
+            # Only same-type agent ancestors merge; different supported agent
+            # types remain distinct. Missing/foreign-UID ancestry stops the walk.
+            if parent_tool == tool and parent not in positions:
                 roots.discard(pid)
                 break
 

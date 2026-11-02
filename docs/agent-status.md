@@ -1,6 +1,10 @@
 # Agent status collector (optional aggregate interface)
 
-This is a standalone, read-only process counter. It reports the number of top-level process trees whose executable or `/proc/<pid>/comm` is an exact supported CLI name: `claude`, `opencode`, `codex`, `agy`, `antigravity` (reported as `agy`), or `pi`. Descendants with the same tool are folded into the ancestor; a different supported tool under that tree is counted separately. The number is a process-tree estimate, not a count of interactive conversations or proof that a process was launched by `mise`.
+This is a standalone, read-only process counter. It reports the number of top-level process trees whose executable or `/proc/<pid>/comm` is an exact supported CLI name: `claude`, `opencode`, `codex`, `agy`, `antigravity` (reported as `agy`), or `pi`. Same-type agent descendants are folded into a same-UID agent ancestor even across unsupported intermediate processes such as bash; different supported agent types are counted separately. Cycles terminate safely, and ancestry stops at missing, inaccessible, or foreign-UID PIDs. The number is a process-tree estimate, not a count of interactive conversations or proof that a process was launched by `mise`.
+
+## Runtime requirements
+
+The updater requires Linux with mounted `/proc`, `/usr/bin/python3` (Python 3 standard library), Bash, and systemd user services/timers for the optional periodic export. The collector can also be run directly without systemd; it needs Python 3 and Linux procfs. No additional shell utilities are invoked by the updater. Missing runtime components, inaccessible procfs, or write failures produce a nonzero service result and leave the previous export intact when output replacement fails. These units are not a cross-platform service and this source does not enable or start them.
 
 For privacy it reads only process ownership, `comm`, `exe` symlink and `stat` metadata. It **never opens `cmdline` or `environ`**, never stores argv, prompts, cwd, environment, credentials or session content, and does not inspect agent files. Consequently agents presented as generic `node`, `python`, shell, or other wrapper processes are intentionally unsupported rather than guessed from arguments. Unsupported names are not counted. Processes that disappear or become inaccessible during a scan are skipped; failure to enumerate `/proc` or write output returns nonzero. The systemd oneshot has a 15-second runtime bound; an interrupted or failed write leaves the prior output intact.
 
@@ -22,7 +26,7 @@ The output has `[agent_status]` with `title`, `description`, `total`, and `[agen
 
 ## User units
 
-The source includes `agent-status.service` and `agent-status.timer`. The timer is **not enabled automatically** and no chezmoi lifecycle script enables it. If an operator chooses to consume the optional periodic export, they can explicitly enable it after deploying and reviewing the unit; no unit was started, enabled, or reloaded as part of this change. The unit writes only `~/.local/state/agent-status/status.toml`, with private file permissions.
+The source includes `agent-status.service` and `agent-status.timer`. The timer is **not enabled automatically** and no chezmoi lifecycle script enables it. If an operator chooses to consume the optional periodic export, they can explicitly enable it after deploying and reviewing the unit; no unit was started, enabled, or reloaded as part of this change. The updater writes to `${XDG_STATE_HOME:-$HOME/.local/state}/agent-status/status.toml`, with private file permissions. Static `systemd-analyze --user verify` with `ExecStart` temporarily replaced by `/usr/bin/true` checks unit syntax/dependencies only; it does not test the updater, deployed paths, service execution, or integration.
 
 ## Noctalia integration boundary
 
@@ -30,4 +34,4 @@ An untracked source snapshot contained a proposed `lcr/agent-status` manifest/Lu
 
 ## Tests
 
-Run `python3 -B tests/test_agent_status.py -v`. Tests use isolated fake `/proc` trees, never the real process table or agent sessions. They cover exact-name matching, same-tool ancestry de-duplication, unsupported/argv-shaped false positives, malformed/disappearing processes, enumeration errors, JSON/TOML schema and escaping, atomic/private output, and last-good preservation on write failure.
+Run `python3 -B tests/test_agent_status.py -v`. Tests use isolated fake `/proc` trees and mocked race/permission/ownership boundaries, never the real process table or agent sessions. They cover exact-name matching, same-type ancestry de-duplication through unsupported intermediaries, distinct trees and agent types, cycle termination, foreign-UID isolation, explicit disappearing/permission failures, malformed stat parsing, enumeration errors, JSON/TOML schema and escaping, XDG state paths containing spaces, atomic/private output, and last-good preservation on output failure. Malformed stat is tested separately and is not presented as a simulated process race.
