@@ -1,0 +1,8 @@
+[Unit]
+Description=Write optional aggregate agent process counts
+
+[Service]
+Type=oneshot
+UMask=0077
+TimeoutStartSec=15s
+ExecStart=%h/.local/bin/agent-status-update.sh
