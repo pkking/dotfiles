@@ -1,0 +1,137 @@
+name: Agent Issue Implementation
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Open issue number with agent:implement label
+        type: number
+        required: true
+
+permissions: {}
+
+concurrency:
+  group: agent-issue-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'agent:implement'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Read and validate labeled issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER" > "$RUNNER_TEMP/issue.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          issue = json.loads((Path(os.environ['RUNNER_TEMP']) / 'issue.json').read_text())
+          assert not issue.get('pull_request') and issue['state'] == 'open', 'issue must be open and not a PR'
+          assert 'agent:implement' in {l['name'] for l in issue['labels']}, 'missing maintainer label'
+          body = (issue.get('body') or '')[:16000]
+          Path('.agent-request.md').write_text(f"# Issue #{issue['number']}: {issue['title']}\n\n{body}\n", encoding='utf-8')
+          PY
+      - name: Implement with workspace-only Codex
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          permission-profile: ':workspace'
+          safety-strategy: drop-sudo
+          prompt-file: .github/agent-issue-prompt.md
+      - name: Validate and export bounded patch
+        run: |
+          set -euo pipefail
+          rm -f .agent-request.md
+          rm -rf .agent-local-evidence
+          git show HEAD:scripts/agent_patch_policy.py > "$RUNNER_TEMP/trusted-policy.py"
+          python3 -B "$RUNNER_TEMP/trusted-policy.py" --output "$RUNNER_TEMP/agent.patch"
+          python3 -B scripts/ci_quality.py --output "$RUNNER_TEMP/local-proof"
+          cp "$RUNNER_TEMP/agent.patch" agent.patch
+      - name: Attach verified patch and offline evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-issue-${{ github.event.issue.number || inputs.issue_number }}
+          path: |
+            agent.patch
+            ${{ runner.temp }}/local-proof/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [generate]
+    if: needs.generate.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/download-artifact@v4
+        with:
+          name: agent-issue-${{ github.event.issue.number || inputs.issue_number }}
+          path: ${{ runner.temp }}/agent-output
+      - name: Apply patch with trusted policy and rerun validation
+        run: |
+          set -euo pipefail
+          patch="$RUNNER_TEMP/agent-output/agent.patch"
+          test -s "$patch"
+          git apply --check "$patch"
+          git apply "$patch"
+          python3 -B scripts/agent_patch_policy.py --output "$RUNNER_TEMP/checked.patch"
+          cmp "$patch" "$RUNNER_TEMP/checked.patch"
+          python3 -B scripts/ci_quality.py --output "$RUNNER_TEMP/publish-proof"
+      - name: Require GitHub App credentials for CI-triggering PRs
+        env:
+          APP_ID: ${{ vars.AGENT_APP_ID }}
+          APP_KEY: ${{ secrets.AGENT_APP_PRIVATE_KEY }}
+        run: |
+          test -n "$APP_ID" && test -n "$APP_KEY" || {
+            echo 'Configure AGENT_APP_ID and AGENT_APP_PRIVATE_KEY before enabling automatic PR publication.' >&2
+            exit 1
+          }
+      - name: Mint short-lived publisher token
+        id: publisher
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.AGENT_APP_ID }}
+          private-key: ${{ secrets.AGENT_APP_PRIVATE_KEY }}
+      - name: Open/update bounded agent PR (never merge)
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.publisher.outputs.token }}
+          commit-message: 'feat(agent): implement issue #${{ github.event.issue.number || inputs.issue_number }}'
+          branch: agent/issue-${{ github.event.issue.number || inputs.issue_number }}
+          delete-branch: false
+          title: 'feat(agent): implement issue #${{ github.event.issue.number || inputs.issue_number }}'
+          body: |
+            Implements #${{ github.event.issue.number || inputs.issue_number }}.
+
+            ## Problem and acceptance criteria
+            See the approved linked issue for acceptance criteria.
+
+            ## User impact and risks
+            Generated by a constrained agent; review all behavior and rollback impact before merging.
+
+            ## Evidence
+            - Locally tested and patch-policy verified by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} (attempt ${{ github.run_attempt }}).
+            - Independent PR `quality-gate`: pending until it executes on the generated head.
+            - Live desktop behavior, visual changes, and `chezmoi apply`: **not tested**.
+          labels: agent-generated
+          draft: true
