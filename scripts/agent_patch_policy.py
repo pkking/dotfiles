@@ -9,7 +9,8 @@ import sys
 
 ALLOWED = ("dotfiles/", "docs/", "scripts/", "tests/")
 EXACT = {"README.md"}
-PROTECTED = {"scripts/ci_quality.py", "scripts/agent_patch_policy.py"}
+PROTECTED = {"scripts/ci_quality.py", "scripts/agent_patch_policy.py",
+             "tests/test_agent_workflow_isolation.py"}
 MAX_PATCH_BYTES = 1_000_000
 MAX_FILES = 30
 

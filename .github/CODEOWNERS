@@ -7,6 +7,7 @@
 /scripts/ci_quality.py @pkking
 /scripts/agent_patch_policy.py @pkking
 /tests/test_agent_patch_policy.py @pkking
+/tests/test_agent_workflow_isolation.py @pkking
 /.pre-commit-config.yaml @pkking
 /AGENTS.md @pkking
 /CLAUDE.md @pkking
