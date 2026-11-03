@@ -1,0 +1,12 @@
+# Security-sensitive automation and validation policy changes require owner review.
+# Enforce "Require review from Code Owners" in branch protection for this to be a gate.
+/.github/CODEOWNERS @pkking
+/.github/workflows/ @pkking
+/.github/agent-issue-prompt.md @pkking
+/.github/pull_request_template.md @pkking
+/scripts/ci_quality.py @pkking
+/scripts/agent_patch_policy.py @pkking
+/tests/test_agent_patch_policy.py @pkking
+/.pre-commit-config.yaml @pkking
+/AGENTS.md @pkking
+/CLAUDE.md @pkking
