@@ -29,6 +29,16 @@ def validate_names(names: list[str]) -> None:
             raise ValueError(f"Agent is not permitted to change {name!r}")
 
 
+def validate_modes(names: list[str]) -> None:
+    """Reject edited or deleted symlink paths, including pre-existing symlinks."""
+    for name in names:
+        if Path(name).is_symlink():
+            raise ValueError(f"Agent is not permitted to change symlink {name!r}")
+        old_entry = run("ls-tree", "HEAD", "--", name).stdout
+        if old_entry.startswith(b"120000 "):
+            raise ValueError(f"Agent is not permitted to change tracked symlink {name!r}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True)
@@ -38,6 +48,7 @@ def main() -> int:
     changed = run("diff", "--name-only", "-z", "HEAD").stdout
     names = [s.decode("utf-8", errors="surrogateescape") for s in changed.split(b"\0") if s]
     validate_names(names)
+    validate_modes(names)
     # A symlink might install actions on the user's workstation; require human review.
     modes = run("diff", "--summary", "HEAD").stdout.decode("utf-8", errors="replace")
     if "mode 120000" in modes:
