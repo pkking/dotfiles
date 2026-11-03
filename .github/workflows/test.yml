@@ -15,8 +15,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  pr-intake:
+    name: pr-intake
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout untrusted candidate without credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check PR description before reviewer involvement
+        run: python3 -B scripts/pr_intake.py --event-file "$GITHUB_EVENT_PATH" --output .pr-intake-evidence/intake.json
+      - name: Attach PR intake receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-intake-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .pr-intake-evidence/
+          include-hidden-files: true
+          retention-days: 30
+          if-no-files-found: error
+      - name: Summarize deficiencies without commenting or requesting review
+        if: always()
+        run: |
+          test -f .pr-intake-evidence/intake.json
+          echo '### PR intake' >> "$GITHUB_STEP_SUMMARY"
+          echo '\`\`\`json' >> "$GITHUB_STEP_SUMMARY"
+          cat .pr-intake-evidence/intake.json >> "$GITHUB_STEP_SUMMARY"
+          echo '\`\`\`' >> "$GITHUB_STEP_SUMMARY"
+
   offline-validation:
     name: offline-validation
+    needs: [pr-intake]
+    if: always() && (github.event_name != 'pull_request' || needs.pr-intake.result == 'success')
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -50,6 +84,8 @@ jobs:
 
   workflow-sanity:
     name: workflow-sanity
+    needs: [pr-intake]
+    if: always() && (github.event_name != 'pull_request' || needs.pr-intake.result == 'success')
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -72,12 +108,18 @@ jobs:
   quality-gate:
     name: quality-gate
     if: always()
-    needs: [offline-validation, workflow-sanity]
+    needs: [pr-intake, offline-validation, workflow-sanity]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - name: Reject failed, skipped or canceled validation
         env:
+          PR_EVENT: ${{ github.event_name }}
+          INTAKE_RESULT: ${{ needs.pr-intake.result }}
           TEST_RESULT: ${{ needs.offline-validation.result }}
           LINT_RESULT: ${{ needs.workflow-sanity.result }}
-        run: test "$TEST_RESULT" = success && test "$LINT_RESULT" = success
+        run: |
+          test "$TEST_RESULT" = success && test "$LINT_RESULT" = success
+          if test "$PR_EVENT" = pull_request; then
+            test "$INTAKE_RESULT" = success
+          fi
