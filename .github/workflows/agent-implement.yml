@@ -60,14 +60,14 @@ jobs:
           git show HEAD:scripts/agent_patch_policy.py > "$RUNNER_TEMP/trusted-policy.py"
           python3 -B "$RUNNER_TEMP/trusted-policy.py" --output "$RUNNER_TEMP/agent.patch"
           python3 -B scripts/ci_quality.py --output "$RUNNER_TEMP/local-proof"
-          cp "$RUNNER_TEMP/agent.patch" agent.patch
+          mkdir -p "$RUNNER_TEMP/agent-bundle"
+          cp "$RUNNER_TEMP/agent.patch" "$RUNNER_TEMP/agent-bundle/agent.patch"
+          cp -a "$RUNNER_TEMP/local-proof" "$RUNNER_TEMP/agent-bundle/local-proof"
       - name: Attach verified patch and offline evidence
         uses: actions/upload-artifact@v4
         with:
           name: agent-issue-${{ github.event.issue.number || inputs.issue_number }}
-          path: |
-            agent.patch
-            ${{ runner.temp }}/local-proof/
+          path: ${{ runner.temp }}/agent-bundle/
           if-no-files-found: error
           retention-days: 7
 
@@ -133,5 +133,4 @@ jobs:
             - Locally tested and patch-policy verified by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} (attempt ${{ github.run_attempt }}).
             - Independent PR `quality-gate`: pending until it executes on the generated head.
             - Live desktop behavior, visual changes, and `chezmoi apply`: **not tested**.
-          labels: agent-generated
           draft: true
