@@ -1,5 +1,4 @@
-# Trusted CI and review policy. This file takes effect as a review gate
-# only when branch rules require CODEOWNERS approvals.
+# Native CODEOWNERS approval only applies when repository rules require it.
 /.github/CODEOWNERS @pkking
 /.github/workflows/ @pkking
 /.github/pull_request_template.md @pkking

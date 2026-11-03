@@ -1,0 +1,85 @@
+name: PR Context and Evidence
+
+# Barnacle-style gate. Only trusted base code and PR event metadata are used.
+on:
+  pull_request_target: # zizmor: ignore[dangerous-triggers] trusted base only; no contributor code execution
+    types: [opened, edited, synchronize, reopened, ready_for_review, converted_to_draft]
+
+permissions: {}
+
+concurrency:
+  group: pr-context-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  pr-context-evidence:
+    name: trusted-context-screen
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Mark PR head proof status pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$PR_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+          gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$PR_HEAD_SHA" \
+            -f state=pending -f context=pr-context-evidence \
+            -f description="Checking PR context and proof" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >/dev/null
+
+      - name: Checkout trusted workflow revision only
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+
+      - name: Inspect PR event metadata, not contributor code
+        id: proof
+        run: |
+          python3 -B scripts/pr_intake.py \
+            --event-file "$GITHUB_EVENT_PATH" \
+            --output "$RUNNER_TEMP/pr-context-evidence/intake.json"
+
+      - name: Save PR context receipt
+        id: artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-context-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pr-context-evidence/
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Summarize findings without comments or review requests
+        id: summary
+        if: always()
+        run: |
+          test -f "$RUNNER_TEMP/pr-context-evidence/intake.json"
+          cat "$RUNNER_TEMP/pr-context-evidence/intake.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish decision on exact PR head for branch rules
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PROOF_RESULT: ${{ steps.proof.outcome }}
+          ARTIFACT_RESULT: ${{ steps.artifact.outcome }}
+          SUMMARY_RESULT: ${{ steps.summary.outcome }}
+        run: |
+          set -euo pipefail
+          [[ "$PR_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+          state=failure
+          if test "$PROOF_RESULT" = success &&
+             test "$ARTIFACT_RESULT" = success &&
+             test "$SUMMARY_RESULT" = success; then
+            state=success
+          fi
+          gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$PR_HEAD_SHA" \
+            -f state="$state" -f context=pr-context-evidence \
+            -f description="Trusted PR context/proof screen: $state (not a code review)" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >/dev/null
