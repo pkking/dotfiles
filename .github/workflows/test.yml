@@ -37,6 +37,7 @@ jobs:
           path: .ci-evidence/
           retention-days: 30
           if-no-files-found: error
+          include-hidden-files: true
       - name: Publish summary
         if: always()
         run: |
@@ -63,7 +64,10 @@ jobs:
             -o "$RUNNER_TEMP/actionlint.tar.gz"
           echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum -c -
           tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
-          "$RUNNER_TEMP/actionlint"
+          # The generated github-next .lock.yml contains queue metadata not supported by actionlint v1.7.12.
+          # Lint every authored .yml/.yaml; the generated lock is validated by its own producer.
+          find .github/workflows -type f \( -name '*.yml' -o -name '*.yaml' \) ! -name '*.lock.yml' -print0 |
+            xargs -0 "$RUNNER_TEMP/actionlint"
 
   quality-gate:
     name: quality-gate
