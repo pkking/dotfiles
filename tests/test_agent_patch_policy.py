@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import importlib.util
+import tempfile
+from types import SimpleNamespace
+from unittest import mock
 from pathlib import Path
 import unittest
 
@@ -30,6 +33,18 @@ class PatchPolicyTests(unittest.TestCase):
         for paths in ([], [f'docs/file{i}.md' for i in range(policy.MAX_FILES + 1)]):
             with self.assertRaises(ValueError):
                 policy.validate_names(paths)
+
+
+    def test_rejects_new_and_preexisting_symlinks(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            link = Path(root) / 'link'
+            link.symlink_to('target')
+            with self.assertRaises(ValueError):
+                policy.validate_modes([str(link)])
+        fake = SimpleNamespace(stdout=b'120000 blob deadbeef\\tfile\\n')
+        with mock.patch.object(policy, 'run', return_value=fake):
+            with self.assertRaises(ValueError):
+                policy.validate_modes(['dotfiles/existing-link'])
 
 
 if __name__ == '__main__':
