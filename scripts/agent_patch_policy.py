@@ -57,4 +57,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except (ValueError, subprocess.CalledProcessError) as exc:
+        print(f"Patch rejected: {exc}", file=sys.stderr)
         raise SystemExit(1) from exc
