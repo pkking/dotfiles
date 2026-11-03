@@ -42,10 +42,7 @@ jobs:
         if: always()
         run: |
           test -f .pr-intake-evidence/intake.json
-          echo '### PR intake' >> "$GITHUB_STEP_SUMMARY"
-          echo '\`\`\`json' >> "$GITHUB_STEP_SUMMARY"
           cat .pr-intake-evidence/intake.json >> "$GITHUB_STEP_SUMMARY"
-          echo '\`\`\`' >> "$GITHUB_STEP_SUMMARY"
 
   offline-validation:
     name: offline-validation
