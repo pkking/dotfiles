@@ -58,10 +58,15 @@
 For Debian/Ubuntu users:
 
 ```bash
-apt install git fontconfig zsh curl
-apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
+sudo apt install git fontconfig zsh curl
+sudo apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
 ```
+
+- This repository contains age-encrypted files. Before applying, restore the
+  age private key to `~/.config/chezmoi/key.txt` and run `chmod 600
+  ~/.config/chezmoi/key.txt` (see "Recovery from another device"). Without
+  the private key, `chezmoi apply` cannot decrypt these files.
 
 - Then initialize and apply the configuration:
 
@@ -75,8 +80,8 @@ chezmoi apply
 - install deps
 
 ```bash
-apt install git fontconfig zsh curl
-apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
+sudo apt install git fontconfig zsh curl
+sudo apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
 ```
 
