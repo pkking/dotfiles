@@ -52,6 +52,7 @@ key = 'F11'
 live_config_reload = true
 import = [
   "~/.config/alacritty/themes/rose-pine.toml",
-  # Noctalia 主题模板生成的调色板,存在时覆盖 rose-pine,不存在时安静回退
+  # Optional Noctalia-generated palette; later imports override earlier colors.
+  # Alacritty skips a missing import (logs at info level), retaining Rose Pine.
   "~/.config/alacritty/themes/noctalia.toml"
 ]
