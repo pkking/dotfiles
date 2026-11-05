@@ -7,128 +7,233 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 import sys
-import tempfile
-import urllib.error
 import urllib.parse
 import urllib.request
 
 MAX_BYTES = 20 * 1024 * 1024
 KEEP = 12
 API_URL = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US"
+API_PATH = "/HPImageArchive.aspx"
+IMAGE_PATH = re.compile(r"/th\?id=OHR\.[A-Za-z0-9_-]{1,100}_UHD\.jpg\Z")
 OWNED_NAME = re.compile(r"bing-refill-[A-Za-z0-9_-]{1,80}\.jpg\Z")
+MAX_WIDTH = 12000
+MAX_HEIGHT = 8000
+MAX_PIXELS = 40_000_000
+
+
+def _valid_url(url: str, kind: str) -> bool:
+    try:
+        parsed = urllib.parse.urlsplit(url)
+        return (parsed.scheme == "https" and parsed.netloc == "www.bing.com"
+                and parsed.hostname == "www.bing.com" and parsed.port is None
+                and parsed.username is None and parsed.password is None
+                and not parsed.fragment and
+                ((kind == "api" and parsed.path == API_PATH and
+                  parsed.query == "format=js&idx=0&n=1&mkt=en-US") or
+                 (kind == "image" and bool(IMAGE_PATH.fullmatch(parsed.path + "?" + parsed.query)))))
+    except ValueError:
+        return False
+
+
+class _SameEndpointRedirect(urllib.request.HTTPRedirectHandler):
+    def __init__(self, kind: str):
+        super().__init__()
+        self.kind = kind
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not _valid_url(newurl, self.kind):
+            raise ValueError("refusing unsafe redirect destination")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 def fetch(url: str, limit: int = MAX_BYTES) -> bytes:
+    kind = "api" if url == API_URL else "image"
+    if not _valid_url(url, kind):
+        raise ValueError("refusing unexpected request URL")
     request = urllib.request.Request(url, headers={"User-Agent": "wallpaper-refill/1"})
-    with urllib.request.urlopen(request, timeout=20) as response:
-        final = urllib.parse.urlsplit(response.geturl())
-        if final.scheme != "https" or final.hostname != "www.bing.com":
-            raise ValueError("refusing unexpected response host")
+    opener = urllib.request.build_opener(_SameEndpointRedirect(kind))
+    with opener.open(request, timeout=20) as response:
         data = response.read(limit + 1)
     if not data or len(data) > limit:
         raise ValueError("response empty or exceeds size limit")
     return data
 
 
-def decode_image(path: Path) -> None:
-    # ImageMagick's identify fully decodes the file; no renderer is invoked.
-    subprocess.run(["identify", "-regard-warnings", str(path)], check=True,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                   timeout=15)
+def decode_image(fd: int) -> None:
+    # Resource limits apply before decoding; output dimensions are checked after decode.
+    result = subprocess.run(
+        ["identify", "-regard-warnings", "-limit", "memory", "128MiB",
+         "-limit", "map", "256MiB", "-limit", "disk", "512MiB",
+         "-limit", "area", "40MP", "-limit", "thread", "2",
+         "-format", "%w %h", f"/proc/self/fd/{fd}"],
+        check=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+        text=True, timeout=15, pass_fds=(fd,))
+    match = re.fullmatch(r"\s*(\d+)\s+(\d+)\s*", result.stdout)
+    if not match:
+        raise ValueError("image dimensions unavailable")
+    width, height = map(int, match.groups())
+    if width < 1 or height < 1 or width > MAX_WIDTH or height > MAX_HEIGHT or width * height > MAX_PIXELS:
+        raise ValueError("image dimensions exceed limits")
+
+
+def _open_directory(path: Path, create: bool = False) -> int:
+    """Open every component without following symlinks, optionally creating it."""
+    absolute = path.absolute()
+    fd = os.open("/", os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for component in absolute.parts[1:]:
+            if component in ("", ".", ".."):
+                raise ValueError("unsafe directory path")
+            try:
+                child = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            except FileNotFoundError:
+                if not create:
+                    raise
+                os.mkdir(component, 0o700, dir_fd=fd)
+                child = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            os.close(fd)
+            fd = child
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def _child_dir(parent_fd: int, name: str, create: bool = False) -> int:
+    try:
+        return os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent_fd)
+    except FileNotFoundError:
+        if not create:
+            raise
+        os.mkdir(name, 0o700, dir_fd=parent_fd)
+        return os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent_fd)
+
+
+def _verify_data_dir(path: Path, fd: int) -> None:
+    current = _open_directory(path)
+    try:
+        opened = os.fstat(fd)
+        named = os.fstat(current)
+        if (opened.st_dev, opened.st_ino) != (named.st_dev, named.st_ino):
+            raise ValueError("data directory path was replaced")
+    finally:
+        os.close(current)
+
+
+def _verify_named_dir(parent_fd: int, name: str, fd: int) -> None:
+    opened = os.fstat(fd)
+    current = os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
+    if not stat.S_ISDIR(current.st_mode) or (opened.st_dev, opened.st_ino) != (current.st_dev, current.st_ino):
+        raise ValueError("directory path was replaced")
+
+
+def _read_owned(fd: int) -> list[str]:
+    names = []
+    for name in os.listdir(fd):
+        if not OWNED_NAME.fullmatch(name):
+            continue
+        try:
+            info = os.stat(name, dir_fd=fd, follow_symlinks=False)
+        except FileNotFoundError:
+            continue
+        if not stat.S_ISREG(info.st_mode):
+            raise ValueError("unsafe owned image entry")
+        names.append(name)
+    return names
 
 
 def acquire(data_dir: Path, fetcher=fetch, decoder=decode_image) -> Path:
-    pool = data_dir / "wallpapers" / "landscape" / "hourly-refill"
-    if pool.is_symlink():
-        raise ValueError("refusing symlinked refill directory")
-    pool.mkdir(parents=True, exist_ok=True)
-    if pool.resolve() != pool.absolute():
-        raise ValueError("refill directory escaped configured pool")
-    lock_path = data_dir / "wallpapers" / ".hourly-refill.lock"
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
-    if lock_path.is_symlink():
-        raise ValueError("refusing symlinked lock file")
-    with lock_path.open("a") as lock:
+    data_dir = Path(data_dir).absolute()
+    data_fd = _open_directory(data_dir, create=True)
+    try:
+        wallpapers_fd = _child_dir(data_fd, "wallpapers", create=True)
+        landscape_fd = pool_fd = None
         try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError as exc:
-            raise RuntimeError("another refill is running") from exc
-        payload = json.loads(fetcher(API_URL))
-        images = payload.get("images")
-        if not isinstance(images, list) or not images or not isinstance(images[0], dict):
-            raise ValueError("Bing response has no image")
-        urlbase = images[0].get("urlbase")
-        if not isinstance(urlbase, str) or not re.fullmatch(r"/th\?id=OHR\.[A-Za-z0-9_-]{1,100}", urlbase):
-            raise ValueError("unexpected Bing image path")
-        image_url = "https://www.bing.com" + urlbase + "_UHD.jpg"
-        image = fetcher(image_url)
-        if len(image) > MAX_BYTES or not image.startswith(b"\xff\xd8\xff"):
-            raise ValueError("download is not a bounded JPEG")
-        day_id = images[0].get("startdate", "")
-        if not re.fullmatch(r"\d{8}", day_id):
-            raise ValueError("unexpected Bing image date")
-        name = f"bing-refill-{day_id}.jpg"
-        target = pool / name
-        manifest = pool / ".wallpaper-hourly-refill.json"
-        if target.is_symlink():
-            raise ValueError("refusing symlinked destination")
-        if target.exists():
+            landscape_fd = _child_dir(wallpapers_fd, "landscape", create=True)
+            pool_fd = _child_dir(landscape_fd, "hourly-refill", create=True)
+            lock_fd = os.open(".hourly-refill.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW,
+                              0o600, dir_fd=wallpapers_fd)
             try:
-                known = json.loads(manifest.read_text()) if manifest.exists() and not manifest.is_symlink() else []
-            except (OSError, json.JSONDecodeError) as exc:
-                raise ValueError("invalid ownership manifest") from exc
-            if not isinstance(known, list) or name not in known:
-                raise ValueError("refusing to replace an unowned destination")
-        if not target.exists():
-            fd, temp_name = tempfile.mkstemp(prefix=".refill-", suffix=".tmp", dir=pool)
-            temp = Path(temp_name)
-            try:
-                with os.fdopen(fd, "wb") as stream:
-                    stream.write(image)
-                    stream.flush()
-                    os.fsync(stream.fileno())
-                decoder(temp)
-                os.replace(temp, target)
+                if not stat.S_ISREG(os.fstat(lock_fd).st_mode):
+                    raise ValueError("unsafe lock file")
+                try:
+                    fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BlockingIOError as exc:
+                    raise RuntimeError("another refill is running") from exc
+                return _acquire_locked(data_dir, data_fd, wallpapers_fd, landscape_fd, pool_fd, fetcher, decoder)
             finally:
-                temp.unlink(missing_ok=True)
-        _retain(pool, target)
-        return target
-
-
-def _retain(pool: Path, newest: Path) -> None:
-    manifest = pool / ".wallpaper-hourly-refill.json"
-    if manifest.is_symlink():
-        raise ValueError("refusing symlinked ownership manifest")
-    try:
-        entries = json.loads(manifest.read_text()) if manifest.exists() else []
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ValueError("invalid ownership manifest") from exc
-    if not isinstance(entries, list) or any(
-        not isinstance(name, str) or not OWNED_NAME.fullmatch(name) for name in entries
-    ):
-        raise ValueError("invalid ownership manifest entries")
-    names = set(entries)
-    names.add(newest.name)
-    ordered = sorted(names, reverse=True)
-    keep = ordered[:KEEP]
-    for name in ordered[KEEP:]:
-        old = pool / name
-        if old.is_symlink():
-            raise ValueError("refusing symlinked owned image")
-        if old.is_file():
-            old.unlink()
-    fd, temp_name = tempfile.mkstemp(prefix=".manifest-", dir=pool)
-    temp = Path(temp_name)
-    try:
-        with os.fdopen(fd, "w") as stream:
-            json.dump(keep, stream)
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.replace(temp, manifest)
+                os.close(lock_fd)
+        finally:
+            if pool_fd is not None:
+                os.close(pool_fd)
+            if landscape_fd is not None:
+                os.close(landscape_fd)
+            os.close(wallpapers_fd)
     finally:
-        temp.unlink(missing_ok=True)
+        os.close(data_fd)
+
+
+def _acquire_locked(data_dir: Path, data_fd: int, wallpapers_fd: int, landscape_fd: int,
+                    pool_fd: int, fetcher, decoder) -> Path:
+    entries = _read_owned(pool_fd)
+    if len(entries) >= KEEP:
+        raise RuntimeError("owned image pool is full; remove an old owned image manually")
+    payload = json.loads(fetcher(API_URL))
+    images = payload.get("images")
+    if not isinstance(images, list) or not images or not isinstance(images[0], dict):
+        raise ValueError("Bing response has no image")
+    urlbase = images[0].get("urlbase")
+    if not isinstance(urlbase, str) or not re.fullmatch(r"/th\?id=OHR\.[A-Za-z0-9_-]{1,100}", urlbase):
+        raise ValueError("unexpected Bing image path")
+    image_url = "https://www.bing.com" + urlbase + "_UHD.jpg"
+    image = fetcher(image_url)
+    if len(image) > MAX_BYTES or not image.startswith(b"\xff\xd8\xff"):
+        raise ValueError("download is not a bounded JPEG")
+    day_id = images[0].get("startdate", "")
+    if not re.fullmatch(r"\d{8}", day_id):
+        raise ValueError("unexpected Bing image date")
+    name = f"bing-refill-{day_id}.jpg"
+    try:
+        os.stat(name, dir_fd=pool_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        pass
+    else:
+        raise ValueError("destination already exists")
+
+    temp_name = f".refill-{os.getpid()}-{os.urandom(8).hex()}.tmp"
+    _verify_data_dir(data_dir, data_fd)
+    _verify_named_dir(data_fd, "wallpapers", wallpapers_fd)
+    _verify_named_dir(wallpapers_fd, "landscape", landscape_fd)
+    _verify_named_dir(landscape_fd, "hourly-refill", pool_fd)
+    fd = os.open(temp_name, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW,
+                 0o600, dir_fd=pool_fd)
+    try:
+        with os.fdopen(fd, "wb", closefd=False) as stream:
+            stream.write(image)
+            stream.flush()
+            os.fsync(fd)
+        decoder(fd)
+        _verify_data_dir(data_dir, data_fd)
+        _verify_named_dir(data_fd, "wallpapers", wallpapers_fd)
+        _verify_named_dir(wallpapers_fd, "landscape", landscape_fd)
+        _verify_named_dir(landscape_fd, "hourly-refill", pool_fd)
+        os.close(fd)
+        fd = -1
+        # No overwrite: a racing creator causes failure rather than replacing its file.
+        os.link(temp_name, name, src_dir_fd=pool_fd, dst_dir_fd=pool_fd, follow_symlinks=False)
+        os.unlink(temp_name, dir_fd=pool_fd)
+        os.fsync(pool_fd)
+    finally:
+        if fd >= 0:
+            os.close(fd)
+        try:
+            os.unlink(temp_name, dir_fd=pool_fd)
+        except FileNotFoundError:
+            pass
+    return data_dir / "wallpapers" / "landscape" / "hourly-refill" / name
 
 
 def main() -> int:
@@ -136,7 +241,6 @@ def main() -> int:
     try:
         result = acquire(data_home)
     except Exception as exc:
-        # Never print URLs, response bodies, or proxy configuration.
         print(f"wallpaper-hourly-refill: {type(exc).__name__}: refill failed", file=sys.stderr)
         return 1
     print(f"wallpaper-hourly-refill: published {result.name}")

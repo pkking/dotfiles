@@ -13,16 +13,23 @@ these pictures are eligible for the existing profile without changing it.
 Only landscape is populated; existing portrait content is untouched. It does
 not use, prune, or change the separate `ezwallpaper-mocha` non-recursive pool.
 
-Each response is bounded to 20 MiB and HTTP operations time out. The provider
-path is constrained to Bing HTTPS, and downloaded data must be a JPEG that
-ImageMagick `identify` can decode before same-directory atomic publication.
-A nonblocking lock serializes attempts. A private ownership manifest limits
-retention to the 12 newest names created by this job; unrelated pool files and
-symlinks are not followed or removed. On network, parse, or decode failure the
-existing pool is left available and the temporary download is removed. The
-runtime therefore requires Python 3, curl-free Python HTTPS access, and
-ImageMagick's `identify` executable. Errors are intentionally generic and do
-not print response URLs or bodies.
+Each response is bounded to 20 MiB and HTTP operations time out. Redirects are
+validated before a follow-up request: HTTPS, exact `www.bing.com` authority with
+no custom port or userinfo, and only the expected API or narrowly shaped UHD
+image path are accepted. Downloaded data must be a JPEG that ImageMagick
+`identify` can decode before same-directory atomic publication. The decoder has
+a 15-second timeout, memory/map/disk/thread/area limits, and explicit maximum
+width, height, and pixel count. A nonblocking lock serializes attempts. Directory,
+lock, temporary-image, and destination operations are anchored to no-follow file
+descriptors; a replaced pool path fails closed. This job never removes existing
+images: it accepts at most 12 matching owned image files and refuses acquisition
+when full, requiring manual removal of an old owned image before resuming.
+Unrelated pool files are not followed, replaced, or removed. Network, parse,
+decode, capacity, and pre-publication filesystem failures leave existing files
+available and remove any temporary download. No manifest or automatic retention
+cleanup is used, so publication has one atomic image-file commit point. The
+runtime requires Python 3 and ImageMagick's `identify` executable. Errors are
+generic and do not print response URLs or bodies.
 
 To inspect before any separately authorized deployment, use a scoped
 `chezmoi diff` for the refill script, unit pair, and this document. Do not run
