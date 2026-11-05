@@ -32,6 +32,12 @@ class NoctaliaDesktopContractTests(unittest.TestCase):
 
     def test_wallpaper_scheduler_is_explicitly_opt_in_and_disabled_here(self) -> None:
         self.assertEqual(self.config["wallpaper"]["automation"]["enabled"], False)
+        asset_guidance = (ROOT / "docs/mocha-wallpaper-assets.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("must\nremain disabled", asset_guidance)
+        self.assertIn("at most one", asset_guidance)
+        self.assertNotIn("users may explicitly\nset its managed `enabled` flag to true", asset_guidance)
         transitions = ["fade", "wipe", "disc", "stripes", "zoom", "honeycomb"]
         self.assertEqual(self.config["wallpaper"]["transition"], transitions)
         self.assertEqual(self.config["lockscreen"]["transition"], transitions)

@@ -7,10 +7,11 @@ source configuration and assets only; this change does not run `chezmoi apply`,
 change a live session, or start/enable a timer.
 
 The upstream template's `[wallpaper.automation] enabled = false` remains
-unchanged. With automation off and no separately selected scheduler, the
-wallpapers remain static; the supplied one-image-per-orientation pools do not
-provide distinct candidates for rotation. Users who want Noctalia's native
-automation can explicitly set `enabled = true` in their managed configuration.
+unchanged. Native Noctalia wallpaper automation stays disabled; this project
+configuration does not offer it as an alternative scheduler. With no
+separately selected ezwallpaper scheduler, the wallpapers remain static. The
+supplied one-image-per-orientation pools do not provide distinct candidates
+for rotation.
 
 Rotation alternatives are separate and opt-in. PR #92's
 `ezwallpaper-rotation` integration uses the `ezwallpaper-mocha` pools. Local
@@ -33,12 +34,16 @@ separately, verify the pools and session prerequisites, and ensure Noctalia's
 managed automation and any GUI override are off before separately enabling B.
 This change does not enable B or run its timer.
 
-Noctalia's native automation is a distinct alternative: users may explicitly
-set its managed `enabled` flag to true. That does not enable either ezwallpaper
-integration, whose preflight requires native automation to be off. If no
-rotation controller is deliberately deployed, this supplied one-image-per-
-orientation configuration remains static; native Noctalia automation can
-instead be opted into separately.
+Scheduler ownership is deliberately limited to the two opt-in ezwallpaper
+integrations: choose and explicitly enable at most one of #91
+`ezwallpaper-rotation` or #95 `ezwallpaper-rotate`; never run them together.
+Both are initially disabled, and native Noctalia wallpaper automation must
+remain disabled, including any GUI override, whether neither or one scheduler
+is selected. If no ezwallpaper scheduler is deliberately deployed, this
+supplied one-image-per-orientation configuration remains static. This is
+source guidance only: it does not deploy or enable a scheduler. The asset
+provenance/license boundary above is unchanged; no third-party images are
+bundled or implied.
 
 The B preflight is a point-in-time guard, not a lock against later config or
 unit changes, and cannot prove the running Noctalia process reloaded settings
