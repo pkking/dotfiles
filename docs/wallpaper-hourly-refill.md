@@ -19,8 +19,12 @@ no custom port or userinfo, and only the expected API or narrowly shaped UHD
 image path are accepted. Downloaded data must be a JPEG that ImageMagick
 `identify` can decode before same-directory atomic publication. The decoder has
 a 15-second timeout, memory/map/disk/thread/area limits, and explicit maximum
-width, height, and pixel count. A nonblocking lock serializes attempts. Directory,
-lock, temporary-image, and destination operations are anchored to no-follow file
+width, height, and pixel count. A nonblocking Linux abstract AF_UNIX socket
+name, deterministic per UID and held for the entire attempt, serializes invocations
+in the kernel without a filesystem lock path; replacing the wallpaper directory
+cannot split the cooperative invocations' lock domain. Socket bind errors fail
+closed. This requires Linux per-user abstract UNIX sockets. Directory,
+temporary-image, and destination operations are anchored to no-follow file
 descriptors; a replaced pool path fails closed. This job never removes existing
 images: it accepts at most 12 matching owned image files and refuses acquisition
 when full, requiring manual removal of an old owned image before resuming.

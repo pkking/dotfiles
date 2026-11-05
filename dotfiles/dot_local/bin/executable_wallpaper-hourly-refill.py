@@ -2,11 +2,12 @@
 """Safely acquire one Bing wallpaper into the ezwallpaper landscape pool."""
 from __future__ import annotations
 
-import fcntl
+import errno
 import json
 import os
 from pathlib import Path
 import re
+import socket
 import stat
 import subprocess
 import sys
@@ -145,6 +146,19 @@ def _read_owned(fd: int) -> list[str]:
     return names
 
 
+def _acquire_instance_lock() -> socket.socket:
+    """Hold a Linux per-UID abstract socket name independent of filesystem paths."""
+    lock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        lock.bind(f"\0dotfiles-wallpaper-hourly-refill.{os.getuid()}")
+    except OSError as exc:
+        lock.close()
+        if exc.errno == errno.EADDRINUSE:
+            raise RuntimeError("another refill is running") from exc
+        raise
+    return lock
+
+
 def acquire(data_dir: Path, fetcher=fetch, decoder=decode_image) -> Path:
     data_dir = Path(data_dir).absolute()
     data_fd = _open_directory(data_dir, create=True)
@@ -154,18 +168,13 @@ def acquire(data_dir: Path, fetcher=fetch, decoder=decode_image) -> Path:
         try:
             landscape_fd = _child_dir(wallpapers_fd, "landscape", create=True)
             pool_fd = _child_dir(landscape_fd, "hourly-refill", create=True)
-            lock_fd = os.open(".hourly-refill.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW,
-                              0o600, dir_fd=wallpapers_fd)
+            # Linux abstract AF_UNIX namespace is kernel-owned and unaffected by
+            # replacement of any filesystem ancestor. Keep it for the full run.
+            lock = _acquire_instance_lock()
             try:
-                if not stat.S_ISREG(os.fstat(lock_fd).st_mode):
-                    raise ValueError("unsafe lock file")
-                try:
-                    fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                except BlockingIOError as exc:
-                    raise RuntimeError("another refill is running") from exc
                 return _acquire_locked(data_dir, data_fd, wallpapers_fd, landscape_fd, pool_fd, fetcher, decoder)
             finally:
-                os.close(lock_fd)
+                lock.close()
         finally:
             if pool_fd is not None:
                 os.close(pool_fd)

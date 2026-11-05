@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import threading
 import unittest
 from unittest import mock
 
@@ -111,19 +112,59 @@ class RefillTests(unittest.TestCase):
         self.assertEqual(list(elsewhere.iterdir()), [])
         self.assertEqual(list(self.pool.with_name("hourly-refill-original").iterdir()), [])
 
-    def test_parent_symlink_and_lock_symlink_are_rejected(self):
+    def test_abstract_lock_survives_wallpapers_parent_replacement(self):
+        entered_fetch = threading.Event()
+        release_fetch = threading.Event()
+        first_errors = []
+        calls = []
+
+        def blocked_fetch(url):
+            calls.append(url)
+            if url == refill.API_URL:
+                return fake_fetch(url)
+            entered_fetch.set()
+            if not release_fetch.wait(timeout=5):
+                raise TimeoutError("test did not release first invocation")
+            return fake_fetch(url)
+
+        def first_invocation():
+            try:
+                refill.acquire(self.data, blocked_fetch, mock.Mock())
+            except Exception as exc:
+                first_errors.append(exc)
+
+        first = threading.Thread(target=first_invocation)
+        first.start()
+        self.assertTrue(entered_fetch.wait(timeout=5), "first invocation did not reach network")
+        wallpapers = self.data / "wallpapers"
+        wallpapers.rename(self.data / "wallpapers-original")
+        wallpapers.mkdir()
+
+        second_fetch = mock.Mock(side_effect=AssertionError("network called while lock held"))
+        second_decoder = mock.Mock(side_effect=AssertionError("decoder called while lock held"))
+        with self.assertRaisesRegex(RuntimeError, "another refill is running"):
+            refill.acquire(self.data, second_fetch, second_decoder)
+        second_fetch.assert_not_called()
+        second_decoder.assert_not_called()
+
+        release_fetch.set()
+        first.join(timeout=5)
+        self.assertFalse(first.is_alive(), "first invocation did not finish")
+        self.assertEqual(len(first_errors), 1)
+        self.assertIsInstance(first_errors[0], ValueError)
+        self.assertEqual(calls, [refill.API_URL, "https://www.bing.com/th?id=OHR.TestImage_UHD.jpg"])
+
+        # Closing on the error path releases the kernel-owned namespace name.
+        self.assertEqual(refill.acquire(self.data, fake_fetch, mock.Mock()).read_bytes(),
+                         b"\xff\xd8\xfffake-image")
+
+    def test_parent_symlink_is_rejected(self):
         real = Path(self.temp.name) / "real"
         real.mkdir()
         alias = Path(self.temp.name) / "alias"
         alias.symlink_to(real, target_is_directory=True)
         with self.assertRaises(OSError):
             refill.acquire(alias, fake_fetch, mock.Mock())
-        lock = self.data / "wallpapers/.hourly-refill.lock"
-        lock.parent.mkdir(parents=True)
-        lock.symlink_to(real / "victim")
-        with self.assertRaises(OSError):
-            refill.acquire(self.data, fake_fetch, mock.Mock())
-        self.assertFalse((real / "victim").exists())
 
     def test_full_pool_fails_closed_without_deleting_or_manifest_mutation(self):
         self.pool.mkdir(parents=True)
