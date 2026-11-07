@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "binary": {{ printf "%s/.local/lib/ezwallpaper/5f11267361aec1b4f847e24169701d0dd2e39f66/bin/ezwallpaper" .chezmoi.homeDir | toJson }},
+  "interval_seconds": 1800,
+  "pool_capacity_bytes": 500000000,
+  "provider": {
+    "name": "wallhaven",
+    "purity": "sfw",
+    "query": "nature"
+  },
+  "retention": {
+    "mode": "capacity",
+    "on_full": "stop"
+  },
+  "outputs": {
+    "DP-1": {
+      "pool": "~/.local/share/ezwallpaper/pools/landscape"
+    },
+    "HDMI-A-1": {
+      "pool": "~/.local/share/ezwallpaper/pools/portrait"
+    }
+  }
+}
