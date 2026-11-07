@@ -143,7 +143,9 @@ noctalia config export
 
 ## ezwallpaper 双屏小时轮换（已纳入 chezmoi，默认不启用）
 
-这是一套**配置交付**，不是已经完成的本机部署：chezmoi 新增 `~/.config/ezwallpaper/rotation.json` 和 `~/.config/systemd/user/ezwallpaper-rotation.{service,timer}`，仅管理源文件，**not automatically** installed/enabled by this PR. 不自动下载、执行 `chezmoi apply`、启用定时器、修改 Noctalia 或终止旧服务。使用已有 [ezwallpaper Noctalia v5 接口](https://github.com/pkking/ezwallpaper/blob/master/docs/examples/rotation-profile.json)，明确调用 `--rotation-backend noctalia`；Noctalia 仍是唯一壁纸渲染器。
+这是一套**配置交付**，不是已经完成的本机部署：chezmoi 新增 `~/.config/ezwallpaper/rotation.json` 和 `~/.config/systemd/user/ezwallpaper-rotation.{service,timer}`，仅管理源文件，**not automatically** installed/enabled by this PR. 不自动下载、执行 `chezmoi apply`、启用定时器、修改 Noctalia 或终止旧服务。使用已有 [ezwallpaper Noctalia v5 接口](https://github.com/pkking/ezwallpaper/blob/master/docs/examples/rotation-profile.json)，明确调用 `--rotation-backend noctalia`；Noctalia 是 renderer，不是另一个轮换 scheduler。
+
+**Scheduler ownership:** Noctalia native `[wallpaper.automation].enabled` is `false` in the managed template. Both opt-in ezwallpaper timer pairs, `ezwallpaper-rotation.{service,timer}` (this #91 integration) and `ezwallpaper-rotate.{service,timer}` (#95 guarded alternative), are initially disabled. Select and explicitly enable **at most one** pair; never enable both. Do not enable native Noctalia wallpaper automation. The scheduler choice is an operator decision, not implied by this source configuration.
 
 **准备条件：** 你的 DP-1 是 3840×2160 / scale 1.5，HDMI-A-1 旋转后是 1080×1920。模板分别使用两个**实际普通文件**池：`~/.local/share/wallpapers/landscape` 和 `~/.local/share/wallpapers/portrait`。不修改原有 `omarchy/` 壁纸。profile 设置 `follow_symlinks=false`，所以原先可能存在的指向 `omarchy/` 的符号链接**不会**加入候选；请把经过解码验证的图像实际复制进对应池。每个池需要 **two distinct**（至少两个 SHA-256 不同、且画面确实不同）的候选才能保证相邻小时有机会换新图；现有 omarchy 的 sunset-lake 单图/裁切版本不构成两个独立主题。任一池为空或只有单张时 CLI 会返回 `empty_local_pool` / `no_distinct_candidate`，不是成功换新。下载补池 **尚未自动化**，`wallpaper-daily` 旧任务不能被此 timer 代替。
 
@@ -190,6 +192,19 @@ mkdir -p "$HOME/.local/share/wallpapers/landscape" \
 回退新调度：`systemctl --user disable --now ezwallpaper-rotation.timer`；停止尚在执行的新 service、恢复事先记录的两个 Noctalia wallpaper 路径及原有 scheduler 状态。归档/移除本次三个 chezmoi 目标前必须先从 chezmoi 源中去掉对应文件，否则后续 `chezmoi apply` 会再次部署。**本机正式 niri 物理双屏/缩放、锁屏 PAM、热插拔、休眠、每日自动补池、SDDM/Plymouth 仍未验收**。现有虚拟 Niri PR #3800 证据不能替代它们。
 
 设计/代码依据：[dotfiles #84](https://github.com/pkking/dotfiles/issues/84) · [本次集成 #91](https://github.com/pkking/dotfiles/issues/91) · [ezwallpaper Noctalia backend](https://github.com/pkking/ezwallpaper/blob/master/src/backend/noctalia.rs) · [持久化轮换状态机](https://github.com/pkking/ezwallpaper/blob/master/src/rotation_cli.rs)。
+
+## Noctalia presentation update (#106)
+
+The managed Noctalia 5.2.1 template preserves the Tokyo Night palette, built-in Alacritty theme import, current two-output bar/layout and lockscreen presentation, verified clock/CPU widgets, idle behavior, notifications, and OSD placement. Wallpaper directories and per-output defaults are presentation only; native wallpaper automation stays disabled as described above. Weather remains disabled and no local location is configured. No unverified native plugin/weather/location integration is claimed. Static validation cannot establish live-session behavior, PAM unlock, monitor hotplug, or display appearance.
+
+Render and validate without applying configuration:
+
+```sh
+chezmoi execute-template --init=false \
+  < dotfiles/dot_config/noctalia/desktop.toml.tmpl > /tmp/noctalia-desktop.toml
+noctalia config validate /tmp/noctalia-desktop.toml
+python3 -m unittest discover -s tests -p 'test_noctalia_desktop_contract.py' -v
+```
 
 ## 参考
 

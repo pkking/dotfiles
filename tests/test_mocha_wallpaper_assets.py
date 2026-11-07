@@ -133,12 +133,12 @@ class MochaWallpaperContractTests(unittest.TestCase):
         )
         for phrase in (
             "remain static",
-            "native automation",
+            "native Noctalia wallpaper automation must\nremain disabled",
             "ezwallpaper-rotation-b.md",
             "private/local",
             "ezwallpaper-rotation",
             "wallpapers/{landscape,portrait}",
-            "native automation is a distinct alternative",
+            "at most one",
             "cannot prove",
         ):
             self.assertIn(phrase, doc)
