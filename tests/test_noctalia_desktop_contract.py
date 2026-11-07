@@ -18,17 +18,25 @@ class NoctaliaDesktopContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.chezmoi = shutil.which("chezmoi")
+        template = TEMPLATE.read_text(encoding="utf-8")
         if cls.chezmoi is None:
-            raise unittest.SkipTest("chezmoi is required to render the template")
-        rendered = subprocess.run(
-            [cls.chezmoi, "execute-template", "--init=false"],
-            input=TEMPLATE.read_bytes(),
-            cwd=ROOT,
-            check=True,
-            capture_output=True,
-        ).stdout
-        cls.config = tomllib.loads(rendered.decode("utf-8"))
-        cls.rendered_text = rendered.decode("utf-8")
+            # The managed template currently uses only homeDir interpolation.
+            # In lightweight CI, validate that exact static contract rather
+            # than silently skipping every Noctalia test.
+            marker = "{{ .chezmoi.homeDir }}"
+            if template.count("{{") != template.count(marker) or template.count("}}") != template.count(marker):
+                raise AssertionError("unrecognized chezmoi template expression")
+            cls.rendered_text = template.replace(marker, str(Path.home()))
+        else:
+            rendered = subprocess.run(
+                [cls.chezmoi, "execute-template", "--init=false"],
+                input=template.encode("utf-8"),
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+            ).stdout
+            cls.rendered_text = rendered.decode("utf-8")
+        cls.config = tomllib.loads(cls.rendered_text)
 
     def test_wallpaper_scheduler_is_explicitly_opt_in_and_disabled_here(self) -> None:
         self.assertEqual(self.config["wallpaper"]["automation"]["enabled"], False)
