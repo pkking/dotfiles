@@ -78,8 +78,8 @@ def evaluate(event: dict) -> dict:
         if not EVIDENCE_TYPES.search(proof):
             errors.append("Evidence must name actual validation: a test/command and result, log, artifact, screenshot, or observation.")
         if NO_PROOF_YET.search(proof) and not re.search(
-            r"\\b(?:ran|passed|failed|observed|reproduced|screenshot|recording|artifact|"
-            r"manual(?:ly)? tested|verified)\\b|已运行|已通过|已执行|观察到|截图|录屏|复现|验证结果", proof, re.I
+            r"\b(?:ran|passed|failed|observed|reproduced|screenshot|recording|artifact|"
+            r"manual(?:ly)? tested|verified)\b|已运行|已通过|已执行|观察到|截图|录屏|复现|验证结果", proof, re.I
         ):
             errors.append("Planned or pending CI alone is not completed evidence.")
     for kind, (pattern, min_chars) in ADVISORY.items():
