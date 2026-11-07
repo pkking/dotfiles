@@ -58,6 +58,14 @@ class PullRequestIntakeTests(unittest.TestCase):
         result = intake.evaluate(event(body=body))
         self.assertFalse(result["pass"])
 
+    def test_completed_proof_is_accepted_when_new_ci_is_pending(self) -> None:
+        body = BODY.replace(
+            "Ran python3 -B -m unittest discover -s tests -p test_*.py: PASS. CI report linked after completion.",
+            "Ran python3 -B -m unittest discover -s tests -p test_*.py: PASS. CI pending for this new commit.",
+        )
+        result = intake.evaluate(event(body=body))
+        self.assertTrue(result["pass"], result["errors"])
+
     def test_acceptance_and_risk_are_advisory(self) -> None:
         b = BODY.replace("## Acceptance criteria\nAll proposed changes run focused regression tests, emit per-commit evidence, and fail if validation fails.\n\n", "")
         b = b.replace("## Risks and limitations\nOffline tests do not establish live Wayland behavior; desktop validation is manual.\n", "")
