@@ -1,38 +1,84 @@
-name: test event
+name: PR Quality Evidence
 
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - labeled
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: quality-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test:
-    if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ready' }}
-    runs-on: ubuntu-latest
+  offline-validation:
+    name: offline-validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - name: Inspect pull request event safely
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Execute offline checks and write a receipt
         env:
-          PR_ACTION: ${{ github.event.action }}
-          PR_LABEL: ${{ github.event.label.name || '' }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 -B scripts/ci_quality.py
+      - name: Upload machine-readable logs and receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .ci-evidence/
+          retention-days: 30
+          if-no-files-found: error
+          include-hidden-files: true
+      - name: Publish summary
+        if: always()
         run: |
-          printf 'action=%s\n' "$PR_ACTION"
-          printf 'label=%s\n' "$PR_LABEL"
+          if test -f .ci-evidence/report.md; then
+            cat .ci-evidence/report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Quality evidence generation failed.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
 
-  final:
-    if: always()
-    runs-on: ubuntu-latest
+  workflow-sanity:
+    name: workflow-sanity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
-      - name: Inspect pull request event safely
-        env:
-          PR_ACTION: ${{ github.event.action }}
-          PR_LABEL: ${{ github.event.label.name || '' }}
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run checksum-verified actionlint on every workflow
         run: |
-          printf 'action=%s\n' "$PR_ACTION"
-          printf 'label=%s\n' "$PR_LABEL"
+          set -euo pipefail
+          curl -fsSL --retry 3 \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            -o "$RUNNER_TEMP/actionlint.tar.gz"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          # The generated github-next .lock.yml contains queue metadata not supported by actionlint v1.7.12.
+          # Lint every authored .yml/.yaml; the generated lock is validated by its own producer.
+          find .github/workflows -type f \( -name '*.yml' -o -name '*.yaml' \) ! -name '*.lock.yml' -print0 |
+            xargs -0 "$RUNNER_TEMP/actionlint"
+
+  quality-gate:
+    name: quality-gate
+    if: always()
+    needs: [offline-validation, workflow-sanity]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Reject failed, skipped or canceled validation
+        env:
+          TEST_RESULT: ${{ needs.offline-validation.result }}
+          LINT_RESULT: ${{ needs.workflow-sanity.result }}
+        run: |
+          test "$TEST_RESULT" = success && test "$LINT_RESULT" = success

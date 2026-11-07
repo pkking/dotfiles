@@ -1,0 +1,10 @@
+# Native CODEOWNERS approval only applies when repository rules require it.
+/.github/CODEOWNERS @pkking
+/.github/workflows/ @pkking
+/.github/pull_request_template.md @pkking
+/scripts/ci_quality.py @pkking
+/scripts/pr_intake.py @pkking
+/tests/test_pr_intake.py @pkking
+/.pre-commit-config.yaml @pkking
+/AGENTS.md @pkking
+/CLAUDE.md @pkking
