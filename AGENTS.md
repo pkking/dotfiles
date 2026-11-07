@@ -94,3 +94,19 @@ mise run pi               # Launch Pi (with BW secrets)
 mise run codex            # Launch Codex CLI (with BW secrets)
 mise run agy              # Launch Antigravity CLI (with BW secrets)
 ```
+
+## ISSUE CHECKPOINTS
+- **Resume**: For Issue-driven work, read the Issue and local checkpoint; reconcile discrepancies before continuing.
+- **Triggers**: Checkpoint at implementation/review milestones, blocker or authorization changes, and handoff. Coalesce unchanged progress rather than commenting after every tool call.
+- **Authorization**: Resolve permission to post checkpoint comments separately from push/PR/merge/deployment permissions. Clarify ambiguous local-only scope; a checkpoint rule grants no remote-write permission.
+- **Content**: Record status, branch/exact commit, observed checks and evidence scope, remaining gaps, next action and approval gates. Distinguish local from pushed/deployed work and reported from independently verified results. Exclude secrets and unnecessary machine-specific details.
+- **Ownership**: The lead agent reconciles subagent results and owns Issue synchronization; a completed workflow or local documentation commit is not a published checkpoint.
+- **Publication**: When authorized, append a checkpoint, preserve history, and update completion checkboxes only against actual acceptance. Read the comment back and record its URL locally.
+- **Handoff gate**: Before reporting a milestone complete or handing off, save the local checkpoint and provide either the verified Issue-comment URL or an explicit **Issue not synchronized** notice with the authorization/error blocker and recovery point. Do not silently defer synchronization or treat posting failure as implementation failure.
+
+## DELEGATION AND CONTEXT
+- Delegate every repository implementation change—including code, config, scripts, tests, documentation, and agent rules—to subagents; there is no small-change exception. The main session owns overall design, task scope, authorization, orchestration, reconciliation, checkpoints, and final communication. It may perform bounded, read-only verification, but must not implement through shell writes or another workaround.
+- Run every implementation and review subagent explicitly on `openai/gpt-6-luna`; the main session uses `gpt-6.1-sol` for overall design and orchestration. If the required subagent model is unavailable, report the blocker; do not fall back to another model or implement in the main session.
+- Partition delegated work by task in private branches or worktrees, and preserve pre-existing dirty files. Keep main-session context bounded to relevant excerpts, diff stats, exact commit/worktree status, and concise gate results. Delegate bulk investigation, review, and log reading; retain full outputs and evidence as files, with paths and digests, and request targeted details only for decisions. Avoid routine full-source, transcript, or log dumps.
+- Require each handoff to be at most 400 words and state: scope/files and commit or uncommitted status; checks with exit codes/counts; findings, risks, and approval needs; next action; evidence paths. Summaries do not replace verification: distinguish reported results from checks independently verified by the main session and do not overclaim.
+- Save a durable local checkpoint before handoff or compaction. For Issue-driven work, follow **ISSUE CHECKPOINTS** above.
