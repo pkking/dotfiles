@@ -16,16 +16,20 @@ separately staged `ezwallpaper-rotation.{service,timer}` and
 `ezwallpaper/rotation.json` integration. Do not enable both integrations:
 B's preflight refuses the other integration when active or enabled. Reviewers
 should treat B as a guarded alternative, not as another concurrent rotation
-source. The Noctalia desktop template remains unchanged and still declares
-built-in wallpaper automation enabled; B cannot be enabled until that source
-configuration and any GUI override are manually migrated in a separately
-approved deployment.
+source. The managed Noctalia desktop template declares built-in wallpaper automation
+disabled. B is an alternative opt-in ezwallpaper scheduler, not a concurrent
+source: explicitly choose at most one of B's `ezwallpaper-rotate.{service,timer}`
+or #91's `ezwallpaper-rotation.{service,timer}` pair, and keep native Noctalia
+automation disabled. Any GUI override must also remain disabled before B can
+be deployed under separate approval.
 
 The current machine has the B runtime files and B timer enabled, with the old
 daily service persistently masked and its timer stopped; this is a deployment
 observation, not a claim that this source branch has been applied or that all
-machines are in that state. The live Noctalia automation setting is disabled,
-but the checked-in template still says enabled. The working image pools are
+machines are in that state. The live Noctalia automation setting is disabled, consistent with the
+checked-in template. No scheduler is enabled by this source-only change; a
+deployment must explicitly choose at most one of the two guarded ezwallpaper
+unit pairs. The working image pools are
 local runtime assets and are not part of this change. In particular, the
 `ezwallpaper-mocha` pools are not supplied here: prepare and validate real
 landscape and portrait images separately before deployment. No user image

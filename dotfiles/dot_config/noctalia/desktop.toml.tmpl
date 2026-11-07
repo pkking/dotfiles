@@ -66,7 +66,7 @@ enabled = false
 enabled = true
 directory = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/landscape"
 fill_mode = "crop"
-transition = ["fade"]
+transition = ["fade", "wipe", "disc", "stripes", "zoom", "honeycomb"]
 transition_duration = 900.0
 transition_on_startup = true
 fill_color = "surface"
@@ -101,7 +101,7 @@ blurred_desktop = false
 blur_intensity = 0.25
 tint_intensity = 0.35
 lock_before_suspend = true
-transition = ["fade"]
+transition = ["fade", "wipe", "disc", "stripes", "zoom", "honeycomb"]
 transition_duration = 900.0
 # Empty wallpaper follows each output's own desktop wallpaper.
 wallpaper = ""
@@ -109,7 +109,7 @@ wallpaper = ""
 [lockscreen_widgets]
 enabled = true
 schema_version = 2
-widget_order = ["main-clock", "main-date", "portrait-clock", "portrait-date", "lockscreen-login-box@DP-1", "lockscreen-login-box@HDMI-A-1"]
+widget_order = ["main-clock", "main-date", "portrait-clock", "portrait-date", "portrait-sysmon", "lockscreen-login-box@DP-1", "lockscreen-login-box@HDMI-A-1"]
 
 [lockscreen_widgets.grid]
 visible = false
@@ -151,17 +151,16 @@ shadow = true
 type = "clock"
 output = "HDMI-A-1"
 cx = 540.0
-cy = 650.0
-box_width = 600.0
-box_height = 160.0
+cy = 560.0
+box_width = 380.0
+box_height = 380.0
 placement_width = 1080.0
 placement_height = 1920.0
 
 [lockscreen_widgets.widget.portrait-clock.settings]
-format = "{:%H:%M}"
+clock_style = "analog"
 font_family = "Monaspace Neon NF"
 color = "on_surface"
-center_text = true
 shadow = true
 
 [lockscreen_widgets.widget.portrait-date]
@@ -178,6 +177,22 @@ placement_height = 1920.0
 format = "{:%A · %Y-%m-%d}"
 color = "on_surface"
 center_text = true
+shadow = true
+
+[lockscreen_widgets.widget.portrait-sysmon]
+type = "sysmon"
+output = "HDMI-A-1"
+cx = 540.0
+cy = 960.0
+box_width = 560.0
+box_height = 220.0
+placement_width = 1080.0
+placement_height = 1920.0
+
+[lockscreen_widgets.widget.portrait-sysmon.settings]
+stat = "cpu_usage"
+display = "graph"
+color = "on_surface_variant"
 shadow = true
 
 [lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
