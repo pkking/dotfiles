@@ -1,0 +1,12 @@
+[Unit]
+Description=Refill the ezwallpaper landscape pool from Bing
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/wallpaper-hourly-refill.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/wallpapers
+UMask=0077

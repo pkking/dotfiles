@@ -1,0 +1,11 @@
+[Unit]
+Description=Hourly ezwallpaper pool refill
+
+[Timer]
+OnCalendar=hourly
+Persistent=false
+RandomizedDelaySec=5m
+Unit=wallpaper-hourly-refill.service
+
+[Install]
+WantedBy=timers.target
