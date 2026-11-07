@@ -1,0 +1,18 @@
+# Public upstream source and content hashes; no machine-specific paths or identity.
+repository = "https://github.com/catppuccin/plymouth"
+revision = "198eba2071d80e4a23b8f51a5859e8f4acf8de6c"
+license = "MIT"
+license_sha256 = "814096d2c34cc216c624738a49356f32b7237733b4f7edb0685f4e50ef5074ba"
+
+[files]
+"bullet.png" = "a99e9402de0526bfb89559d1d3d3c1bb35b5071c67f7573f8a68af93cd7471bd"
+"capslock.png" = "da7663b964552aafaa1a68dd12aee249836f8cc5bd062646bf6d51ba9d977f94"
+"entry.png" = "724b21d5fb6c0b2b2958dcbd2dd6d032efbe1d3fd18666b635b9bca35a0bdf29"
+"keyboard.png" = "b5e8ce02253d63c6a378fa1a087d6eccc328859052417edd2c7e63908d062444"
+"lock.png" = "1cfc565c8642102082431294002a7ed08a993b945f35743261ae29d8ddedfb9f"
+"throbber-0.png" = "46429376f9ae4a1eef7bb933b7a8f9eb943de9a5b733d0e36db982eec071df89"
+"throbber-1.png" = "dd1800bb3c7592a89931e770ca3d15bf5745376e29c80a02fb7b835bafa78dba"
+"throbber-2.png" = "9927f1a73c4a4cc893c4e4eb70cfd7445905899d9a9c01a7668fdad5a6a912c9"
+"throbber-3.png" = "9ebc664995bc29ce1082e54c4e590c30e4debf77c8717ef23a9742eaf8fe3469"
+"throbber-4.png" = "714cbaddf46b7476ee6c0d28148e427a46954b117cf57d34a317f29d82623595"
+"throbber-5.png" = "26ec588094ede6193d7e5cd98a725d021157d3fb8740af985a2eff34e04f0441"
