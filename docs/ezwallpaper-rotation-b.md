@@ -1,9 +1,13 @@
 # ezwallpaper local hourly rotation (proposal B)
 
 This source-only integration rotates local images from the fixed
-`ezwallpaper-mocha/landscape` and `portrait` pools using the installed
-`ezwallpaper` binary and Noctalia as the renderer. It uses the binary's UTC-hour
-rotation bucket and runs hourly. It does not fetch, admit a download budget,
+`ezwallpaper-mocha/landscape` and `portrait` pools using the pinned
+`ezwallpaper` binary and Noctalia as the renderer. A managed relative symlink
+at `~/.local/bin/ezwallpaper` points to the already-installed pinned artifact
+under `~/.local/lib/ezwallpaper/5f11267361aec1b4f847e24169701d0dd2e39f66/`.
+The symlink only provides a stable command name: it does not install the target,
+verify its hash or trustworthiness, or provide a fallback. It uses the binary's
+UTC-hour rotation bucket and runs hourly. It does not fetch, admit a download budget,
 retain, garbage-collect, or delete images. The profile is schema v1 (`owner`
 plus output `name`, `dir`, and `recursive`), based on the pinned binary's
 recorded successful dry-run evidence.
@@ -37,13 +41,21 @@ assets or host-specific paths are committed.
 
 ## Installation and enablement gates
 
-Before a separately approved deployment, install a compatible `ezwallpaper`
-binary at `~/.local/bin/ezwallpaper`, render the profile, and prepare both
-pools as real directories containing regular local files. The service does
-not install the binary or acquire images. Review a scoped `chezmoi diff`; do
-not apply unrelated dirty source changes. After all gates are independently
-satisfied, an operator may manually enable the B timer. This change itself
-never enables it.
+Before a separately approved deployment, independently ensure the pinned
+artifact is already installed and trusted at
+`~/.local/lib/ezwallpaper/5f11267361aec1b4f847e24169701d0dd2e39f66/bin/ezwallpaper`,
+then render the profile and prepare both pools as real directories containing
+regular local files. The source supplies only the stable relative alias; it
+has no installer, hash verification, fallback, or image acquisition. The
+service's non-executing `test -x ~/.local/bin/ezwallpaper` preflight fails
+closed when the alias target is absent or non-executable. Before applying,
+review a scoped `chezmoi diff` and resolve any existing canonical
+`~/.local/bin/ezwallpaper` file/type conflict manually; do not apply unrelated
+dirty source changes. After all gates are independently satisfied, an operator
+may manually enable the B timer only under separate explicit deployment
+authorization, after recording/backup, artifact and pool validation, and the
+required GUI/runtime checks. Merging this source is not deployment: this change
+itself never enables the timer and does not change the current runtime.
 
 The preflight requires all of the following before every apply:
 
