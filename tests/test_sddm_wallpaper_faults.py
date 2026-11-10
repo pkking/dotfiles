@@ -8,6 +8,7 @@ from pathlib import Path
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 SCRIPT = Path(__file__).parents[1] / "dotfiles/dot_local/bin/executable_sddm-wallpaper-sync.py"
 spec = importlib.util.spec_from_file_location("sddm_wallpaper_sync_faults", SCRIPT)
@@ -80,6 +81,47 @@ class StateFaultTests(unittest.TestCase):
 
 
 class OwnerLockFaultTests(unittest.TestCase):
+    def test_private_owner_completion_context_skips_systemd_but_reaches_commit(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            policy = root / "policy.json"
+            policy.write_text('{"schema_version":1,"enabled":true,"profile":"~/profile",'
+                              '"state":"~/state","landscape_pool":"~/pool"}')
+            os.chmod(policy, 0o600)
+            source = root / "pool" / "wall.png"
+            source.parent.mkdir()
+            source.write_bytes(b"fixture source")
+            source_stat = source.stat()
+            fingerprint = (source_stat.st_dev, source_stat.st_ino, source_stat.st_size, source_stat.st_mtime_ns)
+            image = b"\x89PNG\r\n\x1a\nfixture"
+            identity = (7, "sha256:" + "a" * 64, 9)
+            committed: list[str] = []
+
+            def fake_publish(_destination, _normalized, _uid, _gid, before_commit):
+                before_commit()
+                committed.append("expected-commit")
+                return "published"
+
+            with mock.patch.object(syncmod, "_owner_success", side_effect=AssertionError("systemctl must not run")), \
+                 mock.patch.object(syncmod, "_safe_path", side_effect=lambda path, *_args, **_kwargs: Path(path)), \
+                 mock.patch.object(syncmod, "_state_identity", return_value=identity), \
+                 mock.patch.object(syncmod, "_getter", return_value=str(source)), \
+                 mock.patch.object(syncmod, "_source_snapshot", return_value=(image, fingerprint)), \
+                 mock.patch.object(syncmod, "_normalize", return_value=b"normalized"), \
+                 mock.patch.object(syncmod, "_publish_image", side_effect=fake_publish):
+                self.assertEqual(syncmod._publish(policy, root / "cache", os.getuid(), os.getgid(),
+                                                  owner_completed=True), "published")
+            self.assertEqual(committed, ["expected-commit"])
+
+    def test_standalone_enabled_sync_without_private_proof_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            policy = Path(temp) / "policy.json"
+            policy.write_text('{"schema_version":1,"enabled":true,"profile":"~/profile",'
+                              '"state":"~/state","landscape_pool":"~/pool"}')
+            os.chmod(policy, 0o600)
+            with self.assertRaisesRegex(syncmod.SyncError, "canonical owner wrapper"):
+                syncmod.sync(policy)
+
     def test_owner_lock_accepts_inherited_0644_and_requires_held_flock(self) -> None:
         import fcntl
         with tempfile.TemporaryDirectory() as temp:

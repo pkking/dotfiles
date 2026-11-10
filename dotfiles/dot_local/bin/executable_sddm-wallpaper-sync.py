@@ -376,14 +376,21 @@ def cleanup_after_abort() -> None:
         return
 
 
-def _publish(policy_path: Path, destination: Path, uid: int, sddm_gid: int | None) -> str:
+def _publish(policy_path: Path, destination: Path, uid: int, sddm_gid: int | None,
+             *, owner_completed: bool = False) -> str:
     uid = os.getuid() if uid is None else uid
     if not policy_path.exists():
         raise SyncError(f"policy missing: {policy_path}")
     policy = _load_policy(policy_path)
     if not policy["enabled"]:
         return "disabled: no wallpaper or cache access performed"
-    _owner_success()
+    # The wrapper invokes this only after observing the real rotation command's
+    # zero exit while holding the canonical owner flock. In that private context
+    # systemd still reports the current unit as active, so historical unit state
+    # is neither available nor authoritative. Standalone calls must verify the
+    # completed owner state and cannot claim this context through the CLI.
+    if not owner_completed:
+        _owner_success()
     home = Path.home()
     profile = _safe_path(home / policy["profile"].removeprefix("~/"), uid)
     state_path = _safe_path(home / policy["state"].removeprefix("~/"), uid)
@@ -449,7 +456,7 @@ def _require_owner_lock() -> None:
 def publish_after_owner_success() -> str:
     """Wrapper-only publication; require and retain the canonical owner flock."""
     _require_owner_lock()
-    return _publish(POLICY, DESTINATION, os.getuid(), None)
+    return _publish(POLICY, DESTINATION, os.getuid(), None, owner_completed=True)
 
 
 def sync(policy_path: Path = POLICY, destination: Path = DESTINATION, uid: int | None = None,

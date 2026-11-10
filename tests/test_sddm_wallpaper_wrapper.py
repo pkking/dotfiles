@@ -13,6 +13,7 @@ from unittest import mock
 
 SOURCE = Path(__file__).parents[1] / "dotfiles/dot_local/bin"
 WRAPPER = SOURCE / "executable_ezwallpaper-sddm-rotate.py"
+SYNC_WRITER = SOURCE / "executable_sddm-wallpaper-sync.py"
 
 class InstalledWrapperTests(unittest.TestCase):
     def setUp(self):
@@ -54,6 +55,29 @@ class InstalledWrapperTests(unittest.TestCase):
         self.assertEqual(p.returncode,0,err.decode()); self.assertEqual(out,b'rotator-out\n'); self.assertIn(b'rotator-err\n',err)
         self.assertEqual(self.argv.read_text().splitlines(),['rotate','next','--profile',str(self.home/'.config/ezwallpaper/rotation-profile.json'),'--apply'])
         self.assertEqual(self.marker.read_text(),'ok')
+
+    def test_real_installed_writer_runs_after_fake_rotation_with_disabled_policy(self):
+        deployed_writer = self.bin / "sddm-wallpaper-sync.py"
+        shutil.copy2(SYNC_WRITER, deployed_writer)
+        deployed_writer.chmod(0o644)
+        policy_dir = self.home / ".config/sddm-wallpaper-sync"
+        policy_dir.mkdir(parents=True)
+        policy = policy_dir / "policy.json"
+        policy.write_text('{"schema_version":1,"enabled":false,"profile":"~/profile",'
+                          '"state":"~/state","landscape_pool":"~/pool"}')
+        policy.chmod(0o600)
+
+        fd = os.open(self.lock, os.O_RDWR)
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        process = self.start(fd)
+        os.close(fd)
+        _out, err = process.communicate(timeout=5)
+
+        self.assertEqual(process.returncode, 0, err.decode())
+        self.assertTrue(self.argv.exists(), "fake B must run successfully before the publisher")
+        self.assertTrue(deployed_writer.is_file())
+        self.assertEqual(deployed_writer.stat().st_mode & 0o777, 0o644)
+        self.assertFalse((self.bin / "executable_sddm-wallpaper-sync.py").exists())
 
     def test_rotator_23_suppresses_publisher(self):
         self.rotation(23); fd=os.open(self.lock,os.O_RDWR); fcntl.flock(fd,fcntl.LOCK_EX)
