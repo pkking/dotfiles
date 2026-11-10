@@ -25,6 +25,19 @@ jobs:
         with:
           fetch-depth: 2
           persist-credentials: false
+      - name: Install checksum-verified chezmoi for offline checks
+        run: |
+          set -euo pipefail
+          tool_dir="$RUNNER_TEMP/chezmoi-bin"
+          archive="$RUNNER_TEMP/chezmoi_2.73.0_linux_amd64.tar.gz"
+          mkdir -p "$tool_dir"
+          curl -fsSL --retry 3 --retry-all-errors --connect-timeout 20 --max-time 180 \
+            https://github.com/twpayne/chezmoi/releases/download/v2.73.0/chezmoi_2.73.0_linux_amd64.tar.gz \
+            -o "$archive"
+          echo "b597729b687af4488a848240134cb633de8ca0f04e0d26d48f400ee2ac338ffa  $archive" | sha256sum -c -
+          tar -xzf "$archive" -C "$tool_dir" chezmoi
+          echo "$tool_dir" >> "$GITHUB_PATH"
+          "$tool_dir/chezmoi" --version | grep -Fq 'v2.73.0'
       - name: Execute offline checks and write a receipt
         env:
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
