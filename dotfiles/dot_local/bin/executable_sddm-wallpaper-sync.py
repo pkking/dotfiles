@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import re
+import selectors
 import stat
 import subprocess
 import sys
@@ -21,6 +22,9 @@ OWNER_UNIT = "ezwallpaper-rotate.service"
 MAX_POLICY = 16_384
 MAX_STATE = 65_536
 MAX_SOURCE_BYTES = 32 * 1024 * 1024
+MAX_CHILD_AS_BYTES = 1024 * 1024 * 1024
+MAX_CHILD_CPU_SOFT_SECONDS = 8
+MAX_CHILD_CPU_HARD_SECONDS = 9
 MAX_PIXELS = 40_000_000
 MAX_SECONDS = 20
 ID_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
@@ -122,31 +126,76 @@ def _load_policy(path: Path) -> dict[str, Any]:
 
 def _bounded_run(argv: list[str], *, input_data: bytes | None = None, timeout: int,
                  max_output: int, limit_fsize: bool = False) -> tuple[int, bytes]:
-    """Capture child stdout in a capped anonymous file, never an unbounded pipe."""
+    """Run a contained child and consume at most max_output+1 stdout bytes."""
     import resource
-    with tempfile.TemporaryFile() as output:
-        def set_limits() -> None:
-            # stdout is an anonymous regular file, so RLIMIT_FSIZE bounds bytes
-            # at generation time rather than after unbounded pipe/file growth.
-            cap = max(max_output, MAX_SOURCE_BYTES)
-            resource.setrlimit(resource.RLIMIT_FSIZE, (cap, cap))
+    input_file = tempfile.TemporaryFile() if input_data is not None else None
+    selector = selectors.DefaultSelector()
+    proc: subprocess.Popen[bytes] | None = None
+    output = bytearray()
+    deadline = time.monotonic() + timeout
+
+    def set_limits() -> None:
+        # Never raise an inherited hard limit, including an unlimited one.
+        def bounded_limits(which: int, requested_soft: int, requested_hard: int) -> tuple[int, int]:
+            inherited_soft, inherited_hard = resource.getrlimit(which)
+            hard = requested_hard if inherited_hard == resource.RLIM_INFINITY else min(requested_hard, inherited_hard)
+            soft = requested_soft if inherited_soft == resource.RLIM_INFINITY else min(requested_soft, inherited_soft)
+            return min(soft, hard), hard
+
+        as_limit = bounded_limits(resource.RLIMIT_AS, MAX_CHILD_AS_BYTES, MAX_CHILD_AS_BYTES)
+        cpu_limit = bounded_limits(resource.RLIMIT_CPU, MAX_CHILD_CPU_SOFT_SECONDS, MAX_CHILD_CPU_HARD_SECONDS)
+        # File size bounds decoder scratch files. Stdout has its separate stream cap.
+        fsize_limit = bounded_limits(resource.RLIMIT_FSIZE, MAX_SOURCE_BYTES, MAX_SOURCE_BYTES)
+        resource.setrlimit(resource.RLIMIT_AS, as_limit)
+        resource.setrlimit(resource.RLIMIT_CPU, cpu_limit)
+        resource.setrlimit(resource.RLIMIT_FSIZE, fsize_limit)
+
+    try:
+        if input_file is not None:
+            input_file.write(input_data)
+            input_file.seek(0)
+        proc = subprocess.Popen(argv, stdin=input_file if input_file is not None else subprocess.DEVNULL,
+                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, close_fds=True,
+                                preexec_fn=set_limits)
+        assert proc.stdout is not None
+        os.set_blocking(proc.stdout.fileno(), False)
+        selector.register(proc.stdout, selectors.EVENT_READ)
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise SyncError("child process timed out")
+            events = selector.select(remaining)
+            if not events:
+                raise SyncError("child process timed out")
+            chunk = os.read(proc.stdout.fileno(), min(64 * 1024, max_output + 1 - len(output)))
+            if not chunk:
+                selector.unregister(proc.stdout)
+                break
+            output.extend(chunk)
+            if len(output) > max_output:
+                raise SyncError("child output exceeded configured bound")
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise SyncError("child process timed out")
         try:
-            proc = subprocess.Popen(argv, stdin=subprocess.PIPE if input_data is not None else subprocess.DEVNULL,
-                                   stdout=output, stderr=subprocess.DEVNULL, close_fds=True,
-                                   preexec_fn=set_limits)
-            try:
-                proc.communicate(input=input_data, timeout=timeout)
-            except subprocess.TimeoutExpired as exc:
-                proc.kill()
-                proc.wait()
-                raise SyncError("child process timed out") from exc
-        except OSError as exc:
+            returncode = proc.wait(timeout=remaining)
+        except subprocess.TimeoutExpired as exc:
+            raise SyncError("child process timed out") from exc
+        return returncode, bytes(output)
+    except OSError as exc:
+        if proc is None:
             raise SyncError(f"required tool unavailable: {argv[0]}") from exc
-        size = os.fstat(output.fileno()).st_size
-        if size > max_output:
-            raise SyncError("child output exceeded configured bound")
-        output.seek(0)
-        return proc.returncode, output.read(max_output + 1)
+        raise
+    finally:
+        selector.close()
+        if proc is not None:
+            if proc.poll() is None:
+                proc.kill()
+            proc.wait()
+            if proc.stdout is not None:
+                proc.stdout.close()
+        if input_file is not None:
+            input_file.close()
 
 
 def _owner_success() -> None:

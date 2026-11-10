@@ -29,6 +29,10 @@ After separately approving deployment, verify that group `sddm` exists and that 
 
 Remove the optional drop-in and reload the user manager during an approved window; disable policy (`enabled:false`). Restore the saved `theme.conf.user` background values, preserving other configuration. The last cache image may remain until an administrator removes the known `current.png` and leaf after confirming ownership; no recursive cleanup is needed. Do not remove parent cache paths or unrelated files.
 
+## Decoder process resource limits
+
+Each ImageMagick helper runs as a child with OS-enforced `RLIMIT_AS` capped at 1 GiB, `RLIMIT_CPU` capped at 8 seconds soft / 9 seconds hard, and `RLIMIT_FSIZE` capped at 32 MiB for decoder scratch files. These child limits never raise an inherited lower hard limit. Input is supplied from a bounded anonymous file; stdout is read nonblocking in chunks with a strict `max_output+1` sentinel cap and the child is killed/reaped immediately on overflow. The stdout cap is independent of `RLIMIT_FSIZE`, since ImageMagick may need larger scratch files even when its metadata stdout is tiny. Helper wall-clock timeouts remain active. These limits supplement, and do not replace, ImageMagick's own pixel-cache policies.
+
 ## Failure and durability contract
 
 Disabled policy is a no-op (does not inspect Noctalia/cache). Missing provisioning, missing session IPC, failed/unknown owner, invalid/stale state, source change, readback mismatch, invalid/oversized image, lock contention, or any pre-rename write/fsync error fails closed and preserves the prior image. Same-directory exclusive temporary files are cleaned only when created by this invocation. Atomic rename is the commit point: if directory fsync fails after rename, the new image is already visible and is reported as **committed with durability uncertain**, not falsely described as rolled back. The cache keeps one current image and is never recursively cleaned. The user may replace/deny service to their own cache; the SDDM account receives only the published static file. Image path equality cannot establish rendered pixels.
