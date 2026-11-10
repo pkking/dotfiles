@@ -9,6 +9,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 SOURCE = Path(__file__).parents[1] / "dotfiles/dot_local/bin"
 WRAPPER = SOURCE / "executable_ezwallpaper-sddm-rotate.py"
@@ -95,6 +96,18 @@ class InstalledWrapperTests(unittest.TestCase):
             if kind=='wrong': os.close(other)
             if kind=='symlink': self.lock.unlink(); (self.runtime/'real').rename(self.lock)
             if kind=='unsafe': os.chmod(self.lock,0o644)
+
+    def test_publisher_spawn_oserror_preserves_success(self):
+        import importlib.util
+        source=SOURCE/'executable_ezwallpaper-sddm-rotate.py'
+        spec=importlib.util.spec_from_file_location('wrapper_test_module',source)
+        module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        fd=os.open(self.lock,os.O_RDWR); fcntl.flock(fd,fcntl.LOCK_EX)
+        with mock.patch.object(module.subprocess,'run',return_value=mock.Mock(returncode=0)):
+            with mock.patch.object(module.subprocess,'Popen',side_effect=OSError('injected spawn failure')):
+                with mock.patch.dict(os.environ,{"HOME":str(self.home),"XDG_RUNTIME_DIR":str(self.runtime)}):
+                    self.assertEqual(module.main(),0)
+        os.close(fd)
 
     def test_timeout_kills_publisher_decoder_runs_cleanup_and_preserves_cache(self):
         pidfile=self.home/'pid'; cache=self.home/'cache'; cache.write_text('old-good')
