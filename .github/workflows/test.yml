@@ -20,6 +20,31 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
+      - name: Bootstrap checksum-pinned ImageMagick
+        env:
+          MAGICK_VERSION: 7.1.2-33
+          MAGICK_URL: https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-33/ImageMagick-7.1.2-33-gcc-x86_64.AppImage
+          MAGICK_SHA256: af598b07ab4dd8b8123623602dc9fc69d5e32185a36fd3739795a0deb02c1fb7
+        run: |
+          set -euo pipefail
+          asset="$RUNNER_TEMP/ImageMagick-${MAGICK_VERSION}-gcc-x86_64.AppImage"
+          install_root="$RUNNER_TEMP/sddm-imagemagick"
+          tool_bin="$RUNNER_TEMP/sddm-imagemagick-bin"
+          curl --fail --location --silent --show-error --retry 3 \
+            --connect-timeout 10 --max-time 180 "$MAGICK_URL" -o "$asset"
+          printf '%s  %s\n' "$MAGICK_SHA256" "$asset" | sha256sum --check --status
+          chmod 700 "$asset"
+          mkdir -m 700 "$install_root" "$tool_bin"
+          (
+            cd "$install_root"
+            "$asset" --appimage-extract
+          )
+          test -x "$install_root/squashfs-root/AppRun"
+          ln -s "$install_root/squashfs-root/AppRun" "$tool_bin/magick"
+          echo "$tool_bin" >> "$GITHUB_PATH"
+          export PATH="$tool_bin:$PATH"
+          test "$(command -v magick)" = "$tool_bin/magick"
+          magick -version | grep -F "ImageMagick $MAGICK_VERSION "
       - name: Checkout candidate
         uses: actions/checkout@v4
         with:
