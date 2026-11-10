@@ -25,7 +25,8 @@ class InstalledWrapperTests(unittest.TestCase):
         self.marker = self.home / "marker"; self.argv = self.home / "argv"
         deployed = self.bin / "ezwallpaper-sddm-rotate.py"; shutil.copy2(WRAPPER, deployed); deployed.chmod(0o755)
         helper_dir = self.home / ".local/lib/sddm-wallpaper-sync"; helper_dir.mkdir(parents=True)
-        shutil.copy2(SOURCE.parent / "lib/sddm-wallpaper-sync/processes.py", helper_dir / "processes.py")
+        self.process_helper = helper_dir / "processes.py"
+        shutil.copy2(SOURCE.parent / "lib/sddm-wallpaper-sync/processes.py", self.process_helper)
         self.rotator = self.bin / "ezwallpaper"; self.rotation(0)
         self.publisher = self.bin / "sddm-wallpaper-sync.py"; self.publish("pathlib.Path(MARK).write_text('ok')")
 
@@ -82,10 +83,35 @@ class InstalledWrapperTests(unittest.TestCase):
         self.assertEqual(deployed_writer.stat().st_mode & 0o777, 0o644)
         self.assertFalse((self.bin / "executable_sddm-wallpaper-sync.py").exists())
 
-    def test_rotator_23_suppresses_publisher(self):
-        self.rotation(23); fd=os.open(self.lock,os.O_RDWR); fcntl.flock(fd,fcntl.LOCK_EX)
-        p=self.start(fd); os.close(fd); p.communicate(timeout=5)
-        self.assertEqual(p.returncode,23); self.assertFalse(self.marker.exists())
+    def test_missing_or_broken_optional_helper_does_not_affect_rotation(self):
+        for failure in ("missing", "syntax", "import"):
+            with self.subTest(failure=failure):
+                self.argv.unlink(missing_ok=True); self.marker.unlink(missing_ok=True)
+                if failure == "syntax":
+                    self.process_helper.write_text("def broken(:\\n")
+                elif failure == "import":
+                    self.process_helper.write_text("raise ImportError('injected')\\n")
+                else:
+                    self.process_helper.unlink(missing_ok=True)
+                fd=os.open(self.lock,os.O_RDWR); fcntl.flock(fd,fcntl.LOCK_EX)
+                p=self.start(fd); os.close(fd); out,err=p.communicate(timeout=5)
+                self.assertEqual(p.returncode,0,err.decode())
+                self.assertTrue(self.argv.exists(), "fake B must run exactly once")
+                self.assertEqual(self.argv.read_text().splitlines()[:2], ["rotate", "next"])
+                self.assertFalse(self.marker.exists(), "cache publisher must not start")
+                self.assertIn(b"optional cache helper unavailable", err)
+                self.assertNotIn(b"Traceback", err)
+                shutil.copy2(SOURCE.parent / "lib/sddm-wallpaper-sync/processes.py", self.process_helper)
+
+    def test_nonzero_rotation_never_loads_optional_helper(self):
+        self.rotation(23); self.process_helper.unlink(missing_ok=True)
+        fd=os.open(self.lock,os.O_RDWR); fcntl.flock(fd,fcntl.LOCK_EX)
+        p=self.start(fd); os.close(fd); _out,err=p.communicate(timeout=5)
+        self.assertEqual(p.returncode,23)
+        self.assertTrue(self.argv.exists(), "fake B must run exactly once")
+        self.assertFalse(self.marker.exists())
+        self.assertNotIn(b"optional cache helper", err)
+        self.assertNotIn(b"Traceback", err)
 
     def test_publisher_errors_and_missing_install_are_nonfatal(self):
         for action in ("raise RuntimeError('oops')", "raise ValueError('oops')"):

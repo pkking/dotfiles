@@ -16,11 +16,16 @@ from typing import NoReturn
 PUBLISH_TIMEOUT_SECONDS = 8.0
 TAIL_BUDGET_SECONDS = 10.0
 _PROCESS_HELPER = Path(__file__).resolve().parents[1] / "lib/sddm-wallpaper-sync/processes.py"
-_process_spec = importlib.util.spec_from_file_location("sddm_wallpaper_processes", _PROCESS_HELPER)
-if _process_spec is None or _process_spec.loader is None:
-    raise RuntimeError("SDDM process helper is unavailable")
-_processes = importlib.util.module_from_spec(_process_spec)
-_process_spec.loader.exec_module(_processes)
+
+
+def _load_processes():
+    """Load optional cleanup support only after a successful rotation."""
+    spec = importlib.util.spec_from_file_location("sddm_wallpaper_processes", _PROCESS_HELPER)
+    if spec is None or spec.loader is None:
+        raise ImportError("SDDM process helper is unavailable")
+    processes = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(processes)
+    return processes
 
 
 class WrapperError(RuntimeError):
@@ -127,6 +132,12 @@ def main() -> int:
     if result.returncode:
         return result.returncode
 
+    try:
+        processes = _load_processes()
+    except Exception as exc:
+        print(f"ezwallpaper-sddm-rotate: optional cache helper unavailable: {exc}", file=sys.stderr)
+        return 0
+
     script = Path(__file__).with_name("sddm-wallpaper-sync.py")
     code = (
         "import importlib.util; "
@@ -141,7 +152,7 @@ def main() -> int:
     old_handlers = {sig: signal.signal(sig, _signal_exit) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP)}
     try:
         try:
-            with _processes.subreaper_scope(cleanup_seconds=1.5):
+            with processes.subreaper_scope(cleanup_seconds=1.5):
                 try:
                     proc = subprocess.Popen([sys.executable, "-c", code], stdin=subprocess.DEVNULL,
                                             close_fds=True, pass_fds=(owner_fd,), start_new_session=True)
@@ -160,7 +171,7 @@ def main() -> int:
                     if isinstance(exc, _Termination):
                         termination_signal = exc.signum
                     print(f"ezwallpaper-sddm-rotate: cache publication could not run: {exc}", file=sys.stderr)
-        except _processes.CleanupError as exc:
+        except processes.CleanupError as exc:
             cleanup_needed = True
             print(f"ezwallpaper-sddm-rotate: bounded descendant cleanup incomplete: {exc}", file=sys.stderr)
         if cleanup_needed:
