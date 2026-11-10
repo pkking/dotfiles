@@ -40,16 +40,15 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 
 
 def _json_file(path: Path, limit: int, uid: int) -> dict[str, Any]:
-    st = path.lstat()
-    if not stat.S_ISREG(st.st_mode) or st.st_uid != uid or st.st_mode & 0o022 or st.st_size > limit:
-        raise SyncError(f"unsafe or oversized file: {path}")
-    fd = os.open(path, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+    fd, st = _open_anchored(path, uid, directory=False)
     try:
-        opened = os.fstat(fd)
-        if (opened.st_dev, opened.st_ino) != (st.st_dev, st.st_ino):
-            raise SyncError(f"file changed while opening: {path}")
+        if st.st_mode & 0o022 or st.st_size > limit:
+            raise SyncError(f"unsafe or oversized file: {path}")
         with os.fdopen(fd, "rb", closefd=False) as stream:
             raw = stream.read(limit + 1)
+        after = os.fstat(fd)
+        if (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns) != (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns):
+            raise SyncError(f"file changed while reading: {path}")
     finally:
         os.close(fd)
     if len(raw) > limit:
@@ -63,23 +62,43 @@ def _json_file(path: Path, limit: int, uid: int) -> dict[str, Any]:
     return value
 
 
-def _safe_path(path: Path, expected_uid: int, directory: bool = False) -> Path:
-    """Resolve a trusted absolute path while rejecting symlink components."""
+def _open_anchored(path: Path, expected_uid: int, directory: bool = False) -> tuple[int, os.stat_result]:
+    """Open an absolute path component-by-component without following links."""
     path = path.expanduser()
-    if not path.is_absolute():
-        raise SyncError("path must be absolute")
-    current = Path("/")
-    for component in path.parts[1:]:
-        current = current / component
-        st = current.lstat()
-        if stat.S_ISLNK(st.st_mode):
-            raise SyncError(f"symlink path component: {current}")
-    st = path.stat()
-    if directory and (not stat.S_ISDIR(st.st_mode) or st.st_uid != expected_uid):
-        raise SyncError(f"not an owned directory: {path}")
-    if not directory and (not stat.S_ISREG(st.st_mode) or st.st_uid != expected_uid):
-        raise SyncError(f"not an owned regular file: {path}")
-    return path
+    if not path.is_absolute() or any(part in (".", "..") for part in path.parts):
+        raise SyncError("path must be canonical and absolute")
+    fd = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+    try:
+        for component in path.parts[1:-1] if not directory else path.parts[1:]:
+            next_fd = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=fd)
+            os.close(fd)
+            fd = next_fd
+        if directory:
+            st = os.fstat(fd)
+            if not stat.S_ISDIR(st.st_mode) or st.st_uid != expected_uid:
+                raise SyncError(f"not an owned directory: {path}")
+            result_fd = fd
+            fd = -1
+            return result_fd, st
+        name = path.name
+        file_fd = os.open(name, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=fd)
+        st = os.fstat(file_fd)
+        os.close(fd)
+        fd = -1
+        if not stat.S_ISREG(st.st_mode) or st.st_uid != expected_uid:
+            os.close(file_fd)
+            raise SyncError(f"not an owned regular file: {path}")
+        return file_fd, st
+    finally:
+        if fd >= 0:
+            os.close(fd)
+
+
+def _safe_path(path: Path, expected_uid: int, directory: bool = False) -> Path:
+    """Validate through a no-follow dirfd walk; callers reopen by dirfd at use."""
+    fd, _ = _open_anchored(path, expected_uid, directory)
+    os.close(fd)
+    return path.expanduser()
 
 
 def _load_policy(path: Path) -> dict[str, Any]:
@@ -101,26 +120,49 @@ def _load_policy(path: Path) -> dict[str, Any]:
     return policy
 
 
+def _bounded_run(argv: list[str], *, input_data: bytes | None = None, timeout: int,
+                 max_output: int, limit_fsize: bool = False) -> tuple[int, bytes]:
+    """Capture child stdout in a capped anonymous file, never an unbounded pipe."""
+    import resource
+    with tempfile.TemporaryFile() as output:
+        def set_limits() -> None:
+            # stdout is an anonymous regular file, so RLIMIT_FSIZE bounds bytes
+            # at generation time rather than after unbounded pipe/file growth.
+            cap = max(max_output, MAX_SOURCE_BYTES)
+            resource.setrlimit(resource.RLIMIT_FSIZE, (cap, cap))
+        try:
+            proc = subprocess.Popen(argv, stdin=subprocess.PIPE if input_data is not None else subprocess.DEVNULL,
+                                   stdout=output, stderr=subprocess.DEVNULL, close_fds=True,
+                                   preexec_fn=set_limits)
+            try:
+                proc.communicate(input=input_data, timeout=timeout)
+            except subprocess.TimeoutExpired as exc:
+                proc.kill()
+                proc.wait()
+                raise SyncError("child process timed out") from exc
+        except OSError as exc:
+            raise SyncError(f"required tool unavailable: {argv[0]}") from exc
+        size = os.fstat(output.fileno()).st_size
+        if size > max_output:
+            raise SyncError("child output exceeded configured bound")
+        output.seek(0)
+        return proc.returncode, output.read(max_output + 1)
+
+
 def _owner_success() -> None:
-    result = subprocess.run(
-        ["systemctl", "--user", "show", OWNER_UNIT, "--property=Result", "--property=ExecMainStatus", "--property=ActiveState"],
-        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-        timeout=3, check=False, text=True, errors="replace",
-    )
-    if result.returncode != 0 or len(result.stdout) > 4096:
+    code, raw = _bounded_run(["systemctl", "--user", "show", OWNER_UNIT, "--property=Result", "--property=ExecMainStatus", "--property=ActiveState"], timeout=3, max_output=4096)
+    if code != 0:
         raise SyncError("cannot verify wallpaper owner result")
-    fields = dict(line.split("=", 1) for line in result.stdout.splitlines() if "=" in line)
-    if fields.get("Result") != "success" or fields.get("ExecMainStatus") != "0" or fields.get("ActiveState") == "activating":
+    fields = dict(line.split("=", 1) for line in raw.decode("utf-8", "replace").splitlines() if "=" in line)
+    if set(fields) != {"Result", "ExecMainStatus", "ActiveState"} or fields.get("Result") != "success" or fields.get("ExecMainStatus") != "0" or fields.get("ActiveState") != "inactive":
         raise SyncError("wallpaper owner did not complete successfully")
 
 
 def _getter() -> str:
-    result = subprocess.run(["noctalia", "msg", "wallpaper-get", "DP-1"], stdin=subprocess.DEVNULL,
-                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=5,
-                            check=False, text=True, errors="replace")
-    if result.returncode or len(result.stdout) > 4096:
+    code, raw = _bounded_run(["noctalia", "msg", "wallpaper-get", "DP-1"], timeout=5, max_output=4096)
+    if code:
         raise SyncError("Noctalia wallpaper getter failed")
-    value = result.stdout.strip()
+    value = raw.decode("utf-8", "replace").strip()
     if not value or "\n" in value or "\r" in value or not value.startswith("/"):
         raise SyncError("Noctalia returned no single absolute path")
     return value
@@ -147,13 +189,12 @@ def _state_identity(path: Path, profile: str, uid: int) -> tuple[int, str, int]:
 
 
 def _source_snapshot(path: Path, pool: Path, uid: int, content_id: str) -> tuple[bytes, tuple[int, int, int, int]]:
-    pool = _safe_path(pool, uid, directory=True)
-    candidate = _safe_path(path, uid)
-    if candidate.parent != pool:
+    pool = pool.expanduser()
+    candidate = path.expanduser()
+    if not pool.is_absolute() or candidate.parent != pool or not candidate.is_absolute():
         raise SyncError("wallpaper is not a direct child of configured landscape pool")
-    directory_fd = os.open(pool, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW)
+    directory_fd, directory = _open_anchored(pool, uid, directory=True)
     try:
-        directory = os.fstat(directory_fd)
         if directory.st_uid != uid or not stat.S_ISDIR(directory.st_mode):
             raise SyncError("landscape pool changed while opening")
         before = os.stat(candidate.name, dir_fd=directory_fd, follow_symlinks=False)
@@ -187,16 +228,20 @@ def _source_snapshot(path: Path, pool: Path, uid: int, content_id: str) -> tuple
 def _normalize(data: bytes) -> bytes:
     # Probe all frames first: accepting only [0] would silently publish one frame
     # from an animated/multipage input rather than rejecting it.
-    coder = "jpeg:-" if data.startswith(b"\\xff\\xd8\\xff") else "png:-"
-    probe = subprocess.run(["magick", "identify", "-limit", "time", str(MAX_SECONDS), "-limit", "memory", "256MiB",
+    if data.startswith(b"\x89PNG\r\n\x1a\n") and (b"acTL" in data or b"fcTL" in data):
+        raise SyncError("animated PNG is not accepted")
+    coder = "jpeg:-" if data.startswith(b"\xff\xd8\xff") else "png:-"
+    try:
+        probe_code, probe_data = _bounded_run(["magick", "identify", "-limit", "time", str(MAX_SECONDS), "-limit", "memory", "256MiB",
                             "-limit", "map", "512MiB", "-limit", "disk", "512MiB",
                             "-regard-warnings", "-format", "%w %h %n\\n", coder],
-                           input=data, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                           timeout=MAX_SECONDS, check=False)
-    if probe.returncode or len(probe.stdout) > 128:
+                           input_data=data, timeout=MAX_SECONDS, max_output=128)
+    except SyncError as exc:
+        raise SyncError("image frame probe failed or exceeded bounds") from exc
+    if probe_code:
         raise SyncError("image frame probe failed or exceeded bounds")
     try:
-        metadata = [tuple(int(part) for part in line.split()) for line in probe.stdout.splitlines()]
+        metadata = [tuple(int(part) for part in line.split()) for line in probe_data.splitlines()]
     except ValueError as exc:
         raise SyncError("invalid image frame metadata") from exc
     if not metadata or len(metadata) != 1 or len(metadata[0]) != 3:
@@ -210,21 +255,14 @@ def _normalize(data: bytes) -> bytes:
     command = ["magick", "-limit", "time", str(MAX_SECONDS), "-limit", "memory", "256MiB",
                "-limit", "map", "512MiB", "-limit", "disk", "512MiB", "-define", "registry:temporary-path=/tmp",
                coder.replace(":-", ":[0]"), "-auto-orient", "-strip", "-alpha", "remove", "-alpha", "off", "-resize", "8000x5000>", "PNG:-"]
-    import resource
-    with tempfile.TemporaryFile() as output:
-        def cap_output() -> None:
-            resource.setrlimit(resource.RLIMIT_FSIZE, (MAX_SOURCE_BYTES, MAX_SOURCE_BYTES))
-        try:
-            result = subprocess.run(command, input=data, stdout=output, stderr=subprocess.DEVNULL,
-                                    timeout=MAX_SECONDS + 2, check=False, preexec_fn=cap_output)
-        except subprocess.TimeoutExpired as exc:
-            raise SyncError("image normalization timed out") from exc
-        size = os.fstat(output.fileno()).st_size
-        if result.returncode or not 0 < size <= MAX_SOURCE_BYTES:
-            raise SyncError("bounded image normalization failed")
-        output.seek(0)
-        normalized = output.read(MAX_SOURCE_BYTES + 1)
-    if not normalized.startswith(b"\x89PNG\r\n\x1a\n") or len(normalized) != size:
+    try:
+        code, normalized = _bounded_run(command, input_data=data, timeout=MAX_SECONDS + 2,
+                                        max_output=MAX_SOURCE_BYTES, limit_fsize=True)
+    except SyncError as exc:
+        raise SyncError("image normalization failed or timed out") from exc
+    if code or not 0 < len(normalized) <= MAX_SOURCE_BYTES:
+        raise SyncError("bounded image normalization failed")
+    if not normalized.startswith(b"\x89PNG\r\n\x1a\n"):
         raise SyncError("normalized image output is invalid")
     return normalized
 
@@ -244,12 +282,27 @@ def _destination_ok(destination: Path, uid: int, sddm_gid: int) -> None:
         raise SyncError("cache leaf ownership/mode mismatch (expected uid:sddm 2750)")
 
 
+PENDING_NAME = ".current.png.pending"
+
+
+def _remove_pending(directory_fd: int, uid: int, sddm_gid: int) -> bool:
+    try:
+        st = os.stat(PENDING_NAME, dir_fd=directory_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    if not stat.S_ISREG(st.st_mode) or st.st_uid != uid or st.st_gid != sddm_gid or stat.S_IMODE(st.st_mode) != 0o640 or st.st_nlink != 1:
+        raise SyncError("unsafe fixed pending file")
+    os.unlink(PENDING_NAME, dir_fd=directory_fd)
+    return True
+
+
 def _write_atomic(directory_fd: int, image: bytes, uid: int, sddm_gid: int, before_commit: Any = None) -> str:
-    name = f".current.{os.getpid()}.{os.urandom(8).hex()}.tmp"
+    name = PENDING_NAME
     fd = -1
     created = False
     renamed = False
     try:
+        _remove_pending(directory_fd, uid, sddm_gid)
         fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o640, dir_fd=directory_fd)
         created = True
         os.fchown(fd, uid, sddm_gid)
@@ -274,19 +327,21 @@ def _write_atomic(directory_fd: int, image: bytes, uid: int, sddm_gid: int, befo
             raise SyncError("COMMITTED: new image published; post-rename durability uncertain") from exc
         raise SyncError(f"publication failed before commit: {exc}") from exc
     finally:
-        if fd >= 0:
-            os.close(fd)
-        if created and not renamed:
+        if created and not renamed and fd >= 0:
             try:
-                os.unlink(name, dir_fd=directory_fd)
+                owned = os.fstat(fd)
+                current = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+                if (owned.st_dev, owned.st_ino) == (current.st_dev, current.st_ino):
+                    os.unlink(name, dir_fd=directory_fd)
             except FileNotFoundError:
                 pass
+        if fd >= 0:
+            os.close(fd)
 
 
 def _publish_image(destination: Path, image: bytes, uid: int, sddm_gid: int, before_commit: Any = None) -> str:
     _destination_ok(destination, uid, sddm_gid)
-    prior = destination.lstat()
-    directory_fd = os.open(destination, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    directory_fd, prior = _open_anchored(destination, uid, directory=True)
     try:
         opened = os.fstat(directory_fd)
         if (opened.st_dev, opened.st_ino) != (prior.st_dev, prior.st_ino):
@@ -296,6 +351,31 @@ def _publish_image(destination: Path, image: bytes, uid: int, sddm_gid: int, bef
         os.close(directory_fd)
 
 
+def cleanup_after_abort() -> None:
+    """Remove only the fixed validated pending file while wrapper still owns flock."""
+    _require_owner_lock()
+    try:
+        sddm_gid = __import__("grp").getgrnam("sddm").gr_gid
+    except KeyError as exc:
+        raise SyncError("sddm group is unavailable") from exc
+    try:
+        parent_fd, parent_stat = _open_anchored(DESTINATION.parent, 0, directory=True)
+        leaf = DESTINATION.name
+        leaf_stat = os.stat(leaf, dir_fd=parent_fd, follow_symlinks=False)
+        if not stat.S_ISDIR(leaf_stat.st_mode) or leaf_stat.st_uid != os.getuid() or leaf_stat.st_gid != sddm_gid or stat.S_IMODE(leaf_stat.st_mode) != 0o2750:
+            raise SyncError("cache leaf ownership/mode mismatch")
+        leaf_fd = os.open(leaf, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent_fd)
+        try:
+            if (os.fstat(leaf_fd).st_dev, os.fstat(leaf_fd).st_ino) != (leaf_stat.st_dev, leaf_stat.st_ino):
+                raise SyncError("cache directory changed")
+            _remove_pending(leaf_fd, os.getuid(), sddm_gid)
+        finally:
+            os.close(leaf_fd)
+        os.close(parent_fd)
+    except FileNotFoundError:
+        return
+
+
 def _publish(policy_path: Path, destination: Path, uid: int, sddm_gid: int | None) -> str:
     uid = os.getuid() if uid is None else uid
     if not policy_path.exists():
@@ -303,6 +383,7 @@ def _publish(policy_path: Path, destination: Path, uid: int, sddm_gid: int | Non
     policy = _load_policy(policy_path)
     if not policy["enabled"]:
         return "disabled: no wallpaper or cache access performed"
+    _owner_success()
     home = Path.home()
     profile = _safe_path(home / policy["profile"].removeprefix("~/"), uid)
     state_path = _safe_path(home / policy["state"].removeprefix("~/"), uid)
@@ -339,10 +420,10 @@ def _require_owner_lock() -> None:
     runtime = Path(os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}"))
     expected = runtime / "ezwallpaper-rotate.lock"
     try:
-        target = expected.stat()
+        target = expected.lstat()
     except OSError as exc:
         raise SyncError("canonical owner lock is unavailable") from exc
-    if not stat.S_ISREG(target.st_mode) or target.st_uid != os.getuid() or target.st_mode & 0o077:
+    if not stat.S_ISREG(target.st_mode) or target.st_uid != os.getuid() or target.st_mode & 0o022:
         raise SyncError("canonical owner lock has unsafe ownership or mode")
     for entry in Path("/proc/self/fd").iterdir():
         try:
@@ -350,8 +431,16 @@ def _require_owner_lock() -> None:
             opened = os.fstat(fd)
             if os.readlink(entry) != str(expected) or (opened.st_dev, opened.st_ino) != (target.st_dev, target.st_ino):
                 continue
-            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            return
+            probe = os.open(expected, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+            try:
+                try:
+                    fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BlockingIOError:
+                    return
+                else:
+                    fcntl.flock(probe, fcntl.LOCK_UN)
+            finally:
+                os.close(probe)
         except (OSError, ValueError):
             continue
     raise SyncError("canonical owner flock proof missing")
