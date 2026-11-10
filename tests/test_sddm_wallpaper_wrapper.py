@@ -24,6 +24,8 @@ class InstalledWrapperTests(unittest.TestCase):
         self.lock = self.runtime / "ezwallpaper-rotate.lock"; self.lock.touch(mode=0o644); os.chmod(self.lock, 0o644)
         self.marker = self.home / "marker"; self.argv = self.home / "argv"
         deployed = self.bin / "ezwallpaper-sddm-rotate.py"; shutil.copy2(WRAPPER, deployed); deployed.chmod(0o755)
+        helper_dir = self.home / ".local/lib/sddm-wallpaper-sync"; helper_dir.mkdir(parents=True)
+        shutil.copy2(SOURCE.parent / "lib/sddm-wallpaper-sync/processes.py", helper_dir / "processes.py")
         self.rotator = self.bin / "ezwallpaper"; self.rotation(0)
         self.publisher = self.bin / "sddm-wallpaper-sync.py"; self.publish("pathlib.Path(MARK).write_text('ok')")
 
@@ -59,6 +61,7 @@ class InstalledWrapperTests(unittest.TestCase):
     def test_real_installed_writer_runs_after_fake_rotation_with_disabled_policy(self):
         deployed_writer = self.bin / "sddm-wallpaper-sync.py"
         shutil.copy2(SYNC_WRITER, deployed_writer)
+        shutil.copy2(SOURCE.parent / "lib/sddm-wallpaper-sync/processes.py", self.home / ".local/lib/sddm-wallpaper-sync/processes.py")
         deployed_writer.chmod(0o644)
         policy_dir = self.home / ".config/sddm-wallpaper-sync"
         policy_dir.mkdir(parents=True)
@@ -105,6 +108,28 @@ class InstalledWrapperTests(unittest.TestCase):
         finally:
             if p.poll() is None: p.kill(); p.wait()
 
+    def test_foreign_owner_with_unlocked_inherited_fd_refuses_rotator(self):
+        owner_code = "import fcntl,sys,time; f=open(sys.argv[1],'r+'); fcntl.flock(f,fcntl.LOCK_EX); time.sleep(5)"
+        owner = subprocess.Popen([sys.executable, "-c", owner_code, str(self.lock)], stdout=subprocess.DEVNULL)
+        try:
+            deadline = time.monotonic() + 2
+            while time.monotonic() < deadline:
+                probe = os.open(self.lock, os.O_RDONLY)
+                try:
+                    try: fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    except BlockingIOError: break
+                finally: os.close(probe)
+                time.sleep(0.01)
+            inherited = os.open(self.lock, os.O_RDWR)  # intentionally not locked
+            env = os.environ | {"HOME": str(self.home), "XDG_RUNTIME_DIR": str(self.runtime), "PYTHONDONTWRITEBYTECODE": "1"}
+            result = subprocess.run([sys.executable, str(self.bin / "ezwallpaper-sddm-rotate.py")], env=env,
+                                    pass_fds=(inherited,), capture_output=True, timeout=5)
+            os.close(inherited)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(self.argv.exists(), "fake B must not run when the inherited FD is not the owner")
+        finally:
+            owner.terminate(); owner.wait(timeout=2)
+
     def test_invalid_owner_fd_inode_symlink_or_lock_permissions_refuse_rotator(self):
         for kind in ('missing','wrong','symlink','unsafe'):
             self.marker.unlink(missing_ok=True); self.argv.unlink(missing_ok=True)
@@ -135,15 +160,24 @@ class InstalledWrapperTests(unittest.TestCase):
 
     def test_timeout_kills_publisher_decoder_runs_cleanup_and_preserves_cache(self):
         pidfile=self.home/'pid'; cache=self.home/'cache'; cache.write_text('old-good')
-        self.publisher.write_text("import pathlib,subprocess,time\n"
+        self.publisher.write_text("import pathlib,subprocess,time,sys\n"
             f"PID={str(pidfile)!r}; MARK={str(self.marker)!r}\n"
-            "def publish_after_owner_success():\n p=subprocess.Popen(['sleep','30']); pathlib.Path(PID).write_text(str(p.pid)); time.sleep(30)\n"
+            "def publish_after_owner_success():\n"
+            " child=subprocess.Popen([sys.executable,'-c',\"import subprocess,sys,time; p=subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)'],start_new_session=True); print(p.pid,flush=True); time.sleep(30)\"],start_new_session=True,stdout=subprocess.PIPE,text=True)\n"
+            " grand=child.stdout.readline().strip(); pathlib.Path(PID).write_text(str(child.pid)+','+grand); time.sleep(30)\n"
             "def cleanup_after_abort():\n pathlib.Path(MARK+'.cleanup').write_text('clean')\n")
         code=("import importlib.util; s=importlib.util.spec_from_file_location('w',%r); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); m.PUBLISH_TIMEOUT_SECONDS=.2; raise SystemExit(m.main())")%str(self.bin/'ezwallpaper-sddm-rotate.py')
         fd=os.open(self.lock,os.O_RDWR); fcntl.flock(fd,fcntl.LOCK_EX)
         env=os.environ|{"HOME":str(self.home),"XDG_RUNTIME_DIR":str(self.runtime),"PYTHONDONTWRITEBYTECODE":"1"}
+        started=time.monotonic()
         p=subprocess.run([sys.executable,'-c',code],env=env,pass_fds=(fd,),capture_output=True,timeout=5); os.close(fd)
-        self.assertEqual(p.returncode,0); self.assertTrue(Path(str(self.marker)+'.cleanup').exists()); self.assertEqual(cache.read_text(),'old-good')
-        with self.assertRaises(ProcessLookupError): os.kill(int(pidfile.read_text()),0)
+        elapsed=time.monotonic()-started
+        self.assertEqual(p.returncode,0); self.assertLess(elapsed,3); self.assertTrue(Path(str(self.marker)+'.cleanup').exists()); self.assertEqual(cache.read_text(),'old-good')
+        self.assertTrue(self.argv.exists(), "rotation B must remain successful")
+        for pid in map(int, pidfile.read_text().split(',')):
+            with self.assertRaises(ProcessLookupError): os.kill(pid,0)
+        contender=os.open(self.lock,os.O_RDWR)
+        try: fcntl.flock(contender,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        finally: os.close(contender)
 
 if __name__=='__main__': unittest.main()

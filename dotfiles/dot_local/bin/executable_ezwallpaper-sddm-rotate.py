@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import fcntl
+import importlib.util
 import os
 from pathlib import Path
 import signal
@@ -12,7 +13,14 @@ import sys
 import time
 from typing import NoReturn
 
-PUBLISH_TIMEOUT_SECONDS = 10.0
+PUBLISH_TIMEOUT_SECONDS = 8.0
+TAIL_BUDGET_SECONDS = 10.0
+_PROCESS_HELPER = Path(__file__).resolve().parents[1] / "lib/sddm-wallpaper-sync/processes.py"
+_process_spec = importlib.util.spec_from_file_location("sddm_wallpaper_processes", _PROCESS_HELPER)
+if _process_spec is None or _process_spec.loader is None:
+    raise RuntimeError("SDDM process helper is unavailable")
+_processes = importlib.util.module_from_spec(_process_spec)
+_process_spec.loader.exec_module(_processes)
 
 
 class WrapperError(RuntimeError):
@@ -49,7 +57,14 @@ def _owner_fd() -> int:
                     try:
                         fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
                     except BlockingIOError:
-                        return fd
+                        try:
+                            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        except BlockingIOError:
+                            continue
+                        else:
+                            # Acquisition succeeds only when this exact open
+                            # description already owns the flock.
+                            return fd
                     else:
                         fcntl.flock(probe, fcntl.LOCK_UN)
                 finally:
@@ -68,7 +83,7 @@ def _kill_group_and_reap(proc: subprocess.Popen[object]) -> None:
     proc.wait()
 
 
-def _warn_cleanup(fd: int) -> None:
+def _warn_cleanup(fd: int, timeout: float = 2.0) -> None:
     """Ask the installed publisher to remove its fixed pending file."""
     script = Path(__file__).with_name("sddm-wallpaper-sync.py")
     code = (
@@ -80,7 +95,7 @@ def _warn_cleanup(fd: int) -> None:
     try:
         subprocess.run([sys.executable, "-c", code], stdin=subprocess.DEVNULL,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                       close_fds=True, pass_fds=(fd,), timeout=2, check=False)
+                       close_fds=True, pass_fds=(fd,), timeout=max(0.05, timeout), check=False)
     except (OSError, subprocess.SubprocessError) as exc:
         print(f"ezwallpaper-sddm-rotate: pending-file cleanup failed: {exc}", file=sys.stderr)
 
@@ -120,27 +135,40 @@ def main() -> int:
         "m.publish_after_owner_success()"
     )
     proc: subprocess.Popen[bytes] | None = None
+    cleanup_needed = False
+    termination_signal: int | None = None
+    tail_started = time.monotonic()
     old_handlers = {sig: signal.signal(sig, _signal_exit) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP)}
     try:
         try:
-            proc = subprocess.Popen([sys.executable, "-c", code], stdin=subprocess.DEVNULL,
-                                    close_fds=True, pass_fds=(owner_fd,), start_new_session=True)
-            proc.wait(timeout=PUBLISH_TIMEOUT_SECONDS)
-            if proc.returncode:
-                print(f"ezwallpaper-sddm-rotate: cache publication failed ({proc.returncode})", file=sys.stderr)
-        except subprocess.TimeoutExpired:
-            if proc is not None:
-                _kill_group_and_reap(proc)
-            print("ezwallpaper-sddm-rotate: cache publication timed out; rotation remains successful", file=sys.stderr)
-            _warn_cleanup(owner_fd)
-        except (OSError, _Termination) as exc:
-            if proc is not None:
-                _kill_group_and_reap(proc)
-            _warn_cleanup(owner_fd)
-            if isinstance(exc, _Termination):
-                signal.signal(exc.signum, signal.SIG_DFL)
-                signal.raise_signal(exc.signum)
-            print(f"ezwallpaper-sddm-rotate: cache publication could not run: {exc}", file=sys.stderr)
+            with _processes.subreaper_scope(cleanup_seconds=1.5):
+                try:
+                    proc = subprocess.Popen([sys.executable, "-c", code], stdin=subprocess.DEVNULL,
+                                            close_fds=True, pass_fds=(owner_fd,), start_new_session=True)
+                    proc.wait(timeout=PUBLISH_TIMEOUT_SECONDS)
+                    if proc.returncode:
+                        print(f"ezwallpaper-sddm-rotate: cache publication failed ({proc.returncode})", file=sys.stderr)
+                except subprocess.TimeoutExpired:
+                    if proc is not None:
+                        _kill_group_and_reap(proc)
+                    cleanup_needed = True
+                    print("ezwallpaper-sddm-rotate: cache publication timed out; rotation remains successful", file=sys.stderr)
+                except (OSError, _Termination) as exc:
+                    if proc is not None:
+                        _kill_group_and_reap(proc)
+                    cleanup_needed = True
+                    if isinstance(exc, _Termination):
+                        termination_signal = exc.signum
+                    print(f"ezwallpaper-sddm-rotate: cache publication could not run: {exc}", file=sys.stderr)
+        except _processes.CleanupError as exc:
+            cleanup_needed = True
+            print(f"ezwallpaper-sddm-rotate: bounded descendant cleanup incomplete: {exc}", file=sys.stderr)
+        if cleanup_needed:
+            remaining = max(0.05, TAIL_BUDGET_SECONDS - (time.monotonic() - tail_started))
+            _warn_cleanup(owner_fd, min(2.0, remaining))
+        if termination_signal is not None:
+            signal.signal(termination_signal, signal.SIG_DFL)
+            signal.raise_signal(termination_signal)
     finally:
         for sig, handler in old_handlers.items():
             signal.signal(sig, handler)

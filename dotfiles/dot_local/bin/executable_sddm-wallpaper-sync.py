@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -28,6 +29,13 @@ MAX_CHILD_CPU_HARD_SECONDS = 9
 MAX_PIXELS = 40_000_000
 MAX_SECONDS = 20
 ID_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
+
+_PROCESS_HELPER = Path(__file__).resolve().parents[1] / "lib/sddm-wallpaper-sync/processes.py"
+_process_spec = importlib.util.spec_from_file_location("sddm_wallpaper_processes", _PROCESS_HELPER)
+if _process_spec is None or _process_spec.loader is None:
+    raise RuntimeError("SDDM process helper is unavailable")
+_processes = importlib.util.module_from_spec(_process_spec)
+_process_spec.loader.exec_module(_processes)
 
 
 class SyncError(Exception):
@@ -151,49 +159,55 @@ def _bounded_run(argv: list[str], *, input_data: bytes | None = None, timeout: i
         resource.setrlimit(resource.RLIMIT_FSIZE, fsize_limit)
 
     try:
-        if input_file is not None:
-            input_file.write(input_data)
-            input_file.seek(0)
-        proc = subprocess.Popen(argv, stdin=input_file if input_file is not None else subprocess.DEVNULL,
-                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, close_fds=True,
-                                preexec_fn=set_limits)
-        assert proc.stdout is not None
-        os.set_blocking(proc.stdout.fileno(), False)
-        selector.register(proc.stdout, selectors.EVENT_READ)
-        while True:
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                raise SyncError("child process timed out")
-            events = selector.select(remaining)
-            if not events:
-                raise SyncError("child process timed out")
-            chunk = os.read(proc.stdout.fileno(), min(64 * 1024, max_output + 1 - len(output)))
-            if not chunk:
-                selector.unregister(proc.stdout)
-                break
-            output.extend(chunk)
-            if len(output) > max_output:
-                raise SyncError("child output exceeded configured bound")
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            raise SyncError("child process timed out")
-        try:
-            returncode = proc.wait(timeout=remaining)
-        except subprocess.TimeoutExpired as exc:
-            raise SyncError("child process timed out") from exc
-        return returncode, bytes(output)
-    except OSError as exc:
-        if proc is None:
-            raise SyncError(f"required tool unavailable: {argv[0]}") from exc
-        raise
+        with _processes.subreaper_scope(cleanup_seconds=1.0):
+            try:
+                if input_file is not None:
+                    input_file.write(input_data)
+                    input_file.seek(0)
+                proc = subprocess.Popen(argv, stdin=input_file if input_file is not None else subprocess.DEVNULL,
+                                        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, close_fds=True,
+                                        preexec_fn=set_limits)
+                assert proc.stdout is not None
+                os.set_blocking(proc.stdout.fileno(), False)
+                selector.register(proc.stdout, selectors.EVENT_READ)
+                while True:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise SyncError("child process timed out")
+                    events = selector.select(remaining)
+                    if not events:
+                        raise SyncError("child process timed out")
+                    chunk = os.read(proc.stdout.fileno(), min(64 * 1024, max_output + 1 - len(output)))
+                    if not chunk:
+                        selector.unregister(proc.stdout)
+                        break
+                    output.extend(chunk)
+                    if len(output) > max_output:
+                        raise SyncError("child output exceeded configured bound")
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise SyncError("child process timed out")
+                try:
+                    returncode = proc.wait(timeout=remaining)
+                except subprocess.TimeoutExpired as exc:
+                    raise SyncError("child process timed out") from exc
+                return returncode, bytes(output)
+            except OSError as exc:
+                if proc is None:
+                    raise SyncError(f"required tool unavailable: {argv[0]}") from exc
+                raise
+            finally:
+                selector.close()
+                if proc is not None:
+                    if proc.poll() is None:
+                        proc.kill()
+                    proc.wait()
+                    if proc.stdout is not None:
+                        proc.stdout.close()
+                if input_file is not None:
+                    input_file.close()
     finally:
         selector.close()
-        if proc is not None:
-            if proc.poll() is None:
-                proc.kill()
-            proc.wait()
-            if proc.stdout is not None:
-                proc.stdout.close()
         if input_file is not None:
             input_file.close()
 
@@ -275,6 +289,8 @@ def _source_snapshot(path: Path, pool: Path, uid: int, content_id: str) -> tuple
 
 
 def _normalize(data: bytes) -> bytes:
+    if not (data.startswith(b"\x89PNG\r\n\x1a\n") or data.startswith(b"\xff\xd8\xff")):
+        raise SyncError("only PNG/JPEG source images are accepted")
     # Probe all frames first: accepting only [0] would silently publish one frame
     # from an animated/multipage input rather than rejecting it.
     if data.startswith(b"\x89PNG\r\n\x1a\n") and (b"acTL" in data or b"fcTL" in data):
