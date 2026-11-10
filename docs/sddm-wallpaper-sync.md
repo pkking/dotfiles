@@ -4,7 +4,7 @@ This feature is an unprivileged, opt-in follow-up to the existing `ezwallpaper-r
 
 ## Defaults and prerequisites
 
-The managed policy is `~/.config/sddm-wallpaper-sync/policy.json`; it is disabled by default. No timer, auto-enable, lifecycle installer, root publisher, or change to the existing rotation unit is provided. Install ImageMagick (`magick`) using the host's reviewed package-management procedure; it is used unprivileged with fixed arguments and bounded resource/time limits to normalize approved PNG/JPEG into one static PNG. ImageMagick policy must disable external delegates for this use. The only input pool is the configured non-recursive DP-1 landscape directory. The source/user cache writer intentionally has no elevated privileges.
+The managed policy is `~/.config/sddm-wallpaper-sync/policy.json`; it is disabled by default. The current `theme.conf.user` has `CustomBackground=false` and no `Background`; keep those values unchanged until separately approved deployment and a valid first cache publish. An empty cache leaves the existing theme background untouched. Approval of the configured primary-landscape pool is bounded ongoing source permission, not a per-image prompt; expanding it needs renewed approval. No timer, auto-enable, lifecycle installer, root publisher, or change to the existing rotation unit is provided. Install ImageMagick (`magick`) using the host's reviewed package-management procedure; it is used unprivileged with fixed arguments and bounded resource/time limits to normalize approved PNG/JPEG into one static PNG. ImageMagick policy must disable external delegates for this use. The only input pool is the configured non-recursive DP-1 landscape directory. The source/user cache writer intentionally has no elevated privileges.
 
 ## One-time manual root setup (not performed by chezmoi)
 
@@ -15,14 +15,15 @@ After separately approving deployment, verify that group `sddm` exists and that 
 1. Review the exact landscape pool and privacy implications. Enable policy only after that approval (`enabled: true`), preserving its schema and paths.
 2. Manually start the user unit once in a valid graphical session and inspect its result/log. Do not manually rotate wallpaper to test this feature.
 3. Only after a valid `current.png` exists and its ownership/mode are verified, separately back up the SDDM user's `theme.conf.user`. In the `[General]` group merge only `CustomBackground=true` and `Background=/var/cache/sddm-wallpaper-sync/<uid>/current.png`. Preserve all unknown keys and existing theme selection. Do not point the theme at the cache before a successful first publish. Existing theme `cache: true` behavior means a running greeter may retain its prior image; only a fresh greeter instance can be expected to load the new path. Do not promise hot reload.
-4. For automatic follow-up, create a *manual* user drop-in at `~/.config/systemd/user/ezwallpaper-rotate.service.d/10-sddm-sync.conf` containing:
+4. For the future explicit opt-in, create a *manual* user drop-in at `~/.config/systemd/user/ezwallpaper-rotate.service.d/10-sddm-sync.conf` containing:
 
    ```ini
-   [Unit]
-   OnSuccess=sddm-wallpaper-sync.service
+   [Service]
+   ExecStart=
+   ExecStart=/usr/bin/flock --nonblock --conflict-exit-code=75 %t/ezwallpaper-rotate.lock %h/.local/bin/ezwallpaper-sddm-rotate.py
    ```
 
-   Reload the user manager only during an approved deployment window. `OnSuccess` is opt-in, follows a successful owner unit, and does not alter that unit's result if sync fails. Do not enable a timer or make a root service.
+   This replaces only the service command with the fixed wrapper. It invokes the canonical `~/.local/bin/ezwallpaper` entrypoint using the existing `rotate next --profile ~/.config/ezwallpaper/rotation-profile.json --apply` argv, then publishes synchronously while retaining the same cooperative flock. The publication tail is bounded to 10 seconds; failures warn but do not change a successful rotation result. Other cooperative rotations continue to use nonblocking exit 75. This does not serialize external Noctalia GUI setters or claim pixel-level atomicity. This drop-in is an example only: do not install/reload it absent separate deployment approval.
 
 ## Rollback
 

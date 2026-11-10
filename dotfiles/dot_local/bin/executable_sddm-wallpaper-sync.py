@@ -131,10 +131,10 @@ def _state_identity(path: Path, profile: str, uid: int) -> tuple[int, str, int]:
     if set(state) != {"schema_version", "profile", "outputs"} or type(state.get("schema_version")) is not int or state["schema_version"] != 1 or state["profile"] != profile:
         raise SyncError("rotation state schema/profile mismatch")
     output = state.get("outputs")
-    if not isinstance(output, dict) or "DP-1" not in output:
+    if not isinstance(output, dict) or set(output) != {"DP-1"}:
         raise SyncError("rotation state missing DP-1")
     entry = output["DP-1"]
-    if not isinstance(entry, dict) or type(entry.get("schema_version")) is not int or entry["schema_version"] != 1:
+    if not isinstance(entry, dict) or set(entry) != {"schema_version", "last_epoch", "last_content_id"} or type(entry.get("schema_version")) is not int or entry["schema_version"] != 1:
         raise SyncError("invalid DP-1 state")
     epoch, content_id = entry.get("last_epoch"), entry.get("last_content_id")
     if type(epoch) is not int or epoch <= 0 or not isinstance(content_id, str) or not ID_RE.fullmatch(content_id):
@@ -187,9 +187,10 @@ def _source_snapshot(path: Path, pool: Path, uid: int, content_id: str) -> tuple
 def _normalize(data: bytes) -> bytes:
     # Probe all frames first: accepting only [0] would silently publish one frame
     # from an animated/multipage input rather than rejecting it.
+    coder = "jpeg:-" if data.startswith(b"\\xff\\xd8\\xff") else "png:-"
     probe = subprocess.run(["magick", "identify", "-limit", "time", str(MAX_SECONDS), "-limit", "memory", "256MiB",
                             "-limit", "map", "512MiB", "-limit", "disk", "512MiB",
-                            "-regard-warnings", "-format", "%w %h %n\\n", "png:-"],
+                            "-regard-warnings", "-format", "%w %h %n\\n", coder],
                            input=data, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                            timeout=MAX_SECONDS, check=False)
     if probe.returncode or len(probe.stdout) > 128:
@@ -208,12 +209,24 @@ def _normalize(data: bytes) -> bytes:
     # Fixed ImageMagick executable, no shell, no user-controlled options, no delegates.
     command = ["magick", "-limit", "time", str(MAX_SECONDS), "-limit", "memory", "256MiB",
                "-limit", "map", "512MiB", "-limit", "disk", "512MiB", "-define", "registry:temporary-path=/tmp",
-               "png:-[0]", "-auto-orient", "-strip", "-alpha", "remove", "-alpha", "off", "-resize", "8000x5000>", "PNG:-"]
-    result = subprocess.run(command, input=data, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                            timeout=MAX_SECONDS + 2, check=False)
-    if result.returncode or not result.stdout.startswith(b"\x89PNG\r\n\x1a\n") or len(result.stdout) > MAX_SOURCE_BYTES:
-        raise SyncError("bounded image normalization failed")
-    return result.stdout
+               coder.replace(":-", ":[0]"), "-auto-orient", "-strip", "-alpha", "remove", "-alpha", "off", "-resize", "8000x5000>", "PNG:-"]
+    import resource
+    with tempfile.TemporaryFile() as output:
+        def cap_output() -> None:
+            resource.setrlimit(resource.RLIMIT_FSIZE, (MAX_SOURCE_BYTES, MAX_SOURCE_BYTES))
+        try:
+            result = subprocess.run(command, input=data, stdout=output, stderr=subprocess.DEVNULL,
+                                    timeout=MAX_SECONDS + 2, check=False, preexec_fn=cap_output)
+        except subprocess.TimeoutExpired as exc:
+            raise SyncError("image normalization timed out") from exc
+        size = os.fstat(output.fileno()).st_size
+        if result.returncode or not 0 < size <= MAX_SOURCE_BYTES:
+            raise SyncError("bounded image normalization failed")
+        output.seek(0)
+        normalized = output.read(MAX_SOURCE_BYTES + 1)
+    if not normalized.startswith(b"\x89PNG\r\n\x1a\n") or len(normalized) != size:
+        raise SyncError("normalized image output is invalid")
+    return normalized
 
 
 def _destination_ok(destination: Path, uid: int, sddm_gid: int) -> None:
@@ -270,7 +283,7 @@ def _write_atomic(directory_fd: int, image: bytes, uid: int, sddm_gid: int, befo
                 pass
 
 
-def _publish(destination: Path, image: bytes, uid: int, sddm_gid: int, before_commit: Any = None) -> str:
+def _publish_image(destination: Path, image: bytes, uid: int, sddm_gid: int, before_commit: Any = None) -> str:
     _destination_ok(destination, uid, sddm_gid)
     prior = destination.lstat()
     directory_fd = os.open(destination, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
@@ -283,15 +296,13 @@ def _publish(destination: Path, image: bytes, uid: int, sddm_gid: int, before_co
         os.close(directory_fd)
 
 
-def sync(policy_path: Path = POLICY, destination: Path = DESTINATION, uid: int | None = None,
-         sddm_gid: int | None = None) -> str:
+def _publish(policy_path: Path, destination: Path, uid: int, sddm_gid: int | None) -> str:
     uid = os.getuid() if uid is None else uid
     if not policy_path.exists():
         raise SyncError(f"policy missing: {policy_path}")
     policy = _load_policy(policy_path)
     if not policy["enabled"]:
         return "disabled: no wallpaper or cache access performed"
-    _owner_success()
     home = Path.home()
     profile = _safe_path(home / policy["profile"].removeprefix("~/"), uid)
     state_path = _safe_path(home / policy["state"].removeprefix("~/"), uid)
@@ -309,25 +320,56 @@ def sync(policy_path: Path = POLICY, destination: Path = DESTINATION, uid: int |
             sddm_gid = grp.getgrnam("sddm").gr_gid
         except KeyError as exc:
             raise SyncError("sddm group is unavailable") from exc
-    # Linux abstract socket has no replaceable filesystem pathname/inode lock.
-    import socket
-    lock_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+    # The fixed wrapper holds the canonical ezwallpaper flock through this
+    # transaction; this final guard executes after temp fsync, immediately
+    # before atomic rename.
+    def verify_current() -> None:
+        if _state_identity(state_path, profile_real, uid) != state1 or _getter() != str(source_path):
+            raise SyncError("rotation changed before publication")
+        current_bytes, current_fingerprint = _source_snapshot(source_path, pool, uid, state1[1])
+        if current_fingerprint != fingerprint or current_bytes != data:
+            raise SyncError("wallpaper bytes changed before publication")
+    verify_current()
+    return _publish_image(destination, normalized, uid, sddm_gid, verify_current)
+
+
+def _require_owner_lock() -> None:
+    """Require the canonical cooperative lock descriptor before publication."""
+    import fcntl
+    runtime = Path(os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}"))
+    expected = runtime / "ezwallpaper-rotate.lock"
     try:
+        target = expected.stat()
+    except OSError as exc:
+        raise SyncError("canonical owner lock is unavailable") from exc
+    if not stat.S_ISREG(target.st_mode) or target.st_uid != os.getuid() or target.st_mode & 0o077:
+        raise SyncError("canonical owner lock has unsafe ownership or mode")
+    for entry in Path("/proc/self/fd").iterdir():
         try:
-            lock_socket.bind("\\0sddm-wallpaper-sync-" + str(uid))
-        except OSError as exc:
-            raise SyncError("another sync is running") from exc
-        # Recheck state, getter, and source immediately before rename after temp fsync.
-        def verify_current() -> None:
-            if _state_identity(state_path, profile_real, uid) != state1 or _getter() != str(source_path):
-                raise SyncError("rotation changed before publication")
-            current_bytes, current_fingerprint = _source_snapshot(source_path, pool, uid, state1[1])
-            if current_fingerprint != fingerprint or current_bytes != data:
-                raise SyncError("wallpaper bytes changed before publication")
-        verify_current()
-        return _publish(destination, normalized, uid, sddm_gid, verify_current)
-    finally:
-        lock_socket.close()
+            fd = int(entry.name)
+            opened = os.fstat(fd)
+            if os.readlink(entry) != str(expected) or (opened.st_dev, opened.st_ino) != (target.st_dev, target.st_ino):
+                continue
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return
+        except (OSError, ValueError):
+            continue
+    raise SyncError("canonical owner flock proof missing")
+
+
+def publish_after_owner_success() -> str:
+    """Wrapper-only publication; require and retain the canonical owner flock."""
+    _require_owner_lock()
+    return _publish(POLICY, DESTINATION, os.getuid(), None)
+
+
+def sync(policy_path: Path = POLICY, destination: Path = DESTINATION, uid: int | None = None,
+         sddm_gid: int | None = None) -> str:
+    """Standalone CLI is deliberately disabled; publication requires wrapper proof."""
+    policy = _load_policy(policy_path)
+    if not policy["enabled"]:
+        return "disabled: no wallpaper or cache access performed"
+    raise SyncError("enabled publication requires the canonical owner wrapper")
 
 
 def main() -> int:

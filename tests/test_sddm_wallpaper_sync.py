@@ -118,17 +118,41 @@ class PublishTests(unittest.TestCase):
             self.assertEqual((destination / "current.png").read_bytes(), b"last-good")
             self.assertEqual([p.name for p in destination.iterdir()], ["current.png"])
 
-    def test_concurrent_abstract_lock_is_exclusive_and_releases(self) -> None:
-        import socket
-        first = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-        second = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-        name = "\0sddm-test-lock-" + str(os.getpid())
-        first.bind(name)
-        with self.assertRaises(OSError):
-            second.bind(name)
-        first.close()
-        second.bind(name)
-        second.close()
+    def test_canonical_owner_lock_descriptor_is_validated_and_reacquirable(self) -> None:
+        import fcntl
+        wrapper_path = SCRIPT.with_name("executable_ezwallpaper-sddm-rotate.py")
+        wrapper_spec = importlib.util.spec_from_file_location("sddm_rotate_wrapper", wrapper_path)
+        assert wrapper_spec and wrapper_spec.loader
+        wrapper = importlib.util.module_from_spec(wrapper_spec)
+        wrapper_spec.loader.exec_module(wrapper)
+        with tempfile.TemporaryDirectory() as temp:
+            os.environ["XDG_RUNTIME_DIR"] = temp
+            lock_path = Path(temp) / "ezwallpaper-rotate.lock"
+            lock_path.touch(mode=0o600)
+            first = os.open(lock_path, os.O_RDWR)
+            second = os.open(lock_path, os.O_RDWR)
+            try:
+                fcntl.flock(first, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                self.assertEqual(wrapper._owner_fd(), first)
+                with self.assertRaises(BlockingIOError):
+                    fcntl.flock(second, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            finally:
+                os.close(first)
+            fcntl.flock(second, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            os.close(second)
+            self.assertFalse(any(p.name == "\\\\0sddm-wallpaper-sync-" + str(os.getuid()) for p in Path(temp).iterdir()))
+
+    def test_state_schema_rejects_unknown_output_names_and_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "state.json"
+            good = {"schema_version": 1, "profile": "/profile", "outputs": {
+                "DP-1": {"schema_version": 1, "last_epoch": 1, "last_content_id": "sha256:" + "a" * 64}}}
+            for state in (good | {"outputs": good["outputs"] | {"UNKNOWN": {}}},
+                          good | {"outputs": {"DP-1": good["outputs"]["DP-1"] | {"future": True}}}):
+                path.write_text(json.dumps(state))
+                os.utime(path, None)
+                with self.assertRaises(syncmod.SyncError):
+                    syncmod._state_identity(path, "/profile", os.getuid())
 
 
 if __name__ == "__main__":

@@ -1,6 +1,0 @@
-[Unit]
-Description=Publish the acknowledged DP-1 wallpaper to the SDDM cache
-
-[Service]
-Type=oneshot
-ExecStart=%h/.local/bin/sddm-wallpaper-sync.py
