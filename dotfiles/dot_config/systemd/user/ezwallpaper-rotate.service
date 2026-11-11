@@ -4,5 +4,6 @@ After=graphical-session.target
 
 [Service]
 Type=oneshot
+ExecStartPre=/usr/bin/test -x %h/.local/bin/ezwallpaper
 ExecStartPre=%h/.local/bin/ezwallpaper-rotation-preflight.py
 ExecStart=/usr/bin/flock --nonblock --conflict-exit-code=75 %t/ezwallpaper-rotate.lock %h/.local/bin/ezwallpaper rotate next --profile %h/.config/ezwallpaper/rotation-profile.json --apply
