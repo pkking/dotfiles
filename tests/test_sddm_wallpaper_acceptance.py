@@ -27,6 +27,7 @@ spec = importlib.util.spec_from_file_location("sddm_wallpaper_sync_acceptance", 
 assert spec and spec.loader
 syncmod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(syncmod)
+from sddm_rotation_fixtures import PROFILE_OUTPUTS, state_json as producer_state
 
 PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/"
@@ -34,11 +35,10 @@ PNG = base64.b64decode(
 )
 
 
-def state_json(profile: str = "/tmp/profile", epoch: int = 1) -> dict:
-    return {"schema_version": 1, "profile": profile, "outputs": {"DP-1": {
-        "schema_version": 1, "last_epoch": epoch,
-        "last_content_id": "sha256:" + hashlib.sha256(PNG).hexdigest(),
-    }}}
+def state_json(profile: str = "/private-fixture/profile", epoch: int = 17) -> dict:
+    state = producer_state(profile, primary_id="sha256:" + hashlib.sha256(PNG).hexdigest())
+    state["outputs"]["DP-1"]["last_epoch"] = epoch
+    return state
 
 
 def fake_root_stat(mode: int = stat.S_IFDIR | 0o755, uid: int = 0, gid: int = 0):
@@ -228,9 +228,12 @@ class SourceAndGetterAcceptanceTests(unittest.TestCase):
 
     def _publish_fixture(self, temp: str, getter_values: list[str], state_epochs: list[int] | None = None):
         root = Path(temp); home = root / "home"; home.mkdir()
-        profile = home / "profile"; profile.write_text("owned profile fixture")
+        profile = home / "profile"; profile.write_text(json.dumps({"schema_version": 1, "owner": "ezwallpaper", "outputs": [
+            {"name": "DP-1", "dir": str(home / "pool"), "recursive": False},
+            {"name": "HDMI-A-1", "dir": str(home / "portrait"), "recursive": False},
+        ]}))
         state_path = home / "state.json"; state_path.write_text(json.dumps(state_json(str(profile))))
-        pool = home / "pool"; pool.mkdir(); source = pool / "wall.png"; source.write_bytes(PNG)
+        pool = home / "pool"; pool.mkdir(); (home / "portrait").mkdir(); source = pool / "wall.png"; source.write_bytes(PNG)
         dest = root / "cache"; dest.mkdir(); (dest / "current.png").write_bytes(b"old-good")
         policy = root / "policy.json"
         policy.write_text(json.dumps({"schema_version": 1, "enabled": True, "profile": "~/profile", "state": "~/state.json", "landscape_pool": "~/pool"}))
@@ -285,19 +288,19 @@ class SourceAndGetterAcceptanceTests(unittest.TestCase):
             self.assertEqual((dest / "current.png").read_bytes(), b"old-good")
             self.assertFalse((dest / syncmod.PENDING_NAME).exists())
 
-    def test_portrait_first_state_publishes_only_dp1_and_unknown_never_reaches_writer(self):
+    def test_portrait_first_state_is_accepted_but_only_dp1_identity_is_selected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); state_path = root / "state.json"
-            # Portrait DP-2 is deliberately listed first. Strict schema grants
-            # acknowledgement only to DP-1; unknown output sets fail closed.
-            state_path.write_text(json.dumps({"schema_version": 1, "profile": "/profile", "outputs": {
-                "DP-2": {"schema_version": 1, "last_epoch": 1, "last_content_id": "sha256:" + "a" * 64},
-                "DP-1": {"schema_version": 1, "last_epoch": 2, "last_content_id": "sha256:" + "b" * 64},
-            }}))
-            with self.assertRaises(syncmod.SyncError): syncmod._state_identity(state_path, "/profile", os.getuid())
-            valid = root / "valid.json"; valid.write_text(json.dumps(state_json("/profile")))
-            identity = syncmod._state_identity(valid, "/profile", os.getuid())
-            self.assertEqual(identity[0], 1)
+            state = producer_state("/private-fixture/profile", portrait_first=True)
+            state_path.write_text(json.dumps(state))
+            identity = syncmod._state_identity(state_path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS))
+            self.assertEqual(identity[1], state["outputs"]["DP-1"]["last_content_id"])
+            self.assertNotEqual(identity[1], state["outputs"]["HDMI-A-1"]["last_content_id"])
+            unknown = root / "unknown.json"
+            state["outputs"]["DP-2"] = state["outputs"]["HDMI-A-1"]
+            unknown.write_text(json.dumps(state))
+            with self.assertRaises(syncmod.SyncError):
+                syncmod._state_identity(unknown, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS))
 
 
 class DecoderAcceptanceTests(unittest.TestCase):
@@ -353,10 +356,13 @@ class DecoderAcceptanceTests(unittest.TestCase):
                 syncmod._bounded_run([str(overflow)], timeout=5, max_output=32)
             self.assertEqual(old.read_bytes(), b"exact previous")
 
-    def test_owner_completed_path_calls_actual_writer_even_when_service_state_irrelevant(self):
+    def test_owner_completed_path_publishes_dp1_when_portrait_record_is_first(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = SourceAndGetterAcceptanceTests()
-            home, _profile, _state, _pool, _source, dest, policy = fixture._publish_fixture(tmp, [])
+            home, profile, state_path, _pool, _source, dest, policy = fixture._publish_fixture(tmp, [])
+            portrait_first = producer_state(str(profile), portrait_first=True,
+                                            primary_id="sha256:" + hashlib.sha256(PNG).hexdigest())
+            state_path.write_text(json.dumps(portrait_first))
             import fcntl
             runtime = Path(tmp) / "runtime"; runtime.mkdir()
             lock = runtime / "ezwallpaper-rotate.lock"; lock.touch(mode=0o600); os.chmod(lock, 0o600)

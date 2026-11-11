@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 from pathlib import Path
 import shutil
@@ -20,6 +21,7 @@ spec = importlib.util.spec_from_file_location("sddm_wallpaper_sync_resources", S
 assert spec and spec.loader
 syncmod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(syncmod)
+from sddm_rotation_fixtures import PROFILE_OUTPUTS, content_id, state_json as producer_state
 
 
 def small_png(width: int = 16, height: int = 8) -> bytes:
@@ -31,6 +33,19 @@ def small_png(width: int = 16, height: int = 8) -> bytes:
 
 
 class ChildResourceTests(unittest.TestCase):
+    def test_state_queue_validation_accepts_pinned_limit_and_rejects_over_limit(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "state.json"
+            state = producer_state("/private-fixture/profile")
+            state["outputs"]["DP-1"]["remaining"] = [content_id(f"bounded-{i}") for i in range(4096)]
+            path.write_text(json.dumps(state))
+            with mock.patch.object(syncmod, "MAX_STATE", 1024 * 1024):
+                self.assertEqual(syncmod._state_identity(path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS))[0], 17)
+                state["outputs"]["DP-1"]["remaining"].append(content_id("bounded-overflow"))
+                path.write_text(json.dumps(state))
+                with self.assertRaisesRegex(syncmod.SyncError, "remaining queue"):
+                    syncmod._state_identity(path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS))
+
     def run_child(self, code: str, *, timeout: int = 5, max_output: int = 4096) -> tuple[int, bytes]:
         return syncmod._bounded_run([sys.executable, "-c", code], timeout=timeout, max_output=max_output)
 
