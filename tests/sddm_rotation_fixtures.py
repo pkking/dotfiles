@@ -1,4 +1,8 @@
-"""Sanitized producer-shaped ezwallpaper v1 fixtures (no real paths or IDs)."""
+"""Sanitized producer-shaped ezwallpaper v1 fixtures (no real paths or IDs).
+
+Pinned serde Option fields for present secondary outputs may independently be
+null; the outputs map itself is sparse when a secondary output was not saved.
+"""
 from __future__ import annotations
 
 import hashlib

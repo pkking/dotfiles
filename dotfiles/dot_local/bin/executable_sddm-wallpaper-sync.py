@@ -246,7 +246,7 @@ def _profile_output_names(path: Path, uid: int) -> frozenset[str]:
         if not isinstance(item["name"], str) or item["name"] not in {"DP-1", "HDMI-A-1"}:
             raise SyncError("unknown rotation profile output")
         directory = item["dir"]
-        if not isinstance(directory, str) or not directory.startswith("/") or "\\x00" in directory or any(part in (".", "..") for part in Path(directory).parts):
+        if not isinstance(directory, str) or not directory.startswith("/") or chr(0) in directory or any(part in (".", "..") for part in Path(directory).parts):
             raise SyncError("invalid rotation profile directory")
         for flag in ("recursive", "follow_symlinks"):
             if flag in item and type(item[flag]) is not bool:
@@ -272,8 +272,10 @@ def _state_identity(path: Path, profile: str, uid: int,
             raise SyncError(f"invalid {name} state fields/schema")
         epoch, content_id = entry.get("last_epoch"), entry.get("last_content_id")
         remaining, cycle = entry.get("remaining"), entry.get("cycle")
-        if type(epoch) is not int or not 0 < epoch <= 2**63 - 1 or not isinstance(content_id, str) or not ID_RE.fullmatch(content_id):
+        if (epoch is not None and (type(epoch) is not int or not 0 <= epoch <= 2**64 - 1)) or (content_id is not None and (not isinstance(content_id, str) or not ID_RE.fullmatch(content_id))):
             raise SyncError(f"invalid {name} acknowledgement")
+        if name == "DP-1" and (epoch is None or epoch == 0 or content_id is None):
+            raise SyncError("invalid DP-1 acknowledgement")
         if not isinstance(remaining, list) or len(remaining) > 4096 or any(not isinstance(item, str) or not ID_RE.fullmatch(item) for item in remaining) or len(set(remaining)) != len(remaining):
             raise SyncError(f"invalid {name} remaining queue")
         if type(cycle) is not int or not 0 <= cycle <= 2**64 - 1:
