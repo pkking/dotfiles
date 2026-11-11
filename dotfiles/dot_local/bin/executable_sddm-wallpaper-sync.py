@@ -272,7 +272,7 @@ def _state_identity(path: Path, profile: str, uid: int,
             raise SyncError(f"invalid {name} state fields/schema")
         epoch, content_id = entry.get("last_epoch"), entry.get("last_content_id")
         remaining, cycle = entry.get("remaining"), entry.get("cycle")
-        if (epoch is not None and (type(epoch) is not int or not 0 <= epoch <= 2**64 - 1)) or (content_id is not None and (not isinstance(content_id, str) or not ID_RE.fullmatch(content_id))):
+        if (epoch is not None and (type(epoch) is not int or not 0 <= epoch <= 2**63 - 1)) or (content_id is not None and (not isinstance(content_id, str) or not ID_RE.fullmatch(content_id))):
             raise SyncError(f"invalid {name} acknowledgement")
         if name == "DP-1" and (epoch is None or epoch == 0 or content_id is None):
             raise SyncError("invalid DP-1 acknowledgement")

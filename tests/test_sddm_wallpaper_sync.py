@@ -73,7 +73,7 @@ class PolicyTests(unittest.TestCase):
                 invalid.append(("primary-null-" + field,
                                 base | {"outputs": base["outputs"] | {
                                     "DP-1": base["outputs"]["DP-1"] | {field: None}}}))
-            bad_epochs = (True, False, -1, 2**64, "17")
+            bad_epochs = (True, False, -1, 2**63, 2**64, "17")
             for epoch in bad_epochs:
                 invalid.append(("secondary-epoch-" + repr(epoch), base | {"outputs": base["outputs"] | {
                     "HDMI-A-1": base["outputs"]["HDMI-A-1"] | {"last_epoch": epoch}}}))
