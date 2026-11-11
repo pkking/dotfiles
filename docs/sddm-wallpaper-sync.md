@@ -1,0 +1,47 @@
+# Optional SDDM wallpaper cache synchronization
+
+This feature is an unprivileged, opt-in follow-up to the existing `ezwallpaper-rotate.service`; there is no separate `sddm-wallpaper-sync.service`. The wrapper observes this invocation's actual successful rotation exit (B exit 0), then publishes only the current DP-1 image when the committed `rotation-v1.json` identity matches the exact source bytes and a fresh `noctalia msg wallpaper-get DP-1` still returns that source path, under the same canonical flock. This is path/state corroboration, **not pixel-level visual verification**. The private cache-owner context is not required to be inactive; success is established by the real B invocation and getter acknowledgement.
+
+## CI image dependency
+
+The offline-validation GitHub Actions job bootstraps ImageMagick `7.1.2-33` before checkout because mandatory real PNG/JPEG/4K normalization tests require ImageMagick 7's `magick` command. It downloads the official x86_64 AppImage into `RUNNER_TEMP`, verifies the pinned SHA-256 before executing it, extracts it without FUSE, and exposes its bundled `AppRun` through a temporary `magick` entrypoint. No host package installation or managed-bundle change is involved. Keep the URL, version, and digest aligned with official release metadata; do not use an unverified runtime installer or skip these tests.
+
+## Defaults and prerequisites
+
+The managed policy is `~/.config/sddm-wallpaper-sync/policy.json`; it is disabled by default. The complete optional bundle is `~/.local/bin/ezwallpaper-sddm-rotate.py`, `~/.local/bin/sddm-wallpaper-sync.py`, `~/.local/lib/sddm-wallpaper-sync/processes.py`, and the policy. Missing or damaged optional synchronization dependencies only warn after a successful rotation; they must not prevent the existing desktop rotation. The managed rotation command is unchanged by default; the opt-in drop-in below replaces its `ExecStart`. The current `theme.conf.user` has `CustomBackground=false` and no `Background`; keep those values unchanged until separately approved deployment and a valid first cache publish. An empty cache leaves the existing theme background untouched. Approval of the configured primary-landscape pool is bounded ongoing source permission, not a per-image prompt; expanding it needs renewed approval. No new timer, standalone sync unit, auto-enable, lifecycle installer, or root publisher is provided. Image normalization uses the unprivileged writer and the configured non-recursive DP-1 landscape pool.
+
+## Future deployment prerequisites (not performed by chezmoi)
+
+Review and install the two scripts, shared helper, and disabled policy as one bundle. Independently confirm the canonical `~/.local/bin/ezwallpaper` binary is installed (entrypoint fix #118 is a separate prerequisite), and verify the private state and configured pool contract. Obtain separate administrator authorization for cache provisioning: verify group `sddm` exists and the SDDM account can traverse `/var/cache` and read group-readable files; create `/var/cache/sddm-wallpaper-sync` as root:root mode 0755, then its numeric-UID leaf as `<desktop-uid>:sddm` mode 2750. Do not make user-writable parent directories, weaken HOME permissions, or change the theme. The fixed destination is `/var/cache/sddm-wallpaper-sync/<uid>`; there is no production destination override. Stop on unexpected owner, group, or mode.
+
+## Opt-in and first publish
+
+1. After separately approved deployment and pool/privacy review, enable policy (`enabled: true`), preserving schema and paths. Install the explicit user drop-in below and reload the user manager only with user deployment authorization.
+2. Wait for the next **natural successful B rotation** to perform the first publish. Never manually start a new sync unit, invoke the wrapper as a test, or cause an artificial wallpaper rotation.
+3. Only after `current.png` exists and is verified as owned by the desktop UID, group `sddm`, mode 0640, obtain separate authorization to back up the SDDM user's `theme.conf.user`. In `[General]`, merge only `CustomBackground=true` and `Background=/var/cache/sddm-wallpaper-sync/<uid>/current.png`. Preserve all other keys and the selected theme. If the cache is not ready, do not alter the theme. Existing theme `cache: true` behavior means a running greeter may retain its prior image; only a fresh greeter instance can be expected to load the new path. Do not promise hot reload.
+
+For the future explicit opt-in, the user drop-in at `~/.config/systemd/user/ezwallpaper-rotate.service.d/10-sddm-sync.conf` contains:
+
+   ```ini
+   [Service]
+   ExecStart=
+   ExecStart=/usr/bin/flock --nonblock --conflict-exit-code=75 %t/ezwallpaper-rotate.lock %h/.local/bin/ezwallpaper-sddm-rotate.py
+   ```
+
+   The opt-in drop-in replaces the service command with the fixed wrapper; it invokes canonical `~/.local/bin/ezwallpaper` using the existing `rotate next --profile ~/.config/ezwallpaper/rotation-profile.json --apply` argv, then publishes synchronously while retaining the same cooperative flock. The publication tail is bounded to 10 seconds; failures warn but do not change a successful rotation result. Other cooperative rotations continue to use nonblocking exit 75. This does not serialize external Noctalia GUI setters or claim pixel-level atomicity. Install/reload only after separate user deployment authorization; do not perform a root action, manually rotate, or activate a new sync unit for this procedure.
+
+## Rollback
+
+Remove the optional drop-in and reload the user manager during an approved window; disable policy (`enabled:false`). Restore the saved `theme.conf.user` background values, preserving other configuration. The last cache image may remain until an administrator removes the known `current.png` and leaf after confirming ownership; no recursive cleanup is needed. Do not remove parent cache paths or unrelated files.
+
+## Decoder process resource limits
+
+Each ImageMagick helper runs as a child with OS-enforced `RLIMIT_AS` capped at 1 GiB, `RLIMIT_CPU` capped at 8 seconds soft / 9 seconds hard, and `RLIMIT_FSIZE` capped at 32 MiB for decoder scratch files. These child limits never raise an inherited lower hard limit. Input is supplied from a bounded anonymous file; stdout is read nonblocking in chunks with a strict `max_output+1` sentinel cap and the child is killed/reaped immediately on overflow. The stdout cap is independent of `RLIMIT_FSIZE`, since ImageMagick may need larger scratch files even when its metadata stdout is tiny. Helper wall-clock timeouts remain active. After a real successful rotation, the wrapper attempts to load the shared Linux standard-library helper from `~/.local/lib/sddm-wallpaper-sync/processes.py`; missing or damaged optional helper files only warn and leave the successful rotation successful. The writer loads the same helper in its publisher child. Each process temporarily becomes a process-local child subreaper and, on completion or failure, kills/reaps only descendants newly adopted during that scope; pre-existing children are excluded and the prior subreaper setting is restored. Writer cleanup is bounded to one second. The wrapper allows about eight seconds for publication and uses the remaining tail (up to roughly two seconds, including descendant and pending-file cleanup) within its existing approximately ten-second publication budget. Incomplete cleanup is warned rather than represented as successful. This requires Linux `/proc` and `prctl`, uses no root or service, and does not create a decoder process group; it is specific to the sequential next-greeter CLI lifecycle. These limits supplement, and do not replace, ImageMagick's own pixel-cache policies.
+
+## Failure and durability contract
+
+Disabled policy is a no-op (does not inspect Noctalia/cache). Missing provisioning, missing session IPC, failed/unknown owner, invalid/stale state, source change, readback mismatch, invalid/oversized image, lock contention, or any pre-rename write/fsync error fails closed and preserves the prior image. Same-directory exclusive temporary files are cleaned only when created by this invocation. Atomic rename is the commit point: if directory fsync fails after rename, the new image is already visible and is reported as **committed with durability uncertain**, not falsely described as rolled back. The cache keeps one current image and is never recursively cleaned. The user may replace/deny service to their own cache; the SDDM account receives only the published static file. Image path equality cannot establish rendered pixels.
+
+## Remaining acceptance gates
+
+This source change does not provision the cache, change theme config, install packages, activate units, restart SDDM, log out, or verify a greeter. Before deployment/release, independently review path/race defenses, validate SDDM group/config precedence, perform the approved first publish and a human visual check in a separately authorized window. The existing Catppuccin theme's `theme.conf.user` may override bundled background defaults; keep its other keys unchanged.

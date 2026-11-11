@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "profile": "~/.config/ezwallpaper/rotation-profile.json",
+  "state": "~/.local/state/ezwallpaper/rotation-v1.json",
+  "landscape_pool": "~/.local/share/wallpapers/ezwallpaper-mocha/landscape"
+}
