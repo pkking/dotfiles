@@ -231,24 +231,61 @@ def _getter() -> str:
     return value
 
 
-def _state_identity(path: Path, profile: str, uid: int) -> tuple[int, str, int]:
+def _profile_output_names(path: Path, uid: int) -> frozenset[str]:
+    """Validate the pinned dual-output profile before trusting its state keys."""
+    profile = _json_file(path, MAX_POLICY, uid)
+    if set(profile) != {"schema_version", "owner", "outputs"} or type(profile.get("schema_version")) is not int or profile["schema_version"] != 1 or profile.get("owner") != "ezwallpaper":
+        raise SyncError("rotation profile schema/owner mismatch")
+    outputs = profile.get("outputs")
+    if not isinstance(outputs, list) or len(outputs) != 2:
+        raise SyncError("rotation profile must declare the verified dual-output set")
+    names: list[str] = []
+    for item in outputs:
+        if not isinstance(item, dict) or not {"name", "dir"}.issubset(item) or set(item) - {"name", "dir", "recursive", "follow_symlinks"}:
+            raise SyncError("invalid rotation profile output fields")
+        if not isinstance(item["name"], str) or item["name"] not in {"DP-1", "HDMI-A-1"}:
+            raise SyncError("unknown rotation profile output")
+        directory = item["dir"]
+        if not isinstance(directory, str) or not directory.startswith("/") or chr(0) in directory or any(part in (".", "..") for part in Path(directory).parts):
+            raise SyncError("invalid rotation profile directory")
+        for flag in ("recursive", "follow_symlinks"):
+            if flag in item and type(item[flag]) is not bool:
+                raise SyncError("invalid rotation profile flag")
+        if item.get("follow_symlinks", False) and not item.get("recursive", False):
+            raise SyncError("rotation profile symlink policy is invalid")
+        names.append(item["name"])
+    if len(set(names)) != 2 or set(names) != {"DP-1", "HDMI-A-1"}:
+        raise SyncError("rotation profile output set mismatch")
+    return frozenset(names)
+
+
+def _state_identity(path: Path, profile: str, uid: int,
+                    allowed_outputs: frozenset[str] | set[str] = frozenset({"DP-1"})) -> tuple[int, str, int]:
     state = _json_file(path, MAX_STATE, uid)
-    if set(state) != {"schema_version", "profile", "outputs"} or type(state.get("schema_version")) is not int or state["schema_version"] != 1 or state["profile"] != profile:
+    if set(state) != {"schema_version", "profile", "outputs"} or type(state.get("schema_version")) is not int or state["schema_version"] != 1 or not isinstance(state.get("profile"), str) or state["profile"] != profile:
         raise SyncError("rotation state schema/profile mismatch")
     output = state.get("outputs")
-    if not isinstance(output, dict) or set(output) != {"DP-1"}:
-        raise SyncError("rotation state missing DP-1")
-    entry = output["DP-1"]
-    if not isinstance(entry, dict) or set(entry) != {"schema_version", "last_epoch", "last_content_id"} or type(entry.get("schema_version")) is not int or entry["schema_version"] != 1:
-        raise SyncError("invalid DP-1 state")
-    epoch, content_id = entry.get("last_epoch"), entry.get("last_content_id")
-    if type(epoch) is not int or epoch <= 0 or not isinstance(content_id, str) or not ID_RE.fullmatch(content_id):
-        raise SyncError("invalid DP-1 acknowledgement")
+    if not isinstance(output, dict) or "DP-1" not in output or not set(output).issubset(allowed_outputs):
+        raise SyncError("rotation state output set is invalid or missing DP-1")
+    for name, entry in output.items():
+        if not isinstance(entry, dict) or set(entry) != {"schema_version", "last_epoch", "last_content_id", "remaining", "cycle"} or type(entry.get("schema_version")) is not int or entry["schema_version"] != 1:
+            raise SyncError(f"invalid {name} state fields/schema")
+        epoch, content_id = entry.get("last_epoch"), entry.get("last_content_id")
+        remaining, cycle = entry.get("remaining"), entry.get("cycle")
+        if (epoch is not None and (type(epoch) is not int or not 0 <= epoch <= 2**63 - 1)) or (content_id is not None and (not isinstance(content_id, str) or not ID_RE.fullmatch(content_id))):
+            raise SyncError(f"invalid {name} acknowledgement")
+        if name == "DP-1" and (epoch is None or epoch == 0 or content_id is None):
+            raise SyncError("invalid DP-1 acknowledgement")
+        if not isinstance(remaining, list) or len(remaining) > 4096 or any(not isinstance(item, str) or not ID_RE.fullmatch(item) for item in remaining) or len(set(remaining)) != len(remaining):
+            raise SyncError(f"invalid {name} remaining queue")
+        if type(cycle) is not int or not 0 <= cycle <= 2**64 - 1:
+            raise SyncError(f"invalid {name} rotation cycle")
+    primary = output["DP-1"]
     st = path.stat()
     now = time.time()
     if st.st_mtime > now + 5 or now - st.st_mtime > 7 * 86400:
         raise SyncError("rotation state is stale or future-dated")
-    return epoch, content_id, st.st_ino
+    return primary["last_epoch"], primary["last_content_id"], st.st_ino
 
 
 def _source_snapshot(path: Path, pool: Path, uid: int, content_id: str) -> tuple[bytes, tuple[int, int, int, int]]:
@@ -461,11 +498,12 @@ def _publish(policy_path: Path, destination: Path, uid: int, sddm_gid: int | Non
     state_path = _safe_path(home / policy["state"].removeprefix("~/"), uid)
     pool = _safe_path(home / policy["landscape_pool"].removeprefix("~/"), uid, directory=True)
     profile_real = str(profile)
-    state1 = _state_identity(state_path, profile_real, uid)
+    allowed_outputs = _profile_output_names(profile, uid)
+    state1 = _state_identity(state_path, profile_real, uid, allowed_outputs)
     source_path = Path(_getter())
     data, fingerprint = _source_snapshot(source_path, pool, uid, state1[1])
     normalized = _normalize(data)
-    if _state_identity(state_path, profile_real, uid) != state1 or _getter() != str(source_path) or source_path.stat().st_ino != fingerprint[1]:
+    if _state_identity(state_path, profile_real, uid, _profile_output_names(profile, uid)) != state1 or _getter() != str(source_path) or source_path.stat().st_ino != fingerprint[1]:
         raise SyncError("rotation/readback/source changed before publish")
     if sddm_gid is None:
         import grp
@@ -477,7 +515,7 @@ def _publish(policy_path: Path, destination: Path, uid: int, sddm_gid: int | Non
     # transaction; this final guard executes after temp fsync, immediately
     # before atomic rename.
     def verify_current() -> None:
-        if _state_identity(state_path, profile_real, uid) != state1 or _getter() != str(source_path):
+        if _state_identity(state_path, profile_real, uid, _profile_output_names(profile, uid)) != state1 or _getter() != str(source_path):
             raise SyncError("rotation changed before publication")
         current_bytes, current_fingerprint = _source_snapshot(source_path, pool, uid, state1[1])
         if current_fingerprint != fingerprint or current_bytes != data:

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import base64
 import importlib.util
+import json
 import os
 from pathlib import Path
 import tempfile
@@ -15,6 +16,7 @@ spec = importlib.util.spec_from_file_location("sddm_wallpaper_sync_faults", SCRI
 assert spec and spec.loader
 syncmod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(syncmod)
+from sddm_rotation_fixtures import PROFILE_OUTPUTS, content_id, state_json as producer_state
 
 JPEG = base64.b64decode("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAACAAMDAREAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAACP/EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAVAQEBAAAAAAAAAAAAAAAAAAAHCf/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/ADoDFU3/2Q==")
 
@@ -58,6 +60,16 @@ class DecoderFaultTests(unittest.TestCase):
 
 
 class StateFaultTests(unittest.TestCase):
+    def test_complete_pinned_receipt_with_valid_unique_queues_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "state.json"
+            state = producer_state("/private-fixture/profile")
+            state["outputs"]["DP-1"]["remaining"] = [content_id(f"landscape-{i}") for i in range(256)]
+            path.write_text(json.dumps(state))
+            epoch, primary_id, _inode = syncmod._state_identity(path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS))
+            self.assertEqual(epoch, 17)
+            self.assertEqual(primary_id, state["outputs"]["DP-1"]["last_content_id"])
+
     def test_wrong_profile_schema_bool_epoch_stale_and_future_state_rejected(self) -> None:
         import json
         with tempfile.TemporaryDirectory() as temp:
@@ -84,6 +96,10 @@ class OwnerLockFaultTests(unittest.TestCase):
     def test_private_owner_completion_context_skips_systemd_but_reaches_commit(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
+            profile = root / "profile"
+            profile.write_text('{"schema_version":1,"owner":"ezwallpaper","outputs":['
+                               '{"name":"DP-1","dir":"/private-fixture/landscape"},'
+                               '{"name":"HDMI-A-1","dir":"/private-fixture/portrait"}]}')
             policy = root / "policy.json"
             policy.write_text('{"schema_version":1,"enabled":true,"profile":"~/profile",'
                               '"state":"~/state","landscape_pool":"~/pool"}')
@@ -102,7 +118,8 @@ class OwnerLockFaultTests(unittest.TestCase):
                 committed.append("expected-commit")
                 return "published"
 
-            with mock.patch.object(syncmod, "_owner_success", side_effect=AssertionError("systemctl must not run")), \
+            with mock.patch.object(syncmod.Path, "home", return_value=root), \
+                 mock.patch.object(syncmod, "_owner_success", side_effect=AssertionError("systemctl must not run")), \
                  mock.patch.object(syncmod, "_safe_path", side_effect=lambda path, *_args, **_kwargs: Path(path)), \
                  mock.patch.object(syncmod, "_state_identity", return_value=identity), \
                  mock.patch.object(syncmod, "_getter", return_value=str(source)), \

@@ -9,6 +9,7 @@ from pathlib import Path
 import struct
 import tempfile
 import unittest
+from unittest import mock
 import zlib
 
 SCRIPT = Path(__file__).parents[1] / "dotfiles/dot_local/bin/executable_sddm-wallpaper-sync.py"
@@ -16,6 +17,7 @@ spec = importlib.util.spec_from_file_location("sddm_wallpaper_sync", SCRIPT)
 assert spec and spec.loader
 syncmod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(syncmod)
+from sddm_rotation_fixtures import PROFILE_OUTPUTS, content_id, state_json as producer_state
 
 
 def png(width: int = 2, height: int = 2) -> bytes:
@@ -27,6 +29,149 @@ def png(width: int = 2, height: int = 2) -> bytes:
 
 
 class PolicyTests(unittest.TestCase):
+    def test_pinned_producer_dual_output_receipt_accepts_metadata_but_returns_only_dp1(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "state.json"
+            state = producer_state("/private-fixture/profile", portrait_first=True)
+            path.write_text(json.dumps(state))
+            epoch, image_id, _inode = syncmod._state_identity(
+                path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS)
+            )
+            self.assertEqual(epoch, 17)
+            self.assertEqual(image_id, state["outputs"]["DP-1"]["last_content_id"])
+            self.assertNotEqual(image_id, state["outputs"]["HDMI-A-1"]["last_content_id"])
+
+    def test_secondary_options_may_be_null_or_output_may_be_sparse(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "state.json"
+            base = producer_state("/private-fixture/profile")
+            expected = base["outputs"]["DP-1"]["last_content_id"]
+            option_cases = ((None, None), (None, content_id("secondary-id")),
+                            (17, None), (17, content_id("secondary-id")))
+            for epoch, image_id in option_cases:
+                state = json.loads(json.dumps(base))
+                state["outputs"]["HDMI-A-1"]["last_epoch"] = epoch
+                state["outputs"]["HDMI-A-1"]["last_content_id"] = image_id
+                path.write_text(json.dumps(state))
+                with self.subTest(epoch=epoch, image_id=image_id):
+                    self.assertEqual(syncmod._state_identity(
+                        path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS)
+                    )[1], expected)
+            sparse = json.loads(json.dumps(base))
+            del sparse["outputs"]["HDMI-A-1"]
+            path.write_text(json.dumps(sparse))
+            self.assertEqual(syncmod._state_identity(
+                path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS)
+            )[1], expected)
+
+    def test_primary_requires_ack_and_present_secondary_options_are_strict(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "state.json"
+            base = producer_state("/private-fixture/profile")
+            invalid = []
+            for field in ("last_epoch", "last_content_id"):
+                invalid.append(("primary-null-" + field,
+                                base | {"outputs": base["outputs"] | {
+                                    "DP-1": base["outputs"]["DP-1"] | {field: None}}}))
+            bad_epochs = (True, False, -1, 2**63, 2**64, "17")
+            for epoch in bad_epochs:
+                invalid.append(("secondary-epoch-" + repr(epoch), base | {"outputs": base["outputs"] | {
+                    "HDMI-A-1": base["outputs"]["HDMI-A-1"] | {"last_epoch": epoch}}}))
+            for image_id in (True, "bad", "SHA256:" + "a" * 64):
+                invalid.append(("secondary-id-" + repr(image_id), base | {"outputs": base["outputs"] | {
+                    "HDMI-A-1": base["outputs"]["HDMI-A-1"] | {"last_content_id": image_id}}}))
+            secondary = base["outputs"]["HDMI-A-1"]
+            invalid.extend((
+                ("secondary-missing-option-key", base | {"outputs": base["outputs"] | {
+                    "HDMI-A-1": {key: value for key, value in secondary.items() if key != "last_epoch"}}}),
+                ("secondary-unknown-key", base | {"outputs": base["outputs"] | {
+                    "HDMI-A-1": secondary | {"future": 1}}}),
+                ("secondary-bool-schema", base | {"outputs": base["outputs"] | {
+                    "HDMI-A-1": secondary | {"schema_version": True}}}),
+            ))
+            for label, state in invalid:
+                path.write_text(json.dumps(state))
+                with self.subTest(case=label), self.assertRaises(syncmod.SyncError):
+                    syncmod._state_identity(path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS))
+
+    def test_dual_output_receipt_rejects_undeclared_output_and_malformed_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "state.json"
+            good = producer_state("/private-fixture/profile")
+            invalid = []
+            invalid.append(good | {"outputs": good["outputs"] | {"DP-2": good["outputs"]["DP-1"]}})
+            invalid.append(good | {"outputs": good["outputs"] | {"DP-1": good["outputs"]["DP-1"] | {"future": 1}}})
+            invalid.append(good | {"outputs": good["outputs"] | {"DP-1": good["outputs"]["DP-1"] | {"remaining": ["bad"]}}})
+            invalid.append(good | {"outputs": good["outputs"] | {"DP-1": good["outputs"]["DP-1"] | {"cycle": True}}})
+            invalid.append(good | {"outputs": {"HDMI-A-1": good["outputs"]["HDMI-A-1"]}})
+            invalid.append(good | {"schema_version": True})
+            invalid.append(good | {"outputs": good["outputs"] | {"DP-1": good["outputs"]["DP-1"] | {"schema_version": True}}})
+            invalid.append(good | {"outputs": good["outputs"] | {"DP-1": good["outputs"]["DP-1"] | {"last_content_id": "bad"}}})
+            invalid.append(good | {"outputs": good["outputs"] | {"DP-1": good["outputs"]["DP-1"] | {"remaining": [content_id("dup"), content_id("dup")]}}})
+            invalid.append(good | {"outputs": good["outputs"] | {"DP-1": good["outputs"]["DP-1"] | {"remaining": [content_id(str(i)) for i in range(4097)]}}})
+            invalid.append(good | {"outputs": good["outputs"] | {"DP-1": good["outputs"]["DP-1"] | {"cycle": 2**64}}})
+            for state in invalid:
+                path.write_text(json.dumps(state))
+                with self.subTest(state=state), self.assertRaises(syncmod.SyncError):
+                    syncmod._state_identity(path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS))
+
+    def test_profile_output_names_are_strict_and_unique(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "profile.json"
+            profile = {"schema_version": 1, "owner": "ezwallpaper", "outputs": [
+                {"name": "DP-1", "dir": "/private-fixture/landscape"},
+                {"name": "HDMI-A-1", "dir": "/private-fixture/portrait"},
+            ]}
+            path.write_text(json.dumps(profile))
+            self.assertEqual(syncmod._profile_output_names(path, os.getuid()), frozenset(PROFILE_OUTPUTS))
+            for invalid in (profile | {"future": False},
+                            profile | {"outputs": [{**profile["outputs"][0], "name": "DP-2"}, profile["outputs"][1]]},
+                            profile | {"outputs": [profile["outputs"][0], profile["outputs"][0]]},
+                            profile | {"outputs": [{**profile["outputs"][0], "recursive": 1}, profile["outputs"][1]]}):
+                path.write_text(json.dumps(invalid))
+                with self.assertRaises(syncmod.SyncError):
+                    syncmod._profile_output_names(path, os.getuid())
+            literal_backslash_x00 = profile | {"outputs": [
+                {**profile["outputs"][0], "dir": "/private-fixture/literal\\x00"}, profile["outputs"][1]
+            ]}
+            path.write_text(json.dumps(literal_backslash_x00))
+            self.assertEqual(syncmod._profile_output_names(path, os.getuid()), frozenset(PROFILE_OUTPUTS))
+            actual_nul_profiles = (
+                profile | {"outputs": [profile["outputs"][0], {
+                    **profile["outputs"][1], "dir": "/private-fixture/" + chr(0) + "portrait"
+                }]},
+                profile | {"outputs": [profile["outputs"][0], {
+                    **profile["outputs"][1], "name": "HDMI" + chr(0) + "-A-1"
+                }]},
+            )
+            for nul_profile in actual_nul_profiles:
+                encoded = json.dumps(nul_profile)
+                self.assertIn("\\u0000", encoded)
+                path.write_text(encoded)
+                with self.subTest(profile=encoded), mock.patch.object(
+                    syncmod, "_open_anchored", wraps=syncmod._open_anchored
+                ) as opened, self.assertRaises(syncmod.SyncError):
+                    syncmod._profile_output_names(path, os.getuid())
+                opened.assert_called_once_with(path, os.getuid(), directory=False)
+
+    def test_valid_empty_cycle_zero_queue_and_shared_cross_output_ids_are_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "state.json"
+            state = producer_state("/private-fixture/profile")
+            state["outputs"]["DP-1"]["remaining"] = []
+            state["outputs"]["DP-1"]["cycle"] = 0
+            state["outputs"]["HDMI-A-1"]["last_content_id"] = state["outputs"]["DP-1"]["last_content_id"]
+            path.write_text(json.dumps(state))
+            self.assertEqual(syncmod._state_identity(path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS))[1],
+                             state["outputs"]["DP-1"]["last_content_id"])
+
+    def test_duplicate_state_json_keys_are_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "state.json"
+            path.write_text('{"schema_version":1,"profile":"/private-fixture/profile",'
+                            '"outputs":{"DP-1":{},"DP-1":{}}}')
+            with self.assertRaises(syncmod.SyncError):
+                syncmod._state_identity(path, "/private-fixture/profile", os.getuid(), set(PROFILE_OUTPUTS))
     def test_disabled_policy_returns_without_external_calls(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "policy.json"
@@ -145,14 +290,13 @@ class PublishTests(unittest.TestCase):
     def test_state_schema_rejects_unknown_output_names_and_fields(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "state.json"
-            good = {"schema_version": 1, "profile": "/profile", "outputs": {
-                "DP-1": {"schema_version": 1, "last_epoch": 1, "last_content_id": "sha256:" + "a" * 64}}}
-            for state in (good | {"outputs": good["outputs"] | {"UNKNOWN": {}}},
+            good = producer_state("/profile")
+            for state in (good | {"outputs": good["outputs"] | {"DP-2": good["outputs"]["DP-1"]}},
                           good | {"outputs": {"DP-1": good["outputs"]["DP-1"] | {"future": True}}}):
                 path.write_text(json.dumps(state))
                 os.utime(path, None)
                 with self.assertRaises(syncmod.SyncError):
-                    syncmod._state_identity(path, "/profile", os.getuid())
+                    syncmod._state_identity(path, "/profile", os.getuid(), set(PROFILE_OUTPUTS))
 
 
 if __name__ == "__main__":
