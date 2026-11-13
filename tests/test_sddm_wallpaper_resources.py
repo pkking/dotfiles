@@ -191,6 +191,26 @@ with pathlib.Path(sys.argv[1]).open('wb') as f:
                 self.assertEqual(status, 0)
                 self.assertEqual(metadata.decode().split(), ["5127", "2884", "1", "PNG", "srgb", "3.0"])
                 self.assertLessEqual(len(normalized), syncmod.MAX_SOURCE_BYTES)
+
+                def old_256_adapter(argv, **kwargs):
+                    command = list(argv)
+                    if "-limit" in command and "memory" in command:
+                        index = command.index("memory") + 1
+                        if command[index] == "512MiB":
+                            command[index] = "256MiB"
+                    return private_scratch(command, **kwargs)
+
+                try:
+                    with mock.patch.object(syncmod, "_bounded_run", side_effect=old_256_adapter):
+                        syncmod._normalize(jpeg)
+                    legacy_256_status = 0
+                except syncmod.SyncError:
+                    legacy_256_status = 1
+                version = subprocess.run([magick, "-version"], text=True, stdout=subprocess.PIPE,
+                                         stderr=subprocess.STDOUT, check=True, timeout=5).stdout
+                if "HDRI" in version:
+                    self.assertEqual(legacy_256_status, 1, "HDRI old-256 baseline must reproduce the bounded failure")
+                print(f"fixture=synthetic 5127x2884 RGB JPEG current512=green old256_status={legacy_256_status}")
                 self.assertEqual(list(Path(temp).iterdir()), [])
 
     def test_native_6k_rgb_jpeg_normalizes_at_512_and_reproduces_old_384_failure(self) -> None:
