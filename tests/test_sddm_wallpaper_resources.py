@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import resource
 from pathlib import Path
 import shutil
 import signal
@@ -112,6 +113,85 @@ class ChildResourceTests(unittest.TestCase):
                 syncmod._normalize(b"\\x89PNG\\r\\n\\x1a\\ninvalid image payload")
             self.assertEqual(current.read_bytes(), b"last-good-image")
             self.assertEqual([path.name for path in destination.iterdir()], ["current.png"])
+
+    def test_normalizer_keeps_probe_and_conversion_memory_budgets_separate(self) -> None:
+        png = small_png()
+        calls = []
+
+        def bounded(argv, **kwargs):
+            calls.append((list(argv), kwargs.copy()))
+            return (0, b"16 8 1\n") if len(calls) == 1 else (0, png)
+
+        with mock.patch.object(syncmod, "_bounded_run", side_effect=bounded):
+            self.assertEqual(syncmod._normalize(png), png)
+
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(calls[0][0][calls[0][0].index("memory") + 1], "256MiB")
+        self.assertEqual(calls[1][0][calls[1][0].index("memory") + 1], "384MiB")
+        self.assertEqual(calls[1][0][calls[1][0].index("map") + 1], "512MiB")
+        self.assertEqual(calls[1][0][calls[1][0].index("disk") + 1], "512MiB")
+        self.assertEqual(calls[1][1]["max_output"], syncmod.MAX_SOURCE_BYTES)
+        self.assertTrue(calls[1][1]["limit_fsize"])
+        self.assertEqual(calls[1][1]["timeout"], syncmod.MAX_SECONDS + 2)
+        self.assertEqual(syncmod.MAX_CHILD_AS_BYTES, 1024 * 1024 * 1024)
+        self.assertEqual(syncmod.MAX_CHILD_CPU_SOFT_SECONDS, 8)
+        self.assertEqual(syncmod.MAX_CHILD_CPU_HARD_SECONDS, 9)
+
+    def test_native_5k_rgb_jpeg_normalizes_full_resolution_under_production_caps(self) -> None:
+        magick = shutil.which("magick")
+        self.assertIsNotNone(magick, "ImageMagick magick is required for the native 5K regression")
+        with tempfile.TemporaryDirectory(prefix="sddm-normalize-5k-") as temp:
+            os.chmod(temp, 0o700)
+            original_bounded_run = syncmod._bounded_run
+
+            def private_scratch(argv, **kwargs):
+                command = list(argv)
+                if "registry:temporary-path=/tmp" in command:
+                    command[command.index("registry:temporary-path=/tmp")] = f"registry:temporary-path={temp}"
+                return original_bounded_run(command, **kwargs)
+
+            with mock.patch.object(syncmod, "_bounded_run", side_effect=private_scratch):
+                # Create a copyright-free RGB PPM in a small-memory, CPU- and file-size-
+                # bounded helper, then encode it with the unchanged production child bounds.
+                ppm = Path(temp) / "synthetic.ppm"
+                make_ppm = """import pathlib,sys
+w,h=5127,2884
+with pathlib.Path(sys.argv[1]).open('wb') as f:
+ f.write(f'P6\\n{w} {h}\\n255\\n'.encode())
+ for y in range(h):
+  block=bytes(c for x in range(256) for c in ((x*37+y*13)&255,(x*17+y*29)&255,(x*7+y*53)&255))
+  row=(block*((w*3+len(block)-1)//len(block)))[:w*3]
+  f.write(row)
+"""
+
+                def fixture_limits():
+                    resource.setrlimit(resource.RLIMIT_AS, (128 * 1024 * 1024, 128 * 1024 * 1024))
+                    resource.setrlimit(resource.RLIMIT_CPU, (4, 5))
+                    resource.setrlimit(resource.RLIMIT_FSIZE, (48 * 1024 * 1024, 48 * 1024 * 1024))
+
+                subprocess.run([sys.executable, "-c", make_ppm, str(ppm)], check=True,
+                               timeout=10, preexec_fn=fixture_limits)
+                source_command = [magick, "-limit", "time", "20", "-limit", "memory", "256MiB",
+                                  "-limit", "map", "512MiB", "-limit", "disk", "512MiB",
+                                  "-define", f"registry:temporary-path={temp}", f"ppm:{ppm}",
+                                  "-colorspace", "sRGB", "-type", "TrueColor", "-quality", "90", "jpeg:-"]
+                source_status, jpeg = syncmod._bounded_run(source_command, timeout=syncmod.MAX_SECONDS + 2,
+                                                           max_output=syncmod.MAX_SOURCE_BYTES,
+                                                           limit_fsize=True)
+                self.assertEqual(source_status, 0)
+                self.assertTrue(jpeg.startswith(b"\xff\xd8\xff"))
+                self.assertLessEqual(len(jpeg), syncmod.MAX_SOURCE_BYTES)
+                ppm.unlink()
+                normalized = syncmod._normalize(jpeg)
+                status, metadata = syncmod._bounded_run(
+                    [magick, "identify", "-limit", "time", "20", "-limit", "memory", "256MiB",
+                     "-limit", "map", "512MiB", "-limit", "disk", "512MiB", "-format",
+                     "%w %h %n %m %[channels]", "PNG:-"], input_data=normalized,
+                    timeout=syncmod.MAX_SECONDS, max_output=128)
+                self.assertEqual(status, 0)
+                self.assertEqual(metadata.decode().split(), ["5127", "2884", "1", "PNG", "srgb", "3.0"])
+                self.assertLessEqual(len(normalized), syncmod.MAX_SOURCE_BYTES)
+                self.assertEqual(list(Path(temp).iterdir()), [])
 
     def test_supported_png_jpeg_and_repository_4k_png_normalize_under_production_caps(self) -> None:
         magick = shutil.which("magick")

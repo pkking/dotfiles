@@ -26,6 +26,9 @@ MAX_SOURCE_BYTES = 32 * 1024 * 1024
 MAX_CHILD_AS_BYTES = 1024 * 1024 * 1024
 MAX_CHILD_CPU_SOFT_SECONDS = 8
 MAX_CHILD_CPU_HARD_SECONDS = 9
+# Two full-resolution HDRI pixel buffers can exceed 256MiB; 384MiB avoids
+# unnecessary scratch-file spill while remaining inside the 1GiB child limit.
+CONVERT_MEMORY_LIMIT = "384MiB"
 MAX_PIXELS = 40_000_000
 MAX_SECONDS = 20
 ID_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
@@ -354,7 +357,7 @@ def _normalize(data: bytes) -> bytes:
     if frame_count != 1:
         raise SyncError("multi-frame images are not accepted")
     # Fixed ImageMagick executable, no shell, no user-controlled options, no delegates.
-    command = ["magick", "-limit", "time", str(MAX_SECONDS), "-limit", "memory", "256MiB",
+    command = ["magick", "-limit", "time", str(MAX_SECONDS), "-limit", "memory", CONVERT_MEMORY_LIMIT,
                "-limit", "map", "512MiB", "-limit", "disk", "512MiB", "-define", "registry:temporary-path=/tmp",
                coder.replace(":-", ":[0]"), "-auto-orient", "-strip", "-alpha", "remove", "-alpha", "off", "-resize", "8000x5000>", "PNG:-"]
     try:
