@@ -127,7 +127,7 @@ class ChildResourceTests(unittest.TestCase):
 
         self.assertEqual(len(calls), 2)
         self.assertEqual(calls[0][0][calls[0][0].index("memory") + 1], "256MiB")
-        self.assertEqual(calls[1][0][calls[1][0].index("memory") + 1], "384MiB")
+        self.assertEqual(calls[1][0][calls[1][0].index("memory") + 1], "512MiB")
         self.assertEqual(calls[1][0][calls[1][0].index("map") + 1], "512MiB")
         self.assertEqual(calls[1][0][calls[1][0].index("disk") + 1], "512MiB")
         self.assertEqual(calls[1][1]["max_output"], syncmod.MAX_SOURCE_BYTES)
@@ -191,6 +191,81 @@ with pathlib.Path(sys.argv[1]).open('wb') as f:
                 self.assertEqual(status, 0)
                 self.assertEqual(metadata.decode().split(), ["5127", "2884", "1", "PNG", "srgb", "3.0"])
                 self.assertLessEqual(len(normalized), syncmod.MAX_SOURCE_BYTES)
+                self.assertEqual(list(Path(temp).iterdir()), [])
+
+    def test_native_6k_rgb_jpeg_normalizes_at_512_and_reproduces_old_384_failure(self) -> None:
+        magick = shutil.which("magick")
+        self.assertIsNotNone(magick, "ImageMagick magick is required for the native 6K regression")
+        with tempfile.TemporaryDirectory(prefix="sddm-normalize-6k-") as temp:
+            os.chmod(temp, 0o700)
+            original_bounded_run = syncmod._bounded_run
+
+            def private_scratch(argv, **kwargs):
+                command = list(argv)
+                if "registry:temporary-path=/tmp" in command:
+                    command[command.index("registry:temporary-path=/tmp")] = f"registry:temporary-path={temp}"
+                return original_bounded_run(command, **kwargs)
+
+            with mock.patch.object(syncmod, "_bounded_run", side_effect=private_scratch):
+                ppm = Path(temp) / "synthetic.ppm"
+                make_ppm = """import pathlib,sys
+w,h=6048,3402
+with pathlib.Path(sys.argv[1]).open('wb') as f:
+ f.write(f'P6\\n{w} {h}\\n255\\n'.encode())
+ for y in range(h):
+  block=bytes(c for x in range(256) for c in ((x*37+y*13)&255,(x*17+y*29)&255,(x*7+y*53)&255))
+  row=(block*((w*3+len(block)-1)//len(block)))[:w*3]
+  f.write(row)
+"""
+
+                def fixture_limits():
+                    resource.setrlimit(resource.RLIMIT_AS, (128 * 1024 * 1024, 128 * 1024 * 1024))
+                    resource.setrlimit(resource.RLIMIT_CPU, (5, 6))
+                    resource.setrlimit(resource.RLIMIT_FSIZE, (72 * 1024 * 1024, 72 * 1024 * 1024))
+
+                subprocess.run([sys.executable, "-B", "-c", make_ppm, str(ppm)], check=True,
+                               timeout=20, preexec_fn=fixture_limits)
+                source_command = [magick, "-limit", "time", "20", "-limit", "memory", "256MiB",
+                                  "-limit", "map", "512MiB", "-limit", "disk", "512MiB",
+                                  "-define", f"registry:temporary-path={temp}", f"ppm:{ppm}",
+                                  "-colorspace", "sRGB", "-type", "TrueColor", "-quality", "85", "jpeg:-"]
+                source_status, jpeg = original_bounded_run(source_command, timeout=syncmod.MAX_SECONDS + 2,
+                                                           max_output=syncmod.MAX_SOURCE_BYTES, limit_fsize=True)
+                self.assertEqual(source_status, 0)
+                self.assertTrue(jpeg.startswith(b"\xff\xd8\xff"))
+                self.assertLessEqual(len(jpeg), syncmod.MAX_SOURCE_BYTES)
+                ppm.unlink()
+
+                normalized = syncmod._normalize(jpeg)
+                status, metadata = original_bounded_run(
+                    [magick, "identify", "-limit", "time", "20", "-limit", "memory", "256MiB",
+                     "-limit", "map", "512MiB", "-limit", "disk", "512MiB", "-format",
+                     "%w %h %n %m %[channels]", "PNG:-"], input_data=normalized,
+                    timeout=syncmod.MAX_SECONDS, max_output=128)
+                self.assertEqual(status, 0)
+                self.assertEqual(metadata.decode().split(), ["6048", "3402", "1", "PNG", "srgb", "3.0"])
+                self.assertLessEqual(len(normalized), syncmod.MAX_SOURCE_BYTES)
+
+                def old_384_adapter(argv, **kwargs):
+                    command = list(argv)
+                    if "-limit" in command and "memory" in command:
+                        index = command.index("memory") + 1
+                        if command[index] == "512MiB":
+                            command[index] = "384MiB"
+                    return private_scratch(command, **kwargs)
+
+                try:
+                    with mock.patch.object(syncmod, "_bounded_run", side_effect=old_384_adapter):
+                        legacy = syncmod._normalize(jpeg)
+                    legacy_status = 0
+                    self.assertTrue(legacy.startswith(b"\x89PNG\r\n\x1a\n"))
+                except syncmod.SyncError:
+                    legacy_status = 1
+                version = subprocess.run([magick, "-version"], text=True, stdout=subprocess.PIPE,
+                                         stderr=subprocess.STDOUT, check=True, timeout=5).stdout
+                if "HDRI" in version:
+                    self.assertEqual(legacy_status, 1, "HDRI old-384 adapter must reproduce the bounded failure")
+                print(f"fixture=synthetic 6048x3402 RGB JPEG input_bytes={len(jpeg)} new512=green old384_status={legacy_status}")
                 self.assertEqual(list(Path(temp).iterdir()), [])
 
     def test_supported_png_jpeg_and_repository_4k_png_normalize_under_production_caps(self) -> None:

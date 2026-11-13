@@ -26,9 +26,9 @@ MAX_SOURCE_BYTES = 32 * 1024 * 1024
 MAX_CHILD_AS_BYTES = 1024 * 1024 * 1024
 MAX_CHILD_CPU_SOFT_SECONDS = 8
 MAX_CHILD_CPU_HARD_SECONDS = 9
-# Two full-resolution HDRI pixel buffers can exceed 256MiB; 384MiB avoids
-# unnecessary scratch-file spill while remaining inside the 1GiB child limit.
-CONVERT_MEMORY_LIMIT = "384MiB"
+# The approved current landscape envelope includes native 6048x3402 images;
+# 512MiB covers that observed envelope within the unchanged 1GiB child limit.
+CONVERT_MEMORY_LIMIT = "512MiB"
 MAX_PIXELS = 40_000_000
 MAX_SECONDS = 20
 ID_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
