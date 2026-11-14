@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-PIN = "5f11267361aec1b4f847e24169701d0dd2e39f66"
+PIN = "4e72605fe788f1c1da1cb9aeba103353df547838"
 ALIAS_SOURCE = ROOT / "dotfiles/dot_local/bin/symlink_ezwallpaper"
 INTEGRATION = ROOT / "dotfiles/dot_config/ezwallpaper/integration.json.tmpl"
 PLANNER = ROOT / "dotfiles/dot_local/bin/executable_ezwallpaper-plan.py"
