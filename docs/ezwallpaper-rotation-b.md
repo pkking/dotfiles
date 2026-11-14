@@ -7,9 +7,8 @@ at `~/.local/bin/ezwallpaper` points to the already-installed pinned artifact
 under `~/.local/lib/ezwallpaper/4e72605fe788f1c1da1cb9aeba103353df547838/`.
 The pinned version is v0.3.0-alpha.1 (prerelease); retain the prior
 `~/.local/lib/ezwallpaper/5f11267361aec1b4f847e24169701d0dd2e39f66/`
-directory for rollback. The symlink only provides a stable command name: it does
-not install the target, verify its hash or trustworthiness, or provide a fallback.
-It uses the binary's
+directory for rollback. The symlink only provides a stable command name: it does not install the target,
+verify its hash or trustworthiness, or provide a fallback. It uses the binary's
 UTC-hour rotation bucket and runs hourly. It does not fetch, admit a download budget,
 retain, garbage-collect, or delete images. The profile is schema v1 (`owner`
 plus output `name`, `dir`, and `recursive`), based on the pinned binary's
