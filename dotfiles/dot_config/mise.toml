@@ -27,6 +27,7 @@ kind = "latest"
 opentofu = "latest"
 kustomize = "latest"
 "npm:@alibaba-group/open-code-review" = "latest"
+"npm:@deepseek-ai/dsh" = "latest"
 
 [settings]
 activate_aggressive = true # append this tools into PATH automatic
