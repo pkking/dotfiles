@@ -229,8 +229,34 @@ class SourceTests(unittest.TestCase):
     def test_real_png_normalizes_and_corrupt_file_is_rejected(self) -> None:
         normalized = syncmod._normalize(png())
         self.assertTrue(normalized.startswith(b"\x89PNG\r\n\x1a\n"))
-        with self.assertRaises(syncmod.SyncError):
-            syncmod._normalize(b"\x89PNG\r\n\x1a\nnot an image")
+        for corrupt in (b"\x89PNG\r\n\x1a\nnot an image", b"", b"\xff\xd8\xff"):
+            with self.subTest(corrupt_prefix=corrupt[:8]), self.assertRaises(syncmod.SyncError):
+                syncmod._normalize(corrupt)
+
+    def test_malformed_xmp_warning_jpeg_normalizes_and_publishes(self) -> None:
+        import subprocess
+
+        generated = subprocess.run(
+            ["magick", "-size", "8x8", "xc:red", "-quality", "85", "JPEG:-"],
+            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        ).stdout
+        # JPEG APP1 XMP signature followed by deliberately malformed XML. No
+        # real source image or production identifier is included in the fixture.
+        xmp = b'http://ns.adobe.com/xap/1.0/\x00<x:xmpmeta xmlns:x="adobe:ns:meta/"><broken'
+        app1 = b"\xff\xe1" + struct.pack(">H", len(xmp) + 2) + xmp
+        malformed_xmp_jpeg = generated[:2] + app1 + generated[2:]
+        normalized = syncmod._normalize(malformed_xmp_jpeg)
+        self.assertTrue(normalized.startswith(b"\x89PNG\r\n\x1a\n"))
+        with tempfile.TemporaryDirectory() as temp:
+            directory_fd = os.open(temp, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                self.assertEqual(
+                    syncmod._write_atomic(directory_fd, normalized, os.getuid(), os.getgid()),
+                    "published",
+                )
+            finally:
+                os.close(directory_fd)
+            self.assertEqual((Path(temp) / "current.png").read_bytes(), normalized)
 
 
 class PublishTests(unittest.TestCase):
