@@ -339,7 +339,7 @@ def _normalize(data: bytes) -> bytes:
     try:
         probe_code, probe_data = _bounded_run(["magick", "identify", "-limit", "time", str(MAX_SECONDS), "-limit", "memory", "256MiB",
                             "-limit", "map", "512MiB", "-limit", "disk", "512MiB",
-                            "-regard-warnings", "-format", "%w %h %n\\n", coder],
+                            "-format", "%w %h %n\\n", coder],
                            input_data=data, timeout=MAX_SECONDS, max_output=128)
     except SyncError as exc:
         raise SyncError("image frame probe failed or exceeded bounds") from exc
