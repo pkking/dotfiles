@@ -10,7 +10,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 CLI = ROOT / "dotfiles/dot_local/bin/executable_ezwallpaper-plan.py"
-PIN = "4e72605fe788f1c1da1cb9aeba103353df547838"
+PIN = "8fb4f1ba938bfb87f8be7a2cf0fd6ddf87fdefc2"
 
 
 def base_config(binary: str | None = None) -> dict[str, object]:
