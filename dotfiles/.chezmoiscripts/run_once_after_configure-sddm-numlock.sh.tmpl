@@ -1,0 +1,39 @@
+#!/bin/bash
+{{ if eq .chezmoi.os "linux" }}
+set -euo pipefail
+
+# This optional system configuration only applies to machines with SDDM.
+command -v sddm >/dev/null 2>&1 || exit 0
+
+# Enable NumLock on the SDDM greeter at boot.
+target=/etc/sddm.conf.d/40-numlock.conf
+
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+printf '[General]\n# Enable NumLock on the SDDM greeter at boot.\nNumlock=on\n' > "$tmp"
+
+# Avoid requesting privileges when the configuration has not changed.
+if cmp -s "$tmp" "$target"; then
+  exit 0
+fi
+
+if ! command -v sudo >/dev/null 2>&1; then
+  echo "Skipping SDDM NumLock configuration: sudo is not installed." >&2
+  exit 0
+fi
+
+# Prompt for a password if needed; skip this optional step if denied.
+if ! sudo -v; then
+  echo "Skipping SDDM NumLock configuration: sudo authorization failed." >&2
+  exit 0
+fi
+
+echo "Updating SDDM NumLock configuration: $target"
+if ! {
+  sudo install -d -m 0755 /etc/sddm.conf.d &&
+  sudo install -m 0644 "$tmp" "$target"
+}; then
+  echo "Skipping SDDM NumLock configuration: installation failed; check sudo permissions." >&2
+  exit 0
+fi
+{{ end }}
