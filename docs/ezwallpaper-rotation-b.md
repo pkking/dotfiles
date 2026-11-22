@@ -2,12 +2,17 @@
 
 This source-only integration rotates local images from the fixed
 `ezwallpaper-mocha/landscape` and `portrait` pools using the pinned
-`ezwallpaper` binary and Noctalia as the renderer. A managed relative symlink
-at `~/.local/bin/ezwallpaper` points to the already-installed pinned artifact
-under `~/.local/lib/ezwallpaper/4e72605fe788f1c1da1cb9aeba103353df547838/`.
-The pinned version is v0.3.0-alpha.1 (prerelease); retain the prior
-`~/.local/lib/ezwallpaper/5f11267361aec1b4f847e24169701d0dd2e39f66/`
-directory for rollback. The symlink only provides a stable command name: it does not install the target,
+`ezwallpaper` binary and Noctalia as the renderer. The managed relative symlink
+at `~/.local/bin/ezwallpaper` is configured to target the pinned artifact
+under `~/.local/lib/ezwallpaper/8fb4f1ba938bfb87f8be7a2cf0fd6ddf87fdefc2/`.
+The source pin is the published, source-only v0.3.0 stable tag at exact commit
+`8fb4f1ba938bfb87f8be7a2cf0fd6ddf87fdefc2` (no binary assets are attached).
+This repository change does not build, install, or switch the live alias. Preserve
+any existing `~/.local/lib/ezwallpaper/4e72605fe788f1c1da1cb9aeba103353df547838/`
+(alpha.1) installation and the separately deployed prior candidate
+`36aca9e0df5c3f21f22c42ae266006f2bbdb5413` unchanged for rollback until a
+separately authorized deployment verifies the exact installed paths. The
+symlink only provides a stable command name: it does not install the target,
 verify its hash or trustworthiness, or provide a fallback. It uses the binary's
 UTC-hour rotation bucket and runs hourly. It does not fetch, admit a download budget,
 retain, garbage-collect, or delete images. The profile is schema v1 (`owner`
@@ -45,7 +50,7 @@ assets or host-specific paths are committed.
 
 Before a separately approved deployment, independently ensure the pinned
 artifact is already installed and trusted at
-`~/.local/lib/ezwallpaper/4e72605fe788f1c1da1cb9aeba103353df547838/bin/ezwallpaper`,
+`~/.local/lib/ezwallpaper/8fb4f1ba938bfb87f8be7a2cf0fd6ddf87fdefc2/bin/ezwallpaper`,
 then render the profile and prepare both pools as real directories containing
 regular local files. The source supplies only the stable relative alias; it
 has no installer, hash verification, fallback, or image acquisition. The
@@ -105,14 +110,17 @@ help/dry-run during source validation; no setter, service start, or production
 change is part of this work.
 
 For a later independently approved deployment, first record file existence,
-types, permissions, timer state, Noctalia automation values, and wallpaper
-getters. To roll back only B, stop/disable its timer if it was enabled and
-remove only B's deployed profile, preflight, service, and timer after checking
-they were absent or unchanged from the recorded baseline. Reload the user
-manager. Do not remove pools or rotation state, unmask legacy units, restore
-old timers, alter Noctalia settings, or touch the other ezwallpaper
-integration as part of this narrow rollback. Each of those requires its own
-review and approval.
+types, permissions, timer state, Noctalia automation values, alias target, and
+wallpaper getters; render and review only the scoped managed-path diff. Stage
+and verify a locally built executable from the exact stable source SHA at its
+content-addressed path without overwriting prior installations. Keep existing
+state, pools, units and alias untouched until separately authorized cutover.
+Rollback must restore only the previously recorded alias target (candidate
+`36aca9e0df5c3f21f22c42ae266006f2bbdb5413` if that is the observed baseline),
+without deleting the stable or alpha installation, or changing profiles, pools,
+state, timers, services, Noctalia settings, or other ezwallpaper integrations.
+Never execute these steps as part of source validation; each live action needs
+separate approval.
 
 Related: #84 (not complete; this change does not implement acquisition,
 asset provisioning, full migration, or display acceptance). No Issue comment

@@ -9,7 +9,7 @@ import subprocess
 import sys
 import tempfile
 
-PIN = "4e72605fe788f1c1da1cb9aeba103353df547838"
+PIN = "8fb4f1ba938bfb87f8be7a2cf0fd6ddf87fdefc2"
 PINNED_ROOT = Path.home() / ".local/lib/ezwallpaper" / PIN
 DEFAULT_BINARY = str(PINNED_ROOT / "bin/ezwallpaper")
 OUTPUT_NAMES = ("DP-1", "HDMI-A-1")
