@@ -1,0 +1,10 @@
+[Unit]
+Description=每日 09:00 下载 Wallhaven 热门壁纸
+
+[Timer]
+OnCalendar=*-*-* 09:00:00
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target

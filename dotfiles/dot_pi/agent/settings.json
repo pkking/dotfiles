@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "1.2.0",
-  "defaultProvider": "openai",
-  "defaultModel": "gpt-6.1-sol",
+  "lastChangelogVersion": "1.6.0",
+  "defaultProvider": "magpie",
+  "defaultModel": "volceapi/volcengine/deepseek-v4.1-flash",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-rtk-optimizer",
@@ -17,5 +17,15 @@
   "theme": "dark",
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": false,
-  "deviceId": "61f6c919-5bd7-4128-80a2-31fdf636f21f"
+  "deviceId": "61f6c919-5bd7-4128-80a2-31fdf636f21f",
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.46.0",
+    "{\"source\":\"npm:pi-rtk-optimizer\",\"scope\":\"user\"}": "0.9.0",
+    "{\"source\":\"npm:pi-powerline-footer\",\"scope\":\"user\"}": "0.22.0",
+    "{\"source\":\"git:github.com/Fornace/pi-alibaba-models@main\",\"scope\":\"user\"}": "1.1.1",
+    "{\"source\":\"npm:pi-advisor\",\"scope\":\"user\"}": "0.3.0",
+    "{\"source\":\"npm:pi-extensible-workflows\",\"scope\":\"user\"}": "6.3.0",
+    "{\"source\":\"npm:pi-autoresearch\",\"scope\":\"user\"}": "1.9.0",
+    "{\"source\":\"npm:@narumitw/pi-usage\",\"scope\":\"user\"}": "0.69.2"
+  }
 }

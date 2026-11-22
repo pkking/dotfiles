@@ -6,10 +6,19 @@
 source = "custom"
 custom_palette = "TokyoNight"
 mode = "dark"
+# 试玩壁纸驱动配色(Material You):把 source 改成 "wallpaper" 并加
+# wallpaper_scheme = "m3-content"(还有 m3-tonal-spot / m3-rainbow / vibrant 等),
+# 或运行时直接切换(写入 settings.toml,会覆盖这里的声明值):
+#   noctalia msg color-scheme-set wallpaper m3-content
+#   noctalia msg color-scheme-set custom TokyoNight   # 换回固定配色
 
+# 主题模板:把 Noctalia 解析出的调色板渲染进外部应用配置。
+# - alacritty: 生成 ~/.config/alacritty/themes/noctalia.toml(alacritty.toml 已 import,文件不存在时安静回退 rose-pine)
+# - gtk3/gtk4: 生成 noctalia.css 并向 gtk.css 追加 @import(基础主题包 adw-gtk-theme 本机已装)
+# starship / niri 模板会直接改写 chezmoi 管理的 live 配置文件,这里有意不启用,详见 docs/niri-noctalia.md。
 [theme.templates]
 enable_builtin_templates = true
-builtin_ids = ["alacritty"]
+builtin_ids = ["alacritty", "gtk3", "gtk4"]
 
 [shell]
 font_family = "Noto Sans"
@@ -64,12 +73,15 @@ enabled = false
 
 [wallpaper]
 enabled = true
+# 自动轮换的浏览目录(每屏目录未覆盖时的回退,也是壁纸面板的默认目录)。
 directory = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/landscape"
 fill_mode = "crop"
+# 过渡效果池,每次切换随机抽取一种(5.2.x 支持这 6 种;新版还有 vortex/pixel/diamond/golden/melt)。
 transition = ["fade", "wipe", "disc", "stripes", "zoom", "honeycomb"]
 transition_duration = 900.0
 transition_on_startup = true
 fill_color = "surface"
+# 每屏独立目录:主屏从 landscape/ 挑,竖屏从 portrait/ 挑,避免横图在竖屏上被中心裁切。
 per_monitor_directories = true
 
 [wallpaper.default]
@@ -81,14 +93,20 @@ path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/landsca
 [wallpaper.monitors.HDMI-A-1]
 path = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/portrait/mocha-flat-portrait.png"
 
+# 每屏轮换目录(automation 与壁纸面板都会用)。
 [wallpaper.monitor.DP-1]
 directory = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/landscape"
 
 [wallpaper.monitor.HDMI-A-1]
 directory = "{{ .chezmoi.homeDir }}/.local/share/wallpapers/ezwallpaper-mocha/portrait"
 
+# 自动换壁纸:启动时先挑一张,之后每 30 分钟换一张;两块屏各自独立轮换。
+# 手动触发:noctalia msg wallpaper-random / wallpaper-next / wallpaper-previous
 [wallpaper.automation]
 enabled = false
+interval_seconds = 1800
+order = "random"
+recursive = false
 
 [backdrop]
 enabled = true
@@ -101,7 +119,7 @@ blurred_desktop = false
 blur_intensity = 0.25
 tint_intensity = 0.35
 lock_before_suspend = true
-transition = ["fade", "wipe", "disc", "stripes", "zoom", "honeycomb"]
+transition = ["fade"]
 transition_duration = 900.0
 # Empty wallpaper follows each output's own desktop wallpaper.
 wallpaper = ""
@@ -109,7 +127,7 @@ wallpaper = ""
 [lockscreen_widgets]
 enabled = true
 schema_version = 2
-widget_order = ["main-clock", "main-date", "portrait-clock", "portrait-date", "portrait-sysmon", "lockscreen-login-box@DP-1", "lockscreen-login-box@HDMI-A-1"]
+widget_order = ["main-clock", "main-date", "portrait-clock", "portrait-date", "lockscreen-login-box@DP-1", "lockscreen-login-box@HDMI-A-1"]
 
 [lockscreen_widgets.grid]
 visible = false
@@ -151,16 +169,17 @@ shadow = true
 type = "clock"
 output = "HDMI-A-1"
 cx = 540.0
-cy = 560.0
-box_width = 380.0
-box_height = 380.0
+cy = 650.0
+box_width = 600.0
+box_height = 160.0
 placement_width = 1080.0
 placement_height = 1920.0
 
 [lockscreen_widgets.widget.portrait-clock.settings]
-clock_style = "analog"
+format = "{:%H:%M}"
 font_family = "Monaspace Neon NF"
 color = "on_surface"
+center_text = true
 shadow = true
 
 [lockscreen_widgets.widget.portrait-date]
@@ -177,22 +196,6 @@ placement_height = 1920.0
 format = "{:%A · %Y-%m-%d}"
 color = "on_surface"
 center_text = true
-shadow = true
-
-[lockscreen_widgets.widget.portrait-sysmon]
-type = "sysmon"
-output = "HDMI-A-1"
-cx = 540.0
-cy = 960.0
-box_width = 560.0
-box_height = 220.0
-placement_width = 1080.0
-placement_height = 1920.0
-
-[lockscreen_widgets.widget.portrait-sysmon.settings]
-stat = "cpu_usage"
-display = "graph"
-color = "on_surface_variant"
 shadow = true
 
 [lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
@@ -237,6 +240,18 @@ show_media = false
 show_session_buttons = false
 center_password_text = true
 # Keep a password box on each output so unplugging the main screen is safe.
+
+# 官方视频壁纸插件:mpvpaper 在 layer-shell 底层画视频,Noctalia 让出自己的壁纸层,
+# 顶栏/停靠栏照常显示在视频之上;支持单视频与目录幻灯片,停止时自动提取静帧。
+# 依赖系统包 mpvpaper + mpv(socat 可选,用于幻灯片状态跟踪):paru -S mpvpaper mpv socat
+# 面板:noctalia msg panel-toggle noctalia/mpvpaper:picker
+[plugins]
+enabled = ["noctalia/mpvpaper"]
+
+# 锁屏联动:锁屏时停掉 mpvpaper 并提取静帧,解锁后恢复播放;插件未加载时命令报错但不影响锁屏。
+[hooks]
+session_locked = ["noctalia msg plugin noctalia/mpvpaper:service all clear-all"]
+session_unlocked = ["noctalia msg plugin noctalia/mpvpaper:service all reapply"]
 
 [idle]
 behavior_order = ["lock", "screen-off"]

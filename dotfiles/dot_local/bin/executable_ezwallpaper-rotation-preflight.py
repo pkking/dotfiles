@@ -16,8 +16,6 @@ CONFLICT_UNITS = (
     "wallpaper-hourly.service",
     "beautify-scene-follow.timer",
     "beautify-scene-follow.service",
-    "ezwallpaper-rotation.timer",
-    "ezwallpaper-rotation.service",
 )
 GRAPHICS_ENV = (
     "WAYLAND_DISPLAY",
