@@ -115,12 +115,14 @@ wallpaper getters; render and review only the scoped managed-path diff. Stage
 and verify a locally built executable from the exact stable source SHA at its
 content-addressed path without overwriting prior installations. Keep existing
 state, pools, units and alias untouched until separately authorized cutover.
-Rollback must restore only the previously recorded alias target (candidate
-`36aca9e0df5c3f21f22c42ae266006f2bbdb5413` if that is the observed baseline),
-without deleting the stable or alpha installation, or changing profiles, pools,
-state, timers, services, Noctalia settings, or other ezwallpaper integrations.
-Never execute these steps as part of source validation; each live action needs
-separate approval.
+Rollback must restore the managed integration, planner pin, and alias mapping
+to the exact pre-change source revision (`4e72605fe788f1c1da1cb9aeba103353df547838`)
+in one scoped change. Before any apply, separately verify the observed live
+alias baseline; restore it to candidate `36aca9e0df5c3f21f22c42ae266006f2bbdb5413`
+only if that exact executable is present and hash-verified. Do not delete the
+stable or alpha installation, or change profiles, pools, state, timers, services,
+Noctalia settings, or other ezwallpaper integrations. Never execute these steps
+as part of source validation; each live action needs separate approval.
 
 Related: #84 (not complete; this change does not implement acquisition,
 asset provisioning, full migration, or display acceptance). No Issue comment
