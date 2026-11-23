@@ -5,35 +5,73 @@ set -euo pipefail
 # This optional system configuration only applies to machines with SDDM.
 command -v sddm >/dev/null 2>&1 || exit 0
 
-# Enable NumLock on the SDDM greeter at boot.
-target=/etc/sddm.conf.d/40-numlock.conf
+# SDDM's Numlock=on only works for X11 greeters; under Wayland the code path
+# is a stub (sddm/sddm#1830, ArchWiki). When the greeter runs under the
+# weston kiosk compositor (DisplayServer=wayland + weston --config), weston's
+# own numlock-on setting is what actually enables NumLock at the login
+# screen. Configure both; each is a no-op where it does not apply.
 
-tmp=$(mktemp)
-trap 'rm -f "$tmp"' EXIT
-printf '[General]\n# Enable NumLock on the SDDM greeter at boot.\nNumlock=on\n' > "$tmp"
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
 
-# Avoid requesting privileges when the configuration has not changed.
-if cmp -s "$tmp" "$target"; then
-  exit 0
+# 1) /etc/sddm.conf.d/40-numlock.conf — effective for X11 greeters.
+conf="$tmpdir/numlock.conf"
+printf '[General]\n# Enable NumLock on the SDDM greeter at boot.\nNumlock=on\n' > "$conf"
+
+# 2) /etc/sddm.weston.ini — merge numlock-on=true into [keyboard] without
+#    touching any other section the machine may have configured.
+weston_ini="$tmpdir/sddm.weston.ini"
+if [ -f /etc/sddm.weston.ini ]; then
+    cat /etc/sddm.weston.ini > "$weston_ini"
+fi
+if grep -q '^numlock-on=' "$weston_ini" 2>/dev/null; then
+    sed -i 's/^numlock-on=.*/numlock-on=true/' "$weston_ini"
+elif grep -q '^\[keyboard\]' "$weston_ini" 2>/dev/null; then
+    sed -i '/^\[keyboard\]/a numlock-on=true' "$weston_ini"
+elif [ -s "$weston_ini" ]; then
+    printf '\n[keyboard]\nnumlock-on=true\n' >> "$weston_ini"
+else
+    printf '[keyboard]\nnumlock-on=true\n' > "$weston_ini"
+fi
+
+targets=(
+    "/etc/sddm.conf.d/40-numlock.conf:$conf"
+    "/etc/sddm.weston.ini:$weston_ini"
+)
+
+# Avoid requesting privileges when nothing would change.
+changed=0
+for pair in "${targets[@]}"; do
+    target="${pair%%:*}"
+    content="${pair#*:}"
+    if [ -f "$content" ] && ! cmp -s "$content" "$target"; then
+        changed=1
+    fi
+done
+if [ "$changed" -eq 0 ]; then
+    exit 0
 fi
 
 if ! command -v sudo >/dev/null 2>&1; then
-  echo "Skipping SDDM NumLock configuration: sudo is not installed." >&2
-  exit 0
+    echo "Skipping SDDM NumLock configuration: sudo is not installed." >&2
+    exit 0
 fi
 
 # Prompt for a password if needed; skip this optional step if denied.
 if ! sudo -v; then
-  echo "Skipping SDDM NumLock configuration: sudo authorization failed." >&2
-  exit 0
+    echo "Skipping SDDM NumLock configuration: sudo authorization failed." >&2
+    exit 0
 fi
 
-echo "Updating SDDM NumLock configuration: $target"
-if ! {
-  sudo install -d -m 0755 /etc/sddm.conf.d &&
-  sudo install -m 0644 "$tmp" "$target"
-}; then
-  echo "Skipping SDDM NumLock configuration: installation failed; check sudo permissions." >&2
-  exit 0
-fi
+for pair in "${targets[@]}"; do
+    target="${pair%%:*}"
+    content="${pair#*:}"
+    if [ -f "$content" ] && ! cmp -s "$content" "$target"; then
+        echo "Updating SDDM NumLock configuration: $target"
+        if ! sudo install -D -m 0644 "$content" "$target"; then
+            echo "Skipping SDDM NumLock configuration: installation of $target failed; check sudo permissions." >&2
+            exit 0
+        fi
+    fi
+done
 {{ end }}
