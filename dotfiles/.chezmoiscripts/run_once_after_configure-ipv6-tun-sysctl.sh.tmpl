@@ -1,0 +1,67 @@
+#!/bin/bash
+{{ if eq .chezmoi.os "linux" }}
+set -euo pipefail
+
+# Background: machines that deliberately disable IPv6 via
+# /etc/sysctl.d/99-disable-ipv6.conf hit a kernel side effect: writing
+# net.ipv6.conf.all.disable_ipv6=1 ALSO sets
+# net.ipv6.conf.default.disable_ipv6=1, so every interface created
+# afterwards (including mihomo's "Mihomo" TUN) inherits "IPv6 disabled".
+# When mihomo then configures the TUN's IPv6 address the kernel answers
+# EACCES and mihomo aborts the whole TUN stack — Clash TUN silently never
+# comes up (core log: "configure tun interface: permission denied",
+# GUI still shows TUN as enabled). See docs/ipv6-tun-sysctl.md.
+#
+# Fix: keep all=1 (original intent: disable IPv6 on boot-time interfaces)
+# but write default=0 right AFTER it, so interfaces created later
+# (TUN included) keep working IPv6. Only patches machines that already
+# carry the disable file; IPv6-enabled hosts and hosts that explicitly
+# set default=1 are left untouched.
+
+conf=/etc/sysctl.d/99-disable-ipv6.conf
+
+[ -f "$conf" ] || exit 0
+
+# Only relevant where IPv6 is actively disabled on "all".
+grep -Eq '^[[:space:]]*net\.ipv6\.conf\.all\.disable_ipv6[[:space:]]*=[[:space:]]*1[[:space:]]*$' "$conf" || exit 0
+
+# Respect a machine that explicitly wants future interfaces v6-disabled too.
+grep -Eq '^[[:space:]]*net\.ipv6\.conf\.default\.disable_ipv6[[:space:]]*=[[:space:]]*1[[:space:]]*$' "$conf" && exit 0
+
+# Already patched? (an active default=0 line after the last all=1 line)
+all_line="$(grep -nE '^[[:space:]]*net\.ipv6\.conf\.all\.disable_ipv6[[:space:]]*=' "$conf" | tail -1 | cut -d: -f1)"
+def_line="$(grep -nE '^[[:space:]]*net\.ipv6\.conf\.default\.disable_ipv6[[:space:]]*=[[:space:]]*0[[:space:]]*$' "$conf" | tail -1 | cut -d: -f1)"
+if [ -n "$def_line" ] && [ -n "$all_line" ] && [ "$def_line" -gt "$all_line" ]; then
+    exit 0
+fi
+
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+sed -E '/^[[:space:]]*net\.ipv6\.conf\.all\.disable_ipv6[[:space:]]*=[[:space:]]*1[[:space:]]*$/a net.ipv6.conf.default.disable_ipv6=0' \
+    "$conf" > "$tmp"
+
+# Avoid requesting privileges when the patch is already in place.
+cmp -s "$tmp" "$conf" && exit 0
+
+if ! command -v sudo >/dev/null 2>&1; then
+    echo "Skipping IPv6 TUN sysctl fix: sudo is not installed." >&2
+    exit 0
+fi
+
+# Prompt for a password if needed; skip this optional step if denied.
+if ! sudo -v; then
+    echo "Skipping IPv6 TUN sysctl fix: sudo authorization failed." >&2
+    exit 0
+fi
+
+echo "Patching $conf: appending default.disable_ipv6=0 after all.disable_ipv6=1"
+if ! sudo install -m 0644 "$tmp" "$conf"; then
+    echo "Skipping IPv6 TUN sysctl fix: installation failed; check sudo permissions." >&2
+    exit 0
+fi
+
+# Make the fix effective immediately (no reboot needed): new interfaces
+# inherit "default" at creation time.
+sudo sysctl -w net.ipv6.conf.default.disable_ipv6=0 >/dev/null
+echo "IPv6 TUN sysctl fix applied (runtime default.disable_ipv6=0)."
+{{ end }}
