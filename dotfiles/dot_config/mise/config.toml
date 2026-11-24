@@ -1,5 +1,5 @@
 [settings.npm]
-package_manager = "pnpm"
+package_manager = "bun"
 
 [settings.github]
 github_attestations = false
